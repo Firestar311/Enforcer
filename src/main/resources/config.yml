@@ -1,0 +1,53 @@
+#Do not change this if you do not want your config to break/reset
+config-version: 1
+
+#How plugin data will be stored, mysql is recommended (default: mysql)
+storage-type: yaml
+
+#Configure the different settings related to yaml or mysql storage
+#The plugin will create the nessessary files for yaml and the neccessary tables for mysql, however the database must already exist
+#The files will be stored under the main folder for the plugin
+storage-options:
+    yaml:
+        jails-file: jails.yml
+        notes-file: notes.yml
+        rules-file: rules.yml
+        players-file: players.yml
+        punishments-file: punishments.yml
+    mysql:
+        tables:
+            bans: bans
+            mutes: mutes
+            jails: jails
+            kicks: kicks
+            warns: warns
+            notes: notes
+            rules: rules
+            players: players
+        connection:
+            user: enforcer
+            password: ''
+            database: enforcer
+            hostname: localhost
+            port: 3306
+
+punishments:
+    ban: true
+    mute: true
+    kick: true
+    warn: true
+    jail: true
+
+#Allow the use of the direct commands for punishments (default: true)
+custom-punishments: true
+
+#Allow the use of the automatic punishments system (See plugin page) and the /punish command (default: true)
+automatic-punishments: true
+
+
+#Controls if players must type in a generated code after a warning in order to speak again (default: true)
+#The warn punishments must be enabled (This will be ignored if warnings are not enabled)
+warn-acknowledgement: true
+
+server: SkyPvP
+prefix: Factions

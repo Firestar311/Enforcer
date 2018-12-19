@@ -1,0 +1,31 @@
+name: Enforcer
+version: ${project.version}
+main: com.firestar311.enforcer.Enforcer
+authors: [Firestar311]
+api-version: 1.13
+description: Punishment system by Firestar311
+softdepend: [Vault,CustomItems]
+depend: [FireLib]
+commands:
+    moderatorrules:
+        aliases: [mrules]
+    enforcer:
+        aliases: [enf]
+    punish:
+    ban:
+    tempban:
+    mute:
+    tempmute:
+    kick:
+    warn:
+    jail:
+    unban:
+    unmute:
+    unjail:
+    pardon:
+    history:
+    staffhistory:
+    prison:
+        aliases: [p]
+    punishmentinfo:
+        aliases: [pi, puif, pinfo]

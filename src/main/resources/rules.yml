@@ -1,0 +1,728 @@
+rules:
+    abusing_exploits:
+        id: 0
+        name: Abusing Exploits
+        description: Using any feature or bug that was not intended for personal gain
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 7
+                        unit: days
+                        id: 0
+                    '1':
+                        punishment: temporary_ban
+                        length: 12
+                        unit: days
+                        id: 1
+                    '2':
+                        punishment: temporary_ban
+                        length: 30
+                        unit: days
+                        id: 2
+                    '3':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 3
+    compromised_account:
+        id: 1
+        name: Compromised Account
+        description: An account that is no longer in the original owner's possession
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    advertising:
+        id: 2
+        name: Advertising
+        description: Putting an IP/Link in chat that is not related to the server
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 12
+                        unit: hours
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 3
+                        unit: days
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 7
+                        unit: days
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 14
+                        unit: days
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    punishment_evading:
+        id: 3
+        name: Punishment Evading
+        description: Attempting to get around an active punishment
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    spam:
+        id: 4
+        name: Spam
+        description: Delibertly sending multiple messages that are the same or similar
+            in a short period of time
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: warn
+                        length: -1
+                        unit: ''
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 12
+                        unit: hours
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: day
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 7
+                        unit: days
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 3
+                        unit: days
+                        id: 0
+            '6':
+                actions:
+                    '0':
+                        punishment: permanent_mute
+                        length: -1
+                        unit: ''
+                        id: 0
+    denial_threats:
+        id: 5
+        name: Denial Threats
+        description: Threatening to DDoS/DoS/DoX another user or the server
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    death_threats:
+        id: 6
+        name: Death Threats
+        description: Threatening to physically harm or kill another player or staff member.
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 30
+                        unit: days
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 60
+                        unit: days
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    disrespect:
+        id: 7
+        name: Disrespect
+        description: Being mean or disrepectful towards a player or staff member.
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: warn
+                        length: -1
+                        unit: ''
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: hour
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 3
+                        unit: hours
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 12
+                        unit: hours
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: day
+                        id: 0
+            '6':
+                actions:
+                    '0':
+                        punishment: permanent_mute
+                        length: -1
+                        unit: ''
+                        id: 0
+    unfair_advantage:
+        id: 8
+        name: Unfair Advantage
+        description: Using any mod or client that gives an unfair advantage over other
+            players.
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: week
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: month
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 3
+                        unit: months
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    verbal_abuse:
+        id: 9
+        name: Verbal Abuse
+        description: Verbally attacking, insulting or denoucing someone in the form of
+            suggesting self harm
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: week
+                        id: 0
+                    '1':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: day
+                        id: 1
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: month
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: week
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: month
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    gamethrowing:
+        id: 10
+        name: Gamethrowing
+        description: Betraying or working against your team
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: kick
+                        length: -1
+                        unit: ''
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 30
+                        unit: minutes
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: hour
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 12
+                        unit: hours
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: day
+                        id: 0
+            '6':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: week
+                        id: 0
+            '7':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: month
+                        id: 0
+            '8':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    foul_language:
+        id: 11
+        name: Foul Language
+        description: Using foul or explicit language in chat
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: warn
+                        length: -1
+                        unit: ''
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: hour
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: hour
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 12
+                        unit: hours
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: day
+                        id: 0
+            '6':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: week
+                        id: 0
+            '7':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 31
+                        unit: days
+                        id: 0
+                    '1':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: day
+                        id: 1
+            '8':
+                actions:
+                    '0':
+                        punishment: permanent_mute
+                        length: -1
+                        unit: ''
+                        id: 0
+                    '1':
+                        punishment: temporary_ban
+                        length: 3
+                        unit: days
+                        id: 1
+    harmful_links:
+        id: 12
+        name: Harmful Links
+        description: Sending links in chat that other users find inappropriate or offensive
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 7
+                        unit: days
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 2
+                        unit: weeks
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 31
+                        unit: days
+                        id: 0
+                    '1':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: day
+                        id: 1
+            '4':
+                actions:
+                    '0':
+                        punishment: permanent_mute
+                        length: -1
+                        unit: ''
+                        id: 0
+    inappropriate_skin:
+        id: 13
+        name: Inappropriate Skin
+        description: Having an indecent skin that may offend other players
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    inappropriate_cape:
+        id: 14
+        name: Inappropriate Cape
+        description: Having an indecent cape that may offend other players
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    inappropriate_name:
+        id: 15
+        name: Inappropriate Name
+        description: Having an indecent name that may offend other players or may be considered
+            spam
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    scamming:
+        id: 16
+        name: Scamming
+        description: Tricking users into thinking something to get something from them,
+            then going back on your word
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: week
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 2
+                        unit: weeks
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: month
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    soliciting:
+        id: 17
+        name: Soliciting
+        description: Using real money to buy or sell something in game on our network
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: week
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 2
+                        unit: weeks
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    impersonation:
+        id: 18
+        name: Impersonation
+        description: Pretending to be someone with a special rank (Staff/Media) when you
+            don't
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: warn
+                        length: -1
+                        unit: ''
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: day
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: week
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: month
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: permanent_mute
+                        length: -1
+                        unit: ''
+                        id: 0
+            '6':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    antagonising:
+        id: 19
+        name: Antagonising
+        description: Provoking players or staff members to get a negative reaction from
+            them
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: warn
+                        length: -1
+                        unit: ''
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 15
+                        unit: minutes
+                        id: 0
+            '3':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 30
+                        unit: minutes
+                        id: 0
+            '4':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: hour
+                        id: 0
+            '5':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 1
+                        unit: day
+                        id: 0
+            '6':
+                actions:
+                    '0':
+                        punishment: temporary_mute
+                        length: 7
+                        unit: days
+                        id: 0
+            '7':
+                actions:
+                    '0':
+                        punishment: permanent_mute
+                        length: -1
+                        unit: ''
+                        id: 0
+    charge_backs:
+        id: 20
+        name: Charge Backs
+        description: Charging back a donation from the webstore
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
+    griefing:
+        id: 21
+        name: Griefing
+        description: Intentionally destroying a player’s build or claims or protected
+            areas with malicious intent
+        material: CHEST
+        offenses:
+            '1':
+                actions:
+                    '0':
+                        punishment: temporary_ban
+                        length: 1
+                        unit: month
+                        id: 0
+            '2':
+                actions:
+                    '0':
+                        punishment: permanent_ban
+                        length: -1
+                        unit: ''
+                        id: 0
