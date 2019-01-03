@@ -170,6 +170,18 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 paginator.display(player, page);
             }
             return true;
+        } else if (Utils.checkCmdAliases(args, 0, "clearselection", "cs")) {
+            if (!player.hasPermission(Perms.PRISON_CLEAR_SELECTION)) {
+                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                return true;
+            }
+            if (!this.selectionManager.hasSelection(player)) {
+                player.sendMessage(Utils.color("&cYou do not have a selection currently set."));
+                return true;
+            }
+    
+            this.selectionManager.clearSelection(player);
+            player.sendMessage(Utils.color("&aCleared your selection."));
         }
         
         ///prison <id|name> <subcommand>
@@ -362,18 +374,6 @@ public class PrisonCommand implements CommandExecutor, Listener {
             String message = Messages.PRISON_REDEFINE;
             message = message.replace(Variables.DISPLAY, prison.getName());
             sendOutputMessage(player, message);
-        } else if (Utils.checkCmdAliases(args, 1, "clearselection", "cs")) {
-            if (!player.hasPermission(Perms.PRISON_CLEAR_SELECTION)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
-                return true;
-            }
-            if (!this.selectionManager.hasSelection(player)) {
-                player.sendMessage(Utils.color("&cYou do not have a selection currently set."));
-                return true;
-            }
-            
-            this.selectionManager.clearSelection(player);
-            player.sendMessage(Utils.color("&aCleared your selection."));
         }
         
         return true;

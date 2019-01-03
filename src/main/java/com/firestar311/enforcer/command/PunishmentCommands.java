@@ -213,7 +213,7 @@ public class PunishmentCommands implements CommandExecutor {
                 
                 String reason = getReason(1, args);
                 if (reason.equals("")) {
-                    player.sendMessage("&cYou must supply a reason for the punishment.");
+                    player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
                 KickPunishment punishment = new KickPunishment(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility);
@@ -228,7 +228,7 @@ public class PunishmentCommands implements CommandExecutor {
                 
                 String reason = getReason(1, args);
                 if (reason.equals("")) {
-                    player.sendMessage("&cYou must supply a reason for the punishment.");
+                    player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
                 WarnPunishment punishment = new WarnPunishment(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility);
