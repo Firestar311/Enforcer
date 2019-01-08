@@ -182,6 +182,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
     
             this.selectionManager.clearSelection(player);
             player.sendMessage(Utils.color("&aCleared your selection."));
+            return true;
         }
         
         ///prison <id|name> <subcommand>
@@ -240,6 +241,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 Set<UUID> playersToAdd = new HashSet<>();
                 for (Prison pr : prisons) {
                     List<UUID> inhabitants = new LinkedList<>(pr.getInhabitants());
+                    if (inhabitants.isEmpty()) continue;
                     int amountOver = inhabitants.size() - pr.getMaxPlayers();
                     for (int i = 0; i < amountOver; i++) {
                         if (!(playersToAdd.size() >= prison.getMaxPlayers())) {
@@ -265,10 +267,12 @@ public class PrisonCommand implements CommandExecutor, Listener {
             } else if (amount < prison.getMaxPlayers()) {
                 Set<UUID> playersToRemove = new HashSet<>();
                 List<UUID> inhabitants = new LinkedList<>(prison.getInhabitants());
-                int removalAmount = prison.getMaxPlayers() - amount;
-                for (int i = 0; i < removalAmount; i++) {
-                    int index = inhabitants.size() - 1 - i;
-                    playersToRemove.add(inhabitants.get(index));
+                if (!inhabitants.isEmpty()) {
+                    int removalAmount = prison.getMaxPlayers() - amount;
+                    for (int i = 0; i < removalAmount; i++) {
+                        int index = inhabitants.size() - 1 - i;
+                        playersToRemove.add(inhabitants.get(index));
+                    }
                 }
                 prison.setMaxPlayers(amount);
                 for (UUID removed : playersToRemove) {
@@ -368,7 +372,6 @@ public class PrisonCommand implements CommandExecutor, Listener {
             player.sendMessage(Utils.color("&aSet the bounds of the prison &b" + prison.getDisplayName() + " &ato the current selection."));
             if (!prison.contains(prison.getLocation())) {
                 player.sendMessage(Utils.color("&cThe spawn location of the prison is not in the new prison area."));
-                return true;
             }
             
             String message = Messages.PRISON_REDEFINE;
