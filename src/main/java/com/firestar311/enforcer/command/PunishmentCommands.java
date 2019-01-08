@@ -134,6 +134,10 @@ public class PunishmentCommands implements CommandExecutor {
                     visibility = Visibility.SILENT;
                     break;
                 } else if (arg.equalsIgnoreCase("-t")) {
+                    if (!player.hasPermission(Perms.FLAG_IGNORE_TRAINING)) {
+                        player.sendMessage(Utils.color("&cYou do not have permission to ignore training mode."));
+                        return true;
+                    }
                     ignoreTraining = true;
                 }
             }
