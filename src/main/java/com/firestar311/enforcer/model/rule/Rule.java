@@ -104,7 +104,7 @@ public class Rule implements Paginatable, Comparable<Rule> {
     }
     
     public void setInternalId(String internalId) {
-        this.internalId = internalId;
+        this.internalId = internalId.toLowerCase().replace(" ", "_");
     }
     
     public void clearOffenses() {

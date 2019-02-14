@@ -16,7 +16,7 @@ public class TemporaryMute extends MutePunishment implements Expireable {
     public TemporaryMute(Map<String, Object> serialized) {
         super(serialized);
         if (serialized.containsKey("expire")) {
-            this.expire = (long) serialized.get("expire");
+            this.expire = new Long(serialized.get("expire") + "");
         }
     }
     

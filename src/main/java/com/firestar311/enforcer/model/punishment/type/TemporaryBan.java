@@ -16,7 +16,7 @@ public class TemporaryBan extends BanPunishment implements Expireable {
     public TemporaryBan(Map<String, Object> serialized) {
         super(serialized);
         if (serialized.containsKey("expire")) {
-            this.expire = (long) serialized.get("expire");
+            this.expire = new Long(serialized.get("expire") + "");
         }
     }
     

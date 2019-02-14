@@ -37,7 +37,7 @@ public class PunishGUI extends PaginatedGUI {
     
    
     public PunishGUI(Enforcer plugin, PlayerInfo t) {
-        super(plugin, "Punish " + t.getLastName(), false, 54);
+        super(plugin, "Punish > " + t.getLastName(), false, 54);
     
         ButtonListener listener = event -> {
             ItemStack itemStack = event.getCurrentItem();

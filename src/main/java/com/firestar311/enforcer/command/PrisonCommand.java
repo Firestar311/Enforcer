@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-@SuppressWarnings("Duplicates")
 public class PrisonCommand implements CommandExecutor, Listener {
     
     private Enforcer plugin;
@@ -104,22 +103,11 @@ public class PrisonCommand implements CommandExecutor, Listener {
             
             for (Prison pr : prisons) {
                 List<UUID> inhabitants = new LinkedList<>(pr.getInhabitants());
-                int amountOver = inhabitants.size() - pr.getMaxPlayers();
-                for (int i = 0; i < amountOver; i++) {
-                    if (!(playersToAdd.size() >= prison.getMaxPlayers())) {
-                        int index = inhabitants.size() - 1 - i;
-                        playersToAdd.add(inhabitants.get(index));
-                        pr.removeInhabitant(inhabitants.get(index));
-                    }
-                }
+                calculateOverflow(prison, playersToAdd, pr, inhabitants);
             }
             
             for (UUID uuid : playersToAdd) {
-                prison.addInhabitant(uuid);
-                for (Punishment punishment : plugin.getDataManager().getActiveJails(uuid)) {
-                    ((JailPunishment) punishment).setJailId(prison.getId());
-                }
-                Player inhabitant = Bukkit.getPlayer(uuid);
+                Player inhabitant = changePunishmentInfo(prison, uuid);
                 if (inhabitant != null) {
                     inhabitant.teleport(prison.getLocation());
                     inhabitant.sendMessage(Utils.color("&dYou were an overflow inhabitant of your former prison, so you were moved to a newly created prison"));
@@ -242,22 +230,11 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 for (Prison pr : prisons) {
                     List<UUID> inhabitants = new LinkedList<>(pr.getInhabitants());
                     if (inhabitants.isEmpty()) continue;
-                    int amountOver = inhabitants.size() - pr.getMaxPlayers();
-                    for (int i = 0; i < amountOver; i++) {
-                        if (!(playersToAdd.size() >= prison.getMaxPlayers())) {
-                            int index = inhabitants.size() - 1 - i;
-                            playersToAdd.add(inhabitants.get(index));
-                            pr.removeInhabitant(inhabitants.get(index));
-                        }
-                    }
+                    calculateOverflow(prison, playersToAdd, pr, inhabitants);
                 }
                 
                 for (UUID uuid : playersToAdd) {
-                    prison.addInhabitant(uuid);
-                    for (Punishment punishment : plugin.getDataManager().getActiveJails(uuid)) {
-                        ((JailPunishment) punishment).setJailId(prison.getId());
-                    }
-                    Player inhabitant = Bukkit.getPlayer(uuid);
+                    Player inhabitant = changePunishmentInfo(prison, uuid);
                     if (inhabitant != null) {
                         inhabitant.teleport(prison.getLocation());
                         inhabitant.sendMessage(Utils.color("&dYou were an overflow inhabitant of your former prison, so you were moved to a different prison"));
@@ -308,11 +285,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             plugin.getDataManager().removePrison(prison.getId());
             for (UUID inhabitant : inhabitants) {
                 Prison newPrison = plugin.getDataManager().findPrison();
-                newPrison.addInhabitant(inhabitant);
-                for (Punishment punishment : plugin.getDataManager().getActiveJails(inhabitant)) {
-                    ((JailPunishment) punishment).setJailId(newPrison.getId());
-                }
-                Player jailedUser = Bukkit.getPlayer(inhabitant);
+                Player jailedUser = changePunishmentInfo(newPrison, inhabitant);
                 if (jailedUser != null) {
                     jailedUser.teleport(newPrison.getLocation());
                     jailedUser.sendMessage(Utils.color("&cThe prison you were a part of was removed, you have been moved to a new prison."));
@@ -380,6 +353,25 @@ public class PrisonCommand implements CommandExecutor, Listener {
         }
         
         return true;
+    }
+    
+    private Player changePunishmentInfo(Prison prison, UUID uuid) {
+        prison.addInhabitant(uuid);
+        for (Punishment punishment : plugin.getDataManager().getActiveJails(uuid)) {
+            ((JailPunishment) punishment).setJailId(prison.getId());
+        }
+        return Bukkit.getPlayer(uuid);
+    }
+    
+    private void calculateOverflow(Prison prison, Set<UUID> playersToAdd, Prison pr, List<UUID> inhabitants) {
+        int amountOver = inhabitants.size() - pr.getMaxPlayers();
+        for (int i = 0; i < amountOver; i++) {
+            if (!(playersToAdd.size() >= prison.getMaxPlayers())) {
+                int index = inhabitants.size() - 1 - i;
+                playersToAdd.add(inhabitants.get(index));
+                pr.removeInhabitant(inhabitants.get(index));
+            }
+        }
     }
     
     private void sendOutputMessage(Player player, String message) {

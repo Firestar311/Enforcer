@@ -24,7 +24,6 @@ public class RuleCommand implements CommandExecutor {
         this.plugin = plugin;
     }
     
-    @SuppressWarnings("Duplicates")
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(Utils.color("&cOnly players may use that command."));
@@ -172,16 +171,15 @@ public class RuleCommand implements CommandExecutor {
             }
     
             String name = StringUtils.join(args, ' ', 2, args.length);
-            String internalId = name.toLowerCase().replace(" ", "_");
-    
-            Rule existing = plugin.getDataManager().getRule(internalId);
+            
+            Rule existing = plugin.getDataManager().getRule(name);
             if (existing != null) {
                 player.sendMessage(Utils.color("&cA rule with that name already exists."));
                 return true;
             }
             
             rule.setName(name);
-            rule.setInternalId(internalId);
+            rule.setInternalId(name);
             player.sendMessage(Utils.color("&aSet the name of rule &b" + rule.getId() + " &ato &b" + rule.getName() + " &aand the internal id to &b" + rule.getInternalId()));
         } else if (Utils.checkCmdAliases(args, 1, "offenses", "of")) {
             if (!(args.length > 2)) {

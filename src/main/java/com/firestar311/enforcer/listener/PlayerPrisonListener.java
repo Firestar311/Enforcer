@@ -58,7 +58,6 @@ public class PlayerPrisonListener implements Listener {
             }
         } else if (plugin.getDataManager().wasUnjailedWhileOffline(player.getUniqueId())) {
             new BukkitRunnable() {
-                @SuppressWarnings("Duplicates")
                 public void run() {
                     player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
                     player.sendMessage(Utils.color("&aYou have been unjailed while you were offline"));

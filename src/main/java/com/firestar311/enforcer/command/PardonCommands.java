@@ -28,11 +28,6 @@ public class PardonCommands implements CommandExecutor {
         
         Player player = ((Player) sender);
         
-        if (!(args.length > 0)) {
-            player.sendMessage(Utils.color("&cYou do not have enough arguments."));
-            return true;
-        }
-        
         PlayerInfo info = plugin.getDataManager().getInfo(args[0]);
         if (info == null) {
             player.sendMessage(Utils.color("&cCould not find a player by that name. Pardoning players that have yet to join is not supported yet."));

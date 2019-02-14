@@ -108,9 +108,15 @@ public class DataManager {
     
     public void loadData() {
         if (storageType.equalsIgnoreCase("yaml")) {
+            plugin.getLogger().info("Loading Rule data....");
             this.loadRuleDataFromYaml();
+            plugin.getLogger().info("Rule loading finished");
+            plugin.getLogger().info("Loading Punishment data....");
             this.loadPunishmentData();
+            plugin.getLogger().info("Punishment loading finished");
+            plugin.getLogger().info("Loading prison and jail data....");
             this.loadJailDataFromYaml();
+            plugin.getLogger().info("Prison and jail data loading finished.");
         }
     }
     
@@ -528,6 +534,7 @@ public class DataManager {
     }
     
     public PlayerInfo getInfo(String name) {
+        if (name == null) return null;
         FireLib fireLib = (FireLib) Bukkit.getPluginManager().getPlugin("FireLib");
         return fireLib.getPlayerManager().getPlayerInfo(name);
     }

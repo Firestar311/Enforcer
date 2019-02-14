@@ -2,7 +2,6 @@ package com.firestar311.enforcer.command;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
-import com.firestar311.enforcer.util.Perms;
 import com.firestar311.lib.audit.AuditEntry;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
@@ -10,7 +9,6 @@ import com.firestar311.lib.util.Utils;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
-import java.text.NumberFormat;
 import java.util.*;
 
 public class PunishmentInfoCommand implements CommandExecutor {

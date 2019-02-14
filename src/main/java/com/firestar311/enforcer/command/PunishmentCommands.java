@@ -37,11 +37,6 @@ public class PunishmentCommands implements CommandExecutor {
         Player player = ((Player) sender);
         String prefix = plugin.getDataManager().getPrefix();
         
-        if (!(args.length > 0)) {
-            player.sendMessage(Utils.color("&cYou do not have enough arguments."));
-            return true;
-        }
-    
         PlayerInfo info = plugin.getDataManager().getInfo(args[0]);
         if (info == null) {
             player.sendMessage(Utils.color("&cCould not find a player by that name. Punishing players that have yet to join is not supported yet."));
