@@ -3,7 +3,7 @@ package com.firestar311.enforcer.manager;
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.data.PunishmentDatabase;
 import com.firestar311.enforcer.model.Prison;
-import com.firestar311.enforcer.model.enums.PunishmentType;
+import com.firestar311.enforcer.model.enums.*;
 import com.firestar311.enforcer.model.note.Note;
 import com.firestar311.enforcer.model.punishment.abstraction.*;
 import com.firestar311.enforcer.model.punishment.interfaces.Expireable;
@@ -155,6 +155,12 @@ public class DataManager {
         if (trainingMode) {
             punishment.setTrainingMode(true);
         }
+        
+        plugin.getReportManager().getReports().values().stream().filter(report -> report.getTarget().equals(punishment.getTarget())).filter(report -> report.getReason().equalsIgnoreCase(punishment.getReason())).forEach(report -> {
+            report.addPunishment(punishment);
+            report.setOutcome(ReportOutcome.ACCEPTED);
+            report.setStatus(ReportStatus.CLOSED);
+        });
         
         this.punishments.put(punishment.getId(), punishment);
     }

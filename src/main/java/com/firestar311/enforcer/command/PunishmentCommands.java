@@ -42,6 +42,13 @@ public class PunishmentCommands implements CommandExecutor {
             player.sendMessage(Utils.color("&cCould not find a player by that name. Punishing players that have yet to join is not supported yet."));
             return true;
         }
+    
+        //TODO This code is used for my own server
+//        UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
+//        if (info.getUuid().equals(firestar311) && !player.getUniqueId().equals(firestar311)) {
+//            player.sendMessage(Utils.color("&cYou cannot punish that player."));
+//            return true;
+//        }
         
         if (Bukkit.getPlayer(info.getUuid()) == null) {
             if (!player.hasPermission(Perms.OFFLINE_PUNISH)) {

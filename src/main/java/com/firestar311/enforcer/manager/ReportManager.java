@@ -63,8 +63,13 @@ public class ReportManager implements Listener {
             for (String sK : reportsConfig.getConfigurationSection("reports." + k).getKeys(false)) {
                 serialized.put(sK, reportsConfig.get("reports." + k + "." + sK));
             }
-            Report report = new Report(serialized);
-            this.reports.put(report.getId(), report);
+            
+            if (!serialized.isEmpty()) {
+                Report report = new Report(serialized);
+                this.reports.put(report.getId(), report);
+            } else {
+                plugin.getLogger().severe("Invalid report loaded");
+            }
         }
         plugin.getLogger().info("Report data loading finished.");
     }

@@ -3,6 +3,7 @@ package com.firestar311.enforcer.model.reports;
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.model.enums.ReportOutcome;
 import com.firestar311.enforcer.model.enums.ReportStatus;
+import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
 import com.firestar311.lib.pagination.Paginatable;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Location;
@@ -15,7 +16,7 @@ public class Report implements Paginatable, Comparable<Report> {
     private UUID reporter, target, assignee;
     private ReportStatus status;
     private ReportOutcome outcome;
-    private List<Integer> punishments;
+    private List<Integer> punishments = new ArrayList<>();
     private ReportEvidence evidence;
     private Location location;
     private long date;
@@ -24,25 +25,45 @@ public class Report implements Paginatable, Comparable<Report> {
     public Report(Map<String, Object> serialized) {
         if (serialized.containsKey("id")) {
             this.id = (int) serialized.get("id");
-        } else if (serialized.containsKey("reporter")) {
+        }
+        
+        if (serialized.containsKey("reporter")) {
             this.reporter = UUID.fromString((String) serialized.get("reporter"));
-        } else if (serialized.containsKey("target")) {
+        }
+        
+        if (serialized.containsKey("target")) {
             this.target = UUID.fromString((String) serialized.get("target"));
-        } else if (serialized.containsKey("assignee")) {
+        }
+        
+        if (serialized.containsKey("assignee")) {
             this.assignee = UUID.fromString((String) serialized.get("assignee"));
-        } else if (serialized.containsKey("status")) {
+        }
+        
+        if (serialized.containsKey("status")) {
             this.status = ReportStatus.valueOf((String) serialized.get("status"));
-        } else if (serialized.containsKey("outcome")) {
+        }
+        
+        if (serialized.containsKey("outcome")) {
             this.outcome = ReportOutcome.valueOf((String) serialized.get("outcome"));
-        } else if (serialized.containsKey("punishments")) {
+        }
+        
+        if (serialized.containsKey("punishments")) {
             this.punishments = (List<Integer>) serialized.get("punishments");
-        } else if (serialized.containsKey("evidence")) {
+        }
+        
+        if (serialized.containsKey("evidence")) {
             this.evidence = new ReportEvidence((Map<String, Object>) serialized.get("evidence"));
-        } else if (serialized.containsKey("location")) {
+        }
+        
+        if (serialized.containsKey("location")) {
             this.location = Utils.getLocationFromString((String) serialized.get("location"));
-        } else if (serialized.containsKey("date")) {
+        }
+        
+        if (serialized.containsKey("date")) {
             this.date = (long) serialized.get("date");
-        } else if (serialized.containsKey("reason")) {
+        }
+        
+        if (serialized.containsKey("reason")) {
             this.reason = (String) serialized.get("reason");
         }
     }
@@ -64,7 +85,9 @@ public class Report implements Paginatable, Comparable<Report> {
         String reporterName, targetName;
         reporterName = Enforcer.getInstance().getDataManager().getInfo(reporter).getLastName();
         targetName = Enforcer.getInstance().getDataManager().getInfo(target).getLastName();
-        return "&8 - &7" + this.id + " " + reporterName + " -> " + targetName + ": " + this.reason;
+        return "&8 - &2<" + this.id + "> " + this.status.getColor() + "(" + this.status.name() + ") "
+                + this.outcome.getColor() + "[" + this.outcome.name() + "] "
+                + "&b" + reporterName + " &7-> &3" + targetName + ": &9" + this.reason;
     }
     
     public int getId() {
@@ -161,6 +184,10 @@ public class Report implements Paginatable, Comparable<Report> {
         return reason;
     }
     
+    public void addPunishment(Punishment punishment) {
+        this.punishments.add(punishment.getId());
+    }
+    
     public Map<String, Object> serialize() {
         Map<String, Object> serialized = new HashMap<>();
         serialized.put("id", this.id);
@@ -171,6 +198,7 @@ public class Report implements Paginatable, Comparable<Report> {
         if (outcome != null) serialized.put("outcome", this.outcome.name());
         if (evidence != null) serialized.put("evidence", this.evidence.serialze());
         if (location != null) serialized.put("location", Utils.convertLocationToString(this.location));
+        serialized.put("punishments", this.punishments);
         serialized.put("date", this.date);
         serialized.put("reason", this.reason);
         return serialized;

@@ -2,6 +2,7 @@ package com.firestar311.enforcer.util;
 
 public class Perms {
     
+    public static final String STAFF_PERMISSION = "enforcer.staff";
     public static final String NOTIFY_PUNISHMENTS = "enforcer.notify.punishments";
     public static final String NOTIFY_JOIN = "enforcer.notify.join";
     public static final String BAN = "enforcer.punishment.permanentban";
@@ -50,4 +51,10 @@ public class Perms {
     public static final String MRULES_OFFENSES_PUNISHMENTS_CLEAR = "enforcer.rules.offenses.punishments.clear";
     public static final String OFFLINE_PUNISH = "enforcer.punishments.punish.offline";
     public static final String FLAG_IGNORE_TRAINING = "enforcer.command.flag.ignoretraining";
+    public static final String REPORT_ADMIN = "enforcer.command.reportadmin";
+    public static final String REPORT_ADMIN_ASSIGN = "enforcer.command.reportadmin.assign";
+    public static final String REPORT_ADMIN_STATUS = "enforcer.command.reportadmin.status";
+    public static final String REPORT_ADMIN_OUTCOME = "enforcer.command.reportadmin.outcome";
+    public static final String REPORT_ADMIN_TELEPORT = "enforcer.command.reportadmin.teleport";
+    public static final String REPORT_ADMIN_PUNISHMENT = "enforcer.command.reportadmin.punishment";
 }

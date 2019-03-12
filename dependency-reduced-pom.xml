@@ -42,15 +42,15 @@
   </build>
   <repositories>
     <repository>
-      <name>sonatype</name>
+      <id>sonatype</id>
       <url>https://oss.sonatype.org/content/groups/public/</url>
     </repository>
     <repository>
-      <name>firestar311-com</name>
+      <id>firestar311-com</id>
       <url>http://firestar311.com/maven2</url>
     </repository>
     <repository>
-      <name>vault-repo</name>
+      <id>vault-repo</id>
       <url>http://nexus.hc.to/content/repositories/pub_releases</url>
     </repository>
   </repositories>

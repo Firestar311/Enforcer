@@ -28,6 +28,7 @@ public final class Messages {
     public static final String RULE_CREATE = "&6(" + PREFIX + ") &4&l[i] &e<" + RULE_ID + "> &b" + ACTOR + " &fcreated a rule with the name &b" + RULE_NAME + " &fand the internal id &b" + RULE_INTERNALID ;
     public static final String RULE_SET_DESCRIPTION = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fset the description of the rule &b" + RULE_NAME + " &fto &b" + RULE_DESCRIPTION;
     public static final String REPORT_CREATE = "&4(REPORT) &d<{id}> &e" + TARGET + " &cwas reported for &e" + REASON + " &cby &e" + ACTOR;
+    public static final String REPORT_CANCEL = "&4(REPORT} &d<{id}> &e" + ACTOR + " &ecancelled their report against &e" + TARGET;
     
     public static void sendNotifyMessage(String message) {
         for (Player p : Bukkit.getOnlinePlayers()) {

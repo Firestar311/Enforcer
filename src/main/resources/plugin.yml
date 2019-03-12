@@ -29,3 +29,7 @@ commands:
         aliases: [p]
     punishmentinfo:
         aliases: [pi, puif, pinfo]
+    report:
+        aliases: [r]
+    reportadmin:
+        aliases: [ra]

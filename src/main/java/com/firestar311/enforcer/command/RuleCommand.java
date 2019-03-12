@@ -132,7 +132,7 @@ public class RuleCommand implements CommandExecutor {
             player.sendMessage(Utils.color("&aRemoved the rule &b" + rule.getInternalId()));
         } else if (Utils.checkCmdAliases(args, 1, "setmaterial", "sm")) {
             if (!(args.length > 1)) {
-                player.sendMessage(Utils.color("&cUsage: /mrules <id> setmaterial|sr"));
+                player.sendMessage(Utils.color("&cUsage: /mrules <id> setmaterial|sr <material>"));
                 return true;
             }
     
@@ -253,7 +253,7 @@ public class RuleCommand implements CommandExecutor {
                 paginator.display(player, 1);
                 this.paginators.put(player.getUniqueId(), paginator);
                 return true;
-            } else if (Utils.checkCmdAliases(args, 3, "remove")) {
+            } else if (Utils.checkCmdAliases(args, 3, "remove", "r")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_REMOVE)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to remove rules."));
                     return true;
