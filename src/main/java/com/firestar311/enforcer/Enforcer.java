@@ -30,14 +30,11 @@ public final class Enforcer extends JavaPlugin {
     private static Enforcer instance;
     
     public void onEnable() {
-        getLogger().info("----Starting the load of Enforcer by Firestar311----");
         instance = this;
         this.saveDefaultConfig();
-        getLogger().info("Loading all data from the database");
         this.dataManager = new DataManager(this);
         this.dataManager.loadData();
         this.reportManager = new ReportManager(this);
-        getLogger().info("Loading Report data....");
         this.reportManager.loadReports();
         this.getCommand("enforcer").setExecutor(new EnforcerCommand(this));
         this.registerCommands(new PunishmentCommands(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail");
@@ -50,7 +47,6 @@ public final class Enforcer extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new PlayerBanJoinListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerChatListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerPrisonListener(this), this);
-        getLogger().info("Looking for CustomItems plugin to hook into...");
         this.customItemsHook = new CustomItemsHook(this);
         if (this.customItemsHook.getCustomItems() != null) {
             getLogger().info("CustomItems plugin found, region based tools will work");
@@ -58,11 +54,9 @@ public final class Enforcer extends JavaPlugin {
             getLogger().info("CustomItems plugin not found, regions need to be selected with commands");
         }
         
-        getLogger().info("Looking for Vault for permission integration");
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (rsp != null) {
             this.permission = rsp.getProvider();
-            getLogger().info("Vault based permission provider was found: " + this.permission.getName());
         } else {
             getLogger().severe("Could not find a Vault permissions provider, defaulting to regular permissions.");
         }
@@ -87,7 +81,6 @@ public final class Enforcer extends JavaPlugin {
                 }
             }
         }.runTaskTimerAsynchronously(this, 20*60, 20);
-        getLogger().info("----Enforcer Load Completed----");
     }
 
     public void onDisable() {

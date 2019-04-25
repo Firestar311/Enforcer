@@ -108,15 +108,9 @@ public class DataManager {
     
     public void loadData() {
         if (storageType.equalsIgnoreCase("yaml")) {
-            plugin.getLogger().info("Loading Rule data....");
             this.loadRuleDataFromYaml();
-            plugin.getLogger().info("Rule loading finished");
-            plugin.getLogger().info("Loading Punishment data....");
             this.loadPunishmentData();
-            plugin.getLogger().info("Punishment loading finished");
-            plugin.getLogger().info("Loading prison and jail data....");
             this.loadJailDataFromYaml();
-            plugin.getLogger().info("Prison and jail data loading finished.");
         }
     }
     
@@ -317,15 +311,14 @@ public class DataManager {
         if (punishment.isActive()) {
             if (punishment.isTrainingPunishment()) {
                 return isTrainingMode();
-            } else {
-                return true;
             }
+            return true;
         }
         return false;
     }
     
     public Set<Punishment> getBans(UUID uuid) {
-        return punishments.values().stream().filter(punishment -> punishment instanceof BanPunishment).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+        return punishments.values().stream().filter(BanPunishment.class::isInstance).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
     }
     
     public void addMute(MutePunishment punishment) {
@@ -342,7 +335,7 @@ public class DataManager {
     }
     
     public Set<Punishment> getMutes(UUID uuid) {
-        return punishments.values().stream().filter(punishment -> punishment instanceof MutePunishment).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+        return punishments.values().stream().filter(MutePunishment.class::isInstance).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
     }
     
     public void addWarning(WarnPunishment punishment) {
@@ -354,16 +347,15 @@ public class DataManager {
             if (punishment.isActive()) {
                 if (punishment.isTrainingPunishment()) {
                     return isTrainingMode();
-                } else {
-                    return true;
                 }
+                return true;
             }
         }
         return false;
     }
     
     public Set<Punishment> getWarnings(UUID uuid) {
-        return punishments.values().stream().filter(punishment -> punishment instanceof WarnPunishment).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+        return punishments.values().stream().filter(WarnPunishment.class::isInstance).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
     }
     
     public void addKick(KickPunishment punishment) {
@@ -375,16 +367,15 @@ public class DataManager {
             if (punishment.isActive()) {
                 if (punishment.isTrainingPunishment()) {
                     return isTrainingMode();
-                } else {
-                    return true;
                 }
+                return true;
             }
         }
         return false;
     }
     
     public Set<Punishment> getKicks(UUID uuid) {
-        return punishments.values().stream().filter(punishment -> punishment instanceof KickPunishment).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+        return punishments.values().stream().filter(KickPunishment.class::isInstance).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
     }
     
     public void addJailPunishment(JailPunishment punishment) {
@@ -430,16 +421,15 @@ public class DataManager {
             if (punishment.isActive()) {
                 if (punishment.isTrainingPunishment()) {
                     return isTrainingMode();
-                } else {
-                    return true;
                 }
+                return true;
             }
         }
         return false;
     }
     
     public Set<Punishment> getJailPunishments(UUID uuid) {
-        return punishments.values().stream().filter(punishment -> punishment instanceof JailPunishment).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+        return punishments.values().stream().filter(JailPunishment.class::isInstance).filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
     }
     
     public void addNote(Note note) {
@@ -547,7 +537,7 @@ public class DataManager {
     
     public Set<BanPunishment> getActiveBans() {
         Set<BanPunishment> bans = new HashSet<>();
-        for (Punishment punishment : this.punishments.values().stream().filter(punishment -> punishment instanceof BanPunishment).collect(Collectors.toSet())) {
+        for (Punishment punishment : this.punishments.values().stream().filter(BanPunishment.class::isInstance).collect(Collectors.toSet())) {
             if (punishment.isActive()) {
                 bans.add((BanPunishment) punishment);
             }
@@ -558,7 +548,7 @@ public class DataManager {
     
     public Set<MutePunishment> getActiveMutes() {
         Set<MutePunishment> mutes = new HashSet<>();
-        for (Punishment punishment : this.punishments.values().stream().filter(punishment -> punishment instanceof MutePunishment).collect(Collectors.toSet())) {
+        for (Punishment punishment : this.punishments.values().stream().filter(MutePunishment.class::isInstance).collect(Collectors.toSet())) {
             if (punishment.isActive()) {
                 mutes.add((MutePunishment) punishment);
             }
@@ -569,7 +559,7 @@ public class DataManager {
     
     public Set<JailPunishment> getActiveJails() {
         Set<JailPunishment> jails = new HashSet<>();
-        for (Punishment punishment : this.punishments.values().stream().filter(punishment -> punishment instanceof JailPunishment).collect(Collectors.toSet())) {
+        for (Punishment punishment : this.punishments.values().stream().filter(JailPunishment.class::isInstance).collect(Collectors.toSet())) {
             if (punishment.isActive()) {
                 jails.add((JailPunishment) punishment);
             }
@@ -687,7 +677,7 @@ public class DataManager {
         Rule rule = null;
         try {
             int id = Integer.parseInt(ruleString);
-            rule = this.rules.get(id);
+            return this.rules.get(id);
         } catch (NumberFormatException e) {
             String ruleInternalName = ruleString.toLowerCase().replace(" ", "_");
             for (Rule r : this.getRules()) {
@@ -732,12 +722,10 @@ public class DataManager {
     public Entry<Integer, Integer> getNextOffense(UUID target, Rule rule) {
         Set<Punishment> punishments = getPunishmentsByRule(target, rule, this.trainingMode);
         if (punishments.isEmpty()) return new SimpleEntry<>(1, 1);
-        else {
-            int offense = punishments.size() + 1;
-            if (offense > rule.getOffenses().size()) {
-                return new SimpleEntry<>(rule.getOffenses().size(), offense);
-            }
-            return new SimpleEntry<>(punishments.size() + 1, punishments.size() + 1);
+        int offense = punishments.size() + 1;
+        if (offense > rule.getOffenses().size()) {
+            return new SimpleEntry<>(rule.getOffenses().size(), offense);
         }
+        return new SimpleEntry<>(punishments.size() + 1, punishments.size() + 1);
     }
 }
