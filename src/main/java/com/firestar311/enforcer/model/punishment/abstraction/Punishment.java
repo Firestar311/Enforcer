@@ -198,37 +198,28 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     
     public static Punishment deserialize(Map<String, Object> serialized) {
         if (serialized.containsKey("type")) {
-            Punishment punishment = null;
             PunishmentType type = PunishmentType.valueOf((String) serialized.get("type"));
             
             switch (type) {
                 case PERMANENT_BAN:
-                    punishment = new PermanentBan(serialized);
-                    break;
+                    return new PermanentBan(serialized);
                 case TEMPORARY_BAN:
-                    punishment = new TemporaryBan(serialized);
-                    break;
+                    return new TemporaryBan(serialized);
                 case PERMANENT_MUTE:
-                    punishment = new PermanentMute(serialized);
-                    break;
+                    return new PermanentMute(serialized);
                 case TEMPORARY_MUTE:
-                    punishment = new TemporaryMute(serialized);
-                    break;
+                    return new TemporaryMute(serialized);
                 case WARN:
-                    punishment = new WarnPunishment(serialized);
-                    break;
+                    return new WarnPunishment(serialized);
                 case KICK:
-                    punishment = new KickPunishment(serialized);
-                    break;
+                    return new KickPunishment(serialized);
                 case JAIL:
-                    punishment = new JailPunishment(serialized);
-                    break;
+                    return new JailPunishment(serialized);
             }
             
-            return punishment;
-        } else {
             return null;
         }
+        return null;
     }
     
     public void setPunisherName(String punisherName) {
@@ -320,15 +311,15 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     public boolean canSeeMessages(Player p, Visibility visibility) {
         if (visibility.equals(Visibility.NORMAL)) {
             return p.hasPermission(Perms.NOTIFY_PUNISHMENTS);
-        } else if (visibility.equals(Visibility.SILENT)) {
+        }
+        if (visibility.equals(Visibility.SILENT)) {
             try {
                 net.milkbowl.vault.permission.Permission perms = Enforcer.getInstance().getPermission();
                 if (perms != null) {
                     String groupName = perms.getPrimaryGroup(p).toLowerCase();
                     return p.hasPermission("enforcer.punishments.notify." + groupName);
-                } else {
-                    return p.hasPermission(Perms.NOTIFY_PUNISHMENTS);
                 }
+                return p.hasPermission(Perms.NOTIFY_PUNISHMENTS);
             } catch (Exception ignored) {
             
             }
@@ -483,76 +474,79 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     public String formatLine(String[] args) {
         if (args == null) {
             return "";
-        } else {
-            String message = "";
-            if (args[0].equalsIgnoreCase("history")) {
-                message += "&5[" + PUNISHMENT_STATUS + "] &e{id} &b" + TARGET + " &fwas " + COLOR + PUNISHMENT + " &fby &b" + PUNISHER + " &ffor &b" + REASON;
-            } else if (args[0].equalsIgnoreCase("staffhistory")) {
-                message += "&5[" + PUNISHMENT_STATUS + "] &e{id} &b" + PUNISHER + " " + COLOR + PUNISHMENT + " &b" + TARGET + " &ffor &b" + REASON;
+        }
+        String message = "";
+        if (args[0].equalsIgnoreCase("history")) {
+            message += "&5[" + PUNISHMENT_STATUS + "] &e{id} &b" + TARGET + " &fwas " + COLOR + PUNISHMENT + " &fby &b" + PUNISHER + " &ffor &b" + REASON;
+        } else if (args[0].equalsIgnoreCase("staffhistory")) {
+            message += "&5[" + PUNISHMENT_STATUS + "] &e{id} &b" + PUNISHER + " " + COLOR + PUNISHMENT + " &b" + TARGET + " &ffor &b" + REASON;
+        }
+        message = message.replace(TARGET, getTargetName());
+        message = message.replace(REASON, reason);
+        message = message.replace("{id}", id + "");
+        message = message.replace(PUNISHER, getPunisherName());
+        if (this instanceof Expireable) {
+            Expireable expireable = (Expireable) this;
+            message = (message + " " + Messages.LENGTH_FORMAT);
+            message = message.replace(LENGTH, Utils.formatTime(Math.abs(this.getDate() - expireable.getExpireDate())));
+            if (!expireable.isExpired()) {
+                message = message + "\n    &8- &9Expires in: " + expireable.formatExpireTime();
             }
-            message = message.replace(TARGET, getTargetName());
-            message = message.replace(REASON, reason);
-            message = message.replace("{id}", id + "");
-            message = message.replace(PUNISHER, getPunisherName());
-            if (this instanceof Expireable) {
-                Expireable expireable = (Expireable) this;
-                message = (message + " " + Messages.LENGTH_FORMAT);
-                message = message.replace(LENGTH, Utils.formatTime(Math.abs(this.getDate() - expireable.getExpireDate())));
-                if (!expireable.isExpired()) {
-                    message = message + "\n    &8- &9Expires in: " + expireable.formatExpireTime();
-                }
-                if (type.equals(PunishmentType.TEMPORARY_BAN)) {
-                    message = message.replace(COLOR, BAN);
-                    message = message.replace(PUNISHMENT, "banned");
-                } else if (type.equals(PunishmentType.TEMPORARY_MUTE)) {
-                    message = message.replace(COLOR, MUTE);
-                    message = message.replace(PUNISHMENT, "muted");
-                }
+            if (type.equals(PunishmentType.TEMPORARY_BAN)) {
+                message = message.replace(COLOR, BAN);
+                message = message.replace(PUNISHMENT, "banned");
+            } else if (type.equals(PunishmentType.TEMPORARY_MUTE)) {
+                message = message.replace(COLOR, MUTE);
+                message = message.replace(PUNISHMENT, "muted");
             }
-            message = replacePunishmentVariables(message);
-            if (this.trainingMode) {
-                message = message.replace(PUNISHMENT_STATUS, "Training Mode");
-            } else if (this.remover != null) {
-                message = message.replace(PUNISHMENT_STATUS, "Removed");
-            } else if (this instanceof Expireable) {
-                Expireable expireable = (Expireable) this;
-                if (expireable.isExpired()) {
-                    message = message.replace(PUNISHMENT_STATUS, "Expired");
-                } else {
-                    message = message.replace(PUNISHMENT_STATUS, "Active");
-                }
-            } else if (this instanceof Acknowledgeable) {
-                Acknowledgeable acknowledgeable = ((Acknowledgeable) this);
-                if (acknowledgeable.isAcknowledged()) {
-                    message = message.replace(PUNISHMENT_STATUS, "Acknowledged");
-                } else {
-                    message = message.replace(PUNISHMENT_STATUS, "Active");
-                }
+        }
+        message = replacePunishmentVariables(message);
+        if (this.trainingMode) {
+            message = message.replace(PUNISHMENT_STATUS, "Training Mode");
+        } else if (this.remover != null) {
+            message = message.replace(PUNISHMENT_STATUS, "Removed");
+        } else if (this instanceof Expireable) {
+            Expireable expireable = (Expireable) this;
+            if (expireable.isExpired()) {
+                message = message.replace(PUNISHMENT_STATUS, "Expired");
             } else {
                 message = message.replace(PUNISHMENT_STATUS, "Active");
             }
-            return Utils.color(message);
+        } else if (this instanceof Acknowledgeable) {
+            Acknowledgeable acknowledgeable = ((Acknowledgeable) this);
+            if (acknowledgeable.isAcknowledged()) {
+                message = message.replace(PUNISHMENT_STATUS, "Acknowledged");
+            } else {
+                message = message.replace(PUNISHMENT_STATUS, "Active");
+            }
+        } else {
+            message = message.replace(PUNISHMENT_STATUS, "Active");
         }
+        return Utils.color(message);
     }
     
     private String replacePunishmentVariables(String message) {
         if (type.equals(PunishmentType.PERMANENT_BAN)) {
             message = (message + " " + Messages.PERMANENT_FORMAT);
             message = message.replace(COLOR, BAN);
-            message = message.replace(PUNISHMENT, "banned");
-        } else if (type.equals(PunishmentType.PERMANENT_MUTE)) {
+            return message.replace(PUNISHMENT, "banned");
+        }
+        if (type.equals(PunishmentType.PERMANENT_MUTE)) {
             message = (message + " " + Messages.PERMANENT_FORMAT);
             message = message.replace(COLOR, MUTE);
-            message = message.replace(PUNISHMENT, "muted");
-        } else if (type.equals(PunishmentType.JAIL)) {
+            return message.replace(PUNISHMENT, "muted");
+        }
+        if (type.equals(PunishmentType.JAIL)) {
             message = message.replace(COLOR, Colors.JAIL);
-            message = message.replace(PUNISHMENT, "jailed");
-        } else if (type.equals(PunishmentType.KICK)) {
+            return message.replace(PUNISHMENT, "jailed");
+        }
+        if (type.equals(PunishmentType.KICK)) {
             message = message.replace(COLOR, Colors.KICK);
-            message = message.replace(PUNISHMENT, "kicked");
-        } else if (type.equals(PunishmentType.WARN)) {
+            return message.replace(PUNISHMENT, "kicked");
+        }
+        if (type.equals(PunishmentType.WARN)) {
             message = message.replace(COLOR, Colors.WARN);
-            message = message.replace(PUNISHMENT, "warned");
+            return message.replace(PUNISHMENT, "warned");
         }
         return message;
     }
@@ -564,12 +558,13 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
                 message = (message + " " + Messages.LENGTH_FORMAT);
                 message = message.replace(LENGTH, expireable.formatExpireTime());
                 message = message.replace(COLOR, BAN);
-                message = message.replace(PUNISHMENT, "banned");
-            } else if (type.equals(PunishmentType.TEMPORARY_MUTE)) {
+                return message.replace(PUNISHMENT, "banned");
+            }
+            if (type.equals(PunishmentType.TEMPORARY_MUTE)) {
                 message = (message + " " + Messages.LENGTH_FORMAT);
                 message = message.replace(LENGTH, expireable.formatExpireTime());
                 message = message.replace(COLOR, MUTE);
-                message = message.replace(PUNISHMENT, "muted");
+                return message.replace(PUNISHMENT, "muted");
             }
         }
         return message;
@@ -632,5 +627,9 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     public void setOffenseNumber(int offenseNumber) {
         this.auditLog.addAuditEntry("Offense Number changed from " + this.offenseNumber + " to " + offenseNumber);
         this.offenseNumber = offenseNumber;
+    }
+    
+    public boolean isPurgatory() {
+        return purgatory;
     }
 }

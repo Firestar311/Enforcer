@@ -114,7 +114,8 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 }
             }
             return true;
-        } else if (Utils.checkCmdAliases(args, 0, "pos1")) {
+        }
+        if (Utils.checkCmdAliases(args, 0, "pos1")) {
             if (!player.hasPermission(Perms.PRISON_SELECTION)) {
                 player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                 return true;
@@ -172,7 +173,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             player.sendMessage(Utils.color("&aCleared your selection."));
             return true;
         }
-        
+    
         ///prison <id|name> <subcommand>
         Prison prison = plugin.getDataManager().getPrisonFromString(player, args[0]);
         if (prison == null) return true;

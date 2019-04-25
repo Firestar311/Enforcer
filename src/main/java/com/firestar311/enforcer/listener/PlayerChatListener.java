@@ -31,7 +31,8 @@ public class PlayerChatListener implements Listener {
             e.setCancelled(true);
             player.sendMessage(Utils.color("&cYou cannnot speak while jailed."));
             return;
-        } else if (plugin.getDataManager().isMuted(player.getUniqueId())) {
+        }
+        if (plugin.getDataManager().isMuted(player.getUniqueId())) {
             e.setCancelled(true);
             player.sendMessage(Utils.color("&cYou cannot speak while muted."));
             if (this.notifications.containsKey(player.getUniqueId())) {
@@ -52,7 +53,7 @@ public class PlayerChatListener implements Listener {
             }
             return;
         }
-        
+    
         e.getRecipients().removeIf(recipient -> plugin.getDataManager().isJailed(recipient.getUniqueId()));
         
         for (Punishment punishment : plugin.getDataManager().getWarnings(player.getUniqueId())) {

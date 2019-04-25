@@ -2,9 +2,9 @@ package com.firestar311.enforcer.command;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
+import com.firestar311.enforcer.util.EnforcerUtils;
 import com.firestar311.enforcer.util.Perms;
 import com.firestar311.lib.pagination.Paginator;
-import com.firestar311.lib.pagination.PaginatorFactory;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.command.*;
@@ -51,11 +51,7 @@ public class HistoryCommands implements CommandExecutor {
                 playerPunishments.addAll(plugin.getDataManager().getJailPunishments(target));
                 playerPunishments.addAll(plugin.getDataManager().getKicks(target));
                 playerPunishments.addAll(plugin.getDataManager().getWarnings(target));
-                Collections.sort(playerPunishments);
-                PaginatorFactory<Punishment> factory = new PaginatorFactory<>();
-                factory.setMaxElements(7).setHeader("&7-=History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})").setFooter("&7Type /history page {nextpage} for more");
-                playerPunishments.forEach(factory::addElement);
-                Paginator<Punishment> paginator = factory.build();
+                Paginator<Punishment> paginator = EnforcerUtils.generatePaginatedPunishmentList(playerPunishments, "&7-=History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})", "&7Type /staffhistory page {nextpage} for more");
                 paginator.display(player, 1, "history");
                 this.historyPaginators.put(player.getUniqueId(), paginator);
             } else if (args.length == 2) {
@@ -89,11 +85,7 @@ public class HistoryCommands implements CommandExecutor {
                     }
                 });
                 
-                Collections.sort(staffPunishments);
-                PaginatorFactory<Punishment> factory = new PaginatorFactory<>();
-                factory.setMaxElements(7).setHeader("&7-=Staff History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})").setFooter("&7Type /staffhistory page {nextpage} for more");
-                staffPunishments.forEach(factory::addElement);
-                Paginator<Punishment> paginator = factory.build();
+                Paginator<Punishment> paginator = EnforcerUtils.generatePaginatedPunishmentList(staffPunishments, "&7-=Staff History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})", "&7Type /staffhistory page {nextpage} for more");
                 paginator.display(player, 1, "staffhistory");
                 this.staffHistoryPaginators.put(player.getUniqueId(), paginator);
             } else if (args.length == 2) {
@@ -117,14 +109,12 @@ public class HistoryCommands implements CommandExecutor {
     }
     
     private int getPage(Player player, String stringPage) {
-        int page;
         try {
-            page = Integer.parseInt(stringPage);
+            return Integer.parseInt(stringPage);
         } catch (NumberFormatException e) {
             player.sendMessage(Utils.color("&cYou provided an invalid number."));
             return -1;
         }
-        return page;
     }
     
     private PlayerInfo getPlayerInfo(String string, Player player) {

@@ -1,5 +1,6 @@
 package com.firestar311.enforcer.util;
 
+@SuppressWarnings("unused")
 public class Perms {
     
     public static final String STAFF_PERMISSION = "enforcer.staff";

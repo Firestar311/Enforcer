@@ -82,9 +82,8 @@ public class Report implements Paginatable, Comparable<Report> {
     }
     
     public String formatLine(String... strings) {
-        String reporterName, targetName;
-        reporterName = Enforcer.getInstance().getDataManager().getInfo(reporter).getLastName();
-        targetName = Enforcer.getInstance().getDataManager().getInfo(target).getLastName();
+        String reporterName = Enforcer.getInstance().getDataManager().getInfo(reporter).getLastName();
+        String targetName = Enforcer.getInstance().getDataManager().getInfo(target).getLastName();
         return "&8 - &2<" + this.id + "> " + this.status.getColor() + "(" + this.status.name() + ") "
                 + this.outcome.getColor() + "[" + this.outcome.name() + "] "
                 + "&b" + reporterName + " &7-> &3" + targetName + ": &9" + this.reason;

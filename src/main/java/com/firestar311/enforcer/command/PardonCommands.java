@@ -39,7 +39,8 @@ public class PardonCommands implements CommandExecutor {
             if (arg.equalsIgnoreCase("-p")) {
                 visibility = Visibility.PUBLIC;
                 break;
-            } else if (arg.equalsIgnoreCase("-s")) {
+            }
+            if (arg.equalsIgnoreCase("-s")) {
                 visibility = Visibility.SILENT;
                 break;
             }

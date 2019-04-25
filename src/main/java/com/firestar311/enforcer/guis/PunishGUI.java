@@ -1,11 +1,10 @@
 package com.firestar311.enforcer.guis;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.model.Prison;
 import com.firestar311.enforcer.model.enums.Visibility;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
-import com.firestar311.enforcer.model.punishment.type.*;
 import com.firestar311.enforcer.model.rule.*;
+import com.firestar311.enforcer.util.EnforcerUtils;
 import com.firestar311.lib.builder.ItemBuilder;
 import com.firestar311.lib.gui.*;
 import com.firestar311.lib.player.PlayerInfo;
@@ -96,32 +95,7 @@ public class PunishGUI extends PaginatedGUI {
                     UUID punisher = player.getUniqueId();
                     String reason = r.getName() + " Offense #" + offenseNumbers.getValue();
                     for (RulePunishment rulePunishment : offense.getPunishments().values()) {
-                        Punishment punishment = null;
-                        long expire = currentTime + rulePunishment.getLength();
-                        switch (rulePunishment.getType()) {
-                            case PERMANENT_BAN:
-                                punishment = new PermanentBan(server, punisher, target, reason, currentTime);
-                                break;
-                            case TEMPORARY_BAN:
-                                punishment = new TemporaryBan(server, punisher, target, reason, currentTime, expire);
-                                break;
-                            case PERMANENT_MUTE:
-                                punishment = new PermanentMute(server, punisher, target, reason, currentTime);
-                                break;
-                            case TEMPORARY_MUTE:
-                                punishment = new TemporaryMute(server, punisher, target, reason, currentTime, expire);
-                                break;
-                            case WARN:
-                                punishment = new WarnPunishment(server, punisher, target, reason, currentTime);
-                                break;
-                            case KICK:
-                                punishment = new KickPunishment(server, punisher, target, reason, currentTime);
-                                break;
-                            case JAIL:
-                                Prison prison = plugin.getDataManager().findPrison();
-                                punishment = new JailPunishment(server, punisher, target, reason, currentTime, prison.getId());
-                                break;
-                        }
+                        Punishment punishment = EnforcerUtils.getPunishmentFromRule(plugin, target, server, currentTime, punisher, reason, rulePunishment);
     
                         Visibility visibility = Visibility.NORMAL;
                         if (PUBLIC_BUTTON.getItem().getItemMeta().hasEnchant(Enchantment.ARROW_DAMAGE)) {
@@ -142,4 +116,6 @@ public class PunishGUI extends PaginatedGUI {
             }
         }
     }
+    
+    
 }

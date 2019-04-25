@@ -34,9 +34,8 @@ public enum PunishmentType {
     }
     
     public static PunishmentType getType(String name) {
-        PunishmentType type = null;
         try {
-            type = PunishmentType.valueOf(name);
+            return PunishmentType.valueOf(name);
         } catch (Exception e) {
             for (PunishmentType t : values()) {
                 if (t.getAliases() != null) {
@@ -46,6 +45,6 @@ public enum PunishmentType {
                 }
             }
         }
-        return type;
+        return null;
     }
 }

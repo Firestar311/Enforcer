@@ -16,7 +16,7 @@ import java.util.*;
 
 public class RuleCommand implements CommandExecutor {
     
-    public Enforcer plugin;
+    private Enforcer plugin;
     
     private Map<UUID, Paginator<?>> paginators = new HashMap<>();
     
@@ -204,7 +204,8 @@ public class RuleCommand implements CommandExecutor {
                 paginator.display(player, 1);
                 this.paginators.put(player.getUniqueId(), paginator);
                 return true;
-            } else if (Utils.checkCmdAliases(args, 2, "create", "c")) {
+            }
+            if (Utils.checkCmdAliases(args, 2, "create", "c")) {
                 if (!player.hasPermission(Perms.MRULES_OFFESNES_CREATE)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                     return true;
@@ -214,7 +215,8 @@ public class RuleCommand implements CommandExecutor {
                 rule.addOffense(offense);
                 player.sendMessage(Utils.color("&aCreated a new offense for the rule &b" + rule.getInternalId() + " &awith the offense number &b" + offense.getOffenseNumber()));
                 return true;
-            } else if (Utils.checkCmdAliases(args, 2, "clear")) {
+            }
+            if (Utils.checkCmdAliases(args, 2, "clear")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_CLEAR)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                     return true;
@@ -224,7 +226,7 @@ public class RuleCommand implements CommandExecutor {
                 player.sendMessage(Utils.color("&aCleared the offenses of the rule &b" + rule.getName()));
                 return true;
             }
-            
+    
             int offenseNumber;
             try {
                 offenseNumber = Integer.parseInt(args[2]);
@@ -253,7 +255,8 @@ public class RuleCommand implements CommandExecutor {
                 paginator.display(player, 1);
                 this.paginators.put(player.getUniqueId(), paginator);
                 return true;
-            } else if (Utils.checkCmdAliases(args, 3, "remove", "r")) {
+            }
+            if (Utils.checkCmdAliases(args, 3, "remove", "r")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_REMOVE)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to remove rules."));
                     return true;

@@ -2,11 +2,11 @@ package com.firestar311.enforcer.command;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.guis.PunishGUI;
-import com.firestar311.enforcer.model.Prison;
 import com.firestar311.enforcer.model.enums.Visibility;
 import com.firestar311.enforcer.model.punishment.abstraction.*;
 import com.firestar311.enforcer.model.punishment.type.*;
 import com.firestar311.enforcer.model.rule.*;
+import com.firestar311.enforcer.util.EnforcerUtils;
 import com.firestar311.enforcer.util.Perms;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-@SuppressWarnings("Duplicates")
 public class PunishmentCommands implements CommandExecutor {
     
     private Enforcer plugin;
@@ -100,26 +99,7 @@ public class PunishmentCommands implements CommandExecutor {
             UUID punisher = player.getUniqueId(), target = info.getUuid();
             String reason = rule.getName() + " Offense #" + offenseNumbers.getValue();
             for (RulePunishment rulePunishment : offense.getPunishments().values()) {
-                Punishment punishment = null;
-                long expire = currentTime + rulePunishment.getLength();
-                switch(rulePunishment.getType()) {
-                    case PERMANENT_BAN: punishment = new PermanentBan(server, punisher, target, reason, currentTime);
-                        break;
-                    case TEMPORARY_BAN: punishment = new TemporaryBan(server, punisher, target, reason, currentTime, expire);
-                        break;
-                    case PERMANENT_MUTE: punishment = new PermanentMute(server, punisher, target, reason, currentTime);
-                        break;
-                    case TEMPORARY_MUTE: punishment = new TemporaryMute(server, punisher, target, reason, currentTime, expire);
-                        break;
-                    case WARN: punishment = new WarnPunishment(server, punisher, target, reason, currentTime);
-                        break;
-                    case KICK: punishment = new KickPunishment(server, punisher, target, reason, currentTime);
-                        break;
-                    case JAIL:
-                        Prison prison = plugin.getDataManager().findPrison();
-                        punishment = new JailPunishment(server, punisher, target, reason, currentTime, prison.getId());
-                        break;
-                }
+                Punishment punishment = EnforcerUtils.getPunishmentFromRule(plugin, target, server, currentTime, punisher, reason, rulePunishment);
                 punishment.setRuleId(rule.getId());
                 punishment.setOffenseNumber(offenseNumbers.getValue());
                 plugin.getDataManager().addPunishment(punishment);
@@ -132,10 +112,12 @@ public class PunishmentCommands implements CommandExecutor {
                 if (arg.equalsIgnoreCase("-p")) {
                     visibility = Visibility.PUBLIC;
                     break;
-                } else if (arg.equalsIgnoreCase("-s")) {
+                }
+                if (arg.equalsIgnoreCase("-s")) {
                     visibility = Visibility.SILENT;
                     break;
-                } else if (arg.equalsIgnoreCase("-t")) {
+                }
+                if (arg.equalsIgnoreCase("-t")) {
                     if (!player.hasPermission(Perms.FLAG_IGNORE_TRAINING)) {
                         player.sendMessage(Utils.color("&cYou do not have permission to ignore training mode."));
                         return true;
@@ -288,13 +270,11 @@ public class PunishmentCommands implements CommandExecutor {
     }
     
     private long extractExpire(Player player, long currentTime, String s) {
-        long expire;
         try {
-            expire = Punishment.calculateExpireDate(currentTime, s);
+            return Punishment.calculateExpireDate(currentTime, s);
         } catch (Exception e) {
             player.sendMessage(Utils.color("&cInvalid time format."));
             return -1;
         }
-        return expire;
     }
 }

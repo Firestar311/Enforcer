@@ -41,12 +41,11 @@ public class PlayerBanJoinListener implements Listener {
                     if (punishment.getType().equals(PunishmentType.PERMANENT_BAN) && worsePunishment.getType().equals(PunishmentType.TEMPORARY_BAN)) {
                         worsePunishment = (BanPunishment) punishment;
                         break;
-                    } else {
-                        TemporaryBan worseBan = ((TemporaryBan) worsePunishment);
-                        TemporaryBan currentBan = ((TemporaryBan) punishment);
-                        if (currentBan.getExpireDate() > worseBan.getExpireDate()) {
-                            worsePunishment = (BanPunishment) punishment;
-                        }
+                    }
+                    TemporaryBan worseBan = ((TemporaryBan) worsePunishment);
+                    TemporaryBan currentBan = ((TemporaryBan) punishment);
+                    if (currentBan.getExpireDate() > worseBan.getExpireDate()) {
+                        worsePunishment = (BanPunishment) punishment;
                     }
                 }
             }

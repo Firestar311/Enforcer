@@ -107,8 +107,7 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     public Prompt getPrompt() {
         if (this.prompt == null) {
             return createPrompt();
-        } else {
-            return prompt;
         }
+        return prompt;
     }
 }

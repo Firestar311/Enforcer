@@ -54,6 +54,6 @@ public class RulePunishment implements Paginatable {
     
     public String formatLine(String... args) {
         if (length == -1) return "&dAction: " + id + " " + type.getDisplayName();
-        else return "&dAction: " + id + " " + type.getDisplayName() + " &b" + Utils.formatTime(length);
+        return "&dAction: " + id + " " + type.getDisplayName() + " &b" + Utils.formatTime(length);
     }
 }

@@ -136,16 +136,14 @@ public class Prison extends Cuboid implements Paginatable {
     public String getDisplayName() {
         if (this.name == null || this.name.equalsIgnoreCase("") || this.name.equalsIgnoreCase("null")) {
             return this.id + "";
-        } else {
-            return this.name;
         }
+        return this.name;
     }
     
     public String formatLine(String... args) {
         if (this.name != null && !this.name.equals("")) {
             return "&bPrison &d" + this.id + " &bhas the name &e" + this.name + " &band has &a" + this.inhabitants.size() + " &bout of &a" + this.maxPlayers + " &bplayers";
-        } else {
-            return "&bPrison &d" + this.id + " &bhas no name set and has &a" + this.inhabitants.size() + " &bout of &a" + this.maxPlayers + " &bplayers";
         }
+        return "&bPrison &d" + this.id + " &bhas no name set and has &a" + this.inhabitants.size() + " &bout of &a" + this.maxPlayers + " &bplayers";
     }
 }

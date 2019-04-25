@@ -80,7 +80,7 @@ public final class Enforcer extends JavaPlugin {
                     }
                 }
             }
-        }.runTaskTimerAsynchronously(this, 20*60, 20);
+        }.runTaskTimerAsynchronously(this, 1200, 20);
     }
 
     public void onDisable() {
@@ -99,25 +99,30 @@ public final class Enforcer extends JavaPlugin {
     }
     
     public static long convertTime(String units, long rawLength) {
-        long length = 0;
         if (!units.equals("")) {
             if (units.equalsIgnoreCase("seconds") || units.equalsIgnoreCase("second") || units.equalsIgnoreCase("s")) {
-                length = TimeUnit.SECONDS.toMillis(rawLength);
-            } else if (units.equalsIgnoreCase("minutes") || units.equalsIgnoreCase("minute") || units.equalsIgnoreCase("min")) {
-                length = TimeUnit.MINUTES.toMillis(rawLength);
-            } else if (units.equalsIgnoreCase("hours") || units.equalsIgnoreCase("hour") || units.equalsIgnoreCase("h")) {
-                length = TimeUnit.HOURS.toMillis(rawLength);
-            } else if (units.equalsIgnoreCase("days") || units.equalsIgnoreCase("day") || units.equalsIgnoreCase("d")) {
-                length = TimeUnit.DAYS.toMillis(rawLength);
-            } else if (units.equalsIgnoreCase("weeks") || units.equalsIgnoreCase("week") || units.equalsIgnoreCase("w")) {
-                length = TimeUnit.DAYS.toMillis(rawLength) * 7;
-            } else if (units.equalsIgnoreCase("months") || units.equalsIgnoreCase("month") || units.equalsIgnoreCase("m")) {
-                length = TimeUnit.DAYS.toMillis(rawLength) * 30;
-            }  else if (units.equalsIgnoreCase("years") || units.equalsIgnoreCase("year") || units.equalsIgnoreCase("y")) {
-                length = TimeUnit.DAYS.toMillis(rawLength) * 365;
+                return TimeUnit.SECONDS.toMillis(rawLength);
+            }
+            if (units.equalsIgnoreCase("minutes") || units.equalsIgnoreCase("minute") || units.equalsIgnoreCase("min")) {
+                return TimeUnit.MINUTES.toMillis(rawLength);
+            }
+            if (units.equalsIgnoreCase("hours") || units.equalsIgnoreCase("hour") || units.equalsIgnoreCase("h")) {
+                return TimeUnit.HOURS.toMillis(rawLength);
+            }
+            if (units.equalsIgnoreCase("days") || units.equalsIgnoreCase("day") || units.equalsIgnoreCase("d")) {
+                return TimeUnit.DAYS.toMillis(rawLength);
+            }
+            if (units.equalsIgnoreCase("weeks") || units.equalsIgnoreCase("week") || units.equalsIgnoreCase("w")) {
+                return TimeUnit.DAYS.toMillis(rawLength) * 7;
+            }
+            if (units.equalsIgnoreCase("months") || units.equalsIgnoreCase("month") || units.equalsIgnoreCase("m")) {
+                return TimeUnit.DAYS.toMillis(rawLength) * 30;
+            }
+            if (units.equalsIgnoreCase("years") || units.equalsIgnoreCase("year") || units.equalsIgnoreCase("y")) {
+                return TimeUnit.DAYS.toMillis(rawLength) * 365;
             }
         }
-        return length;
+        return (long) 0;
     }
     
     public static Enforcer getInstance() {
