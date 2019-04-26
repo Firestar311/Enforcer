@@ -7,7 +7,7 @@ import com.firestar311.enforcer.util.*;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
 import com.firestar311.lib.util.Utils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;

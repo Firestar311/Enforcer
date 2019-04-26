@@ -385,9 +385,8 @@ public class PrisonCommand implements CommandExecutor, Listener {
         
         ItemStack mainHand = player.getInventory().getItemInMainHand();
         if (plugin.getCustomItemsHook() == null) return;
-        if (plugin.getCustomItemsHook().getCustomItems() == null) return;
         
-        String name = plugin.getCustomItemsHook().getCustomItems().getItemManager().extractName(mainHand);
+        String name = plugin.getCustomItemsHook().getItemManager().extractName(mainHand);
         if (name == null || name.equals("")) return;
         e.setCancelled(true);
         if (e.getClickedBlock() == null) {

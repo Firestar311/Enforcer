@@ -48,11 +48,6 @@ public final class Enforcer extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new PlayerChatListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerPrisonListener(this), this);
         this.customItemsHook = new CustomItemsHook(this);
-        if (this.customItemsHook.getCustomItems() != null) {
-            getLogger().info("CustomItems plugin found, region based tools will work");
-        } else {
-            getLogger().info("CustomItems plugin not found, regions need to be selected with commands");
-        }
         
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (rsp != null) {

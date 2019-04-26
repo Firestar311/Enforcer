@@ -10,7 +10,7 @@ import com.firestar311.enforcer.util.EnforcerUtils;
 import com.firestar311.enforcer.util.Perms;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.*;
