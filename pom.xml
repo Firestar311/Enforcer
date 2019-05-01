@@ -82,7 +82,7 @@
         <dependency>
             <groupId>com.firestar311</groupId>
             <artifactId>FireLib</artifactId>
-            <version>1.13.1-SNAPSHOT</version>
+            <version>1.14-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
