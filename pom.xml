@@ -6,7 +6,7 @@
 
     <groupId>com.firestar311</groupId>
     <artifactId>Enforcer</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3.1-SNAPSHOT-J11</version>
     <packaging>jar</packaging>
 
     <name>Enforcer</name>
@@ -17,21 +17,21 @@
     </properties>
 
     <build>
-        <defaultGoal>clean package install</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.0</version>
                 <configuration>
-                    <source>1.11</source>
-                    <target>1.11</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
