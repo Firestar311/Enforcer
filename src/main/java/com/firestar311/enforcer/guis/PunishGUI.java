@@ -20,39 +20,41 @@ import java.util.UUID;
 
 public class PunishGUI extends PaginatedGUI {
     
-    private GUIButton PUBLIC_BUTTON = new GUIButton(ItemBuilder.start(Material.DIAMOND).withName("&9PUBLIC")
-            .withLore(Utils.wrapLore(35, "Make this punishment a public punishment, where all players can see the notification")).buildItem());
-    private GUIButton NORMAL_BUTTON = new GUIButton(ItemBuilder.start(Material.QUARTZ).withName("&9NORMAL")
-            .withLore(Utils.wrapLore(35, "Make this punishment a normal punishment to where only staff members with the notify permission" +
-                    "will be able to see the notification. This is also the default.")).withEnchantment(Enchantment.ARROW_DAMAGE, 1)
-            .withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
-    private GUIButton SILENT_BUTTON = new GUIButton(ItemBuilder.start(Material.REDSTONE).withName("&9SILENT")
-            .withLore(Utils.wrapLore(35, "Make this punishment a silent punishment to where only staff members with the permission for " +
-                    "your group or higher (Permission inheritance is key) will be able to see the notification.")).buildItem());
-    
     static {
         PaginatedGUI.prepare(Enforcer.getInstance());
     }
-    
    
     public PunishGUI(Enforcer plugin, PlayerInfo t) {
         super(plugin, "Punish > " + t.getLastName(), false, 54);
     
+        GUIButton PUBLIC_BUTTON = new GUIButton(ItemBuilder.start(Material.DIAMOND).withName("&9PUBLIC")
+                                                                   .withLore(Utils.wrapLore(35, "Make this punishment a public punishment, where all players can see the notification")).buildItem());
+        GUIButton NORMAL_BUTTON = new GUIButton(ItemBuilder.start(Material.QUARTZ).withName("&9NORMAL")
+                                                                   .withLore(Utils.wrapLore(35, "Make this punishment a normal punishment to where only staff members with the notify permission" +
+                                                                           " will be able to see the notification. This is also the default.")).withEnchantment(Enchantment.ARROW_DAMAGE, 1)
+                                                                   .withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
+        GUIButton SILENT_BUTTON = new GUIButton(ItemBuilder.start(Material.REDSTONE).withName("&9SILENT")
+                                                                   .withLore(Utils.wrapLore(35, "Make this punishment a silent punishment to where only staff members with the permission for " +
+                                                                           "your group or higher (Permission inheritance is key) will be able to see the notification.")).buildItem());
+        
         ButtonListener listener = event -> {
             ItemStack itemStack = event.getCurrentItem();
             if (itemStack.hasItemMeta()) {
                 if (itemStack.getItemMeta().getDisplayName() != null) {
                     if (itemStack.getItemMeta().getDisplayName().contains("PUBLIC")) {
+                        System.out.println("Public button");
                         PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants()
                                 .withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
                         NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants().buildItem());
                         SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants().buildItem());
                     } else if (itemStack.getItemMeta().getDisplayName().contains("NORMAL")) {
+                        System.out.println("Normal button");
                         PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants().buildItem());
                         NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants()
                                 .withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
                         SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants().buildItem());
                     } else if (itemStack.getItemMeta().getDisplayName().contains("SILENT")) {
+                        System.out.println("Silent button");
                         PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants().buildItem());
                         NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants().buildItem());
                         SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants()
