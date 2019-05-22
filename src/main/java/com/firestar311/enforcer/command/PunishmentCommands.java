@@ -34,15 +34,15 @@ public class PunishmentCommands implements CommandExecutor {
         }
         
         Player player = ((Player) sender);
-        String prefix = plugin.getDataManager().getPrefix();
+        String prefix = plugin.getSettingsManager().getPrefix();
         
-        PlayerInfo info = plugin.getDataManager().getInfo(args[0]);
+        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[0]);
         if (info == null) {
-            player.sendMessage(Utils.color("&cCould not find a player by that name. Punishing players that have yet to join is not supported yet."));
+            player.sendMessage(Utils.color("&cCould not find a player by that name."));
             return true;
         }
-    
-        //TODO This code is used for my own server
+        
+        //This code is used for my own server
 //        UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
 //        if (info.getUuid().equals(firestar311) && !player.getUniqueId().equals(firestar311)) {
 //            player.sendMessage(Utils.color("&cYou cannot punish that player."));
@@ -55,7 +55,7 @@ public class PunishmentCommands implements CommandExecutor {
                 return true;
             }
         }
-    
+        
         try {
             net.milkbowl.vault.permission.Permission perms = Enforcer.getInstance().getPermission();
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(info.getUuid());
@@ -79,30 +79,33 @@ public class PunishmentCommands implements CommandExecutor {
                 player.openInventory(punishGUI.getInventory());
                 return true;
             }
-    
-            Rule rule = plugin.getDataManager().getRule(StringUtils.join(args, " ", 1, args.length));
+            
+            Rule rule = plugin.getRuleManager().getRule(StringUtils.join(args, " ", 1, args.length));
             if (rule == null) {
                 player.sendMessage(Utils.color("&cThe value you provided does not match to a valid rule."));
                 return true;
             }
-    
-            Entry<Integer, Integer> offenseNumbers = plugin.getDataManager().getNextOffense(info.getUuid(), rule);
+            
+            Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager()
+                                                           .getNextOffense(player.getUniqueId(), info.getUuid(), rule);
             
             RuleOffense offense = rule.getOffense(offenseNumbers.getKey());
             if (offense == null) {
-                player.sendMessage(Utils.color("&cThere was a severe problem getting the next offense, use a manual punishment if an emergency, otherwise, contact the plugin developer"));
+                player.sendMessage(Utils
+                        .color("&cThere was a severe problem getting the next offense, use a manual punishment if an emergency, otherwise, contact the plugin developer"));
                 return true;
             }
             
-            String server = plugin.getDataManager().getPrefix();
+            String server = plugin.getSettingsManager().getPrefix();
             long currentTime = System.currentTimeMillis();
             UUID punisher = player.getUniqueId(), target = info.getUuid();
             String reason = rule.getName() + " Offense #" + offenseNumbers.getValue();
             for (RulePunishment rulePunishment : offense.getPunishments().values()) {
-                Punishment punishment = EnforcerUtils.getPunishmentFromRule(plugin, target, server, currentTime, punisher, reason, rulePunishment);
+                Punishment punishment = EnforcerUtils
+                        .getPunishmentFromRule(plugin, target, server, currentTime, punisher, reason, rulePunishment);
                 punishment.setRuleId(rule.getId());
                 punishment.setOffenseNumber(offenseNumbers.getValue());
-                plugin.getDataManager().addPunishment(punishment);
+                plugin.getPunishmentManager().addPunishment(punishment);
                 punishment.executePunishment();
             }
         } else {
@@ -138,8 +141,9 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
-                BanPunishment punishment = new PermanentBan(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility);
-                plugin.getDataManager().addBan(punishment);
+                BanPunishment punishment = new PermanentBan(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility);
+                plugin.getPunishmentManager().addBan(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             } else if (cmd.getName().equalsIgnoreCase("tempban")) {
@@ -156,8 +160,9 @@ public class PunishmentCommands implements CommandExecutor {
                 }
                 
                 String reason = getReason(2, args);
-                BanPunishment punishment = new TemporaryBan(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility, expire);
-                plugin.getDataManager().addBan(punishment);
+                BanPunishment punishment = new TemporaryBan(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility, expire);
+                plugin.getPunishmentManager().addBan(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             } else if (cmd.getName().equalsIgnoreCase("mute")) {
@@ -171,8 +176,9 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
-                MutePunishment punishment = new PermanentMute(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility);
-                plugin.getDataManager().addMute(punishment);
+                MutePunishment punishment = new PermanentMute(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility);
+                plugin.getPunishmentManager().addMute(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
@@ -180,17 +186,18 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.TEMP_MUTE + ")"));
                     return true;
                 }
-    
+                
                 long expire = extractExpire(player, currentTime, args[1]);
-    
+                
                 if (!(args.length > 2)) {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
-    
+                
                 String reason = getReason(2, args);
-                MutePunishment punishment = new TemporaryMute(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility, expire);
-                plugin.getDataManager().addMute(punishment);
+                MutePunishment punishment = new TemporaryMute(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility, expire);
+                plugin.getPunishmentManager().addMute(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             } else if (cmd.getName().equalsIgnoreCase("kick")) {
@@ -204,8 +211,9 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
-                KickPunishment punishment = new KickPunishment(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility);
-                plugin.getDataManager().addKick(punishment);
+                KickPunishment punishment = new KickPunishment(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility);
+                plugin.getPunishmentManager().addKick(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             } else if (cmd.getName().equalsIgnoreCase("warn")) {
@@ -219,8 +227,9 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
-                WarnPunishment punishment = new WarnPunishment(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility);
-                plugin.getDataManager().addWarning(punishment);
+                WarnPunishment punishment = new WarnPunishment(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility);
+                plugin.getPunishmentManager().addWarning(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             } else if (cmd.getName().equalsIgnoreCase("jail")) {
@@ -229,8 +238,9 @@ public class PunishmentCommands implements CommandExecutor {
                     return true;
                 }
                 
-                if (plugin.getDataManager().getPrisons().isEmpty()) {
-                    player.sendMessage(Utils.color("&cThere are no prisons created. Jail punishments are disabled until at least 1 is created."));
+                if (plugin.getPrisonManager().getPrisons().isEmpty()) {
+                    player.sendMessage(Utils
+                            .color("&cThere are no prisons created. Jail punishments are disabled until at least 1 is created."));
                     return true;
                 }
                 
@@ -239,8 +249,9 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cYou must supply a reason."));
                     return true;
                 }
-                JailPunishment punishment = new JailPunishment(prefix, player.getUniqueId(), info.getUuid(), reason, currentTime, visibility, -1);
-                plugin.getDataManager().addJailPunishment(punishment);
+                JailPunishment punishment = new JailPunishment(prefix, player.getUniqueId(), info
+                        .getUuid(), reason, currentTime, visibility, -1);
+                plugin.getPunishmentManager().addJailPunishment(punishment);
                 punishment.executePunishment();
                 checkTraining(punishment, ignoreTraining);
             }
@@ -262,7 +273,7 @@ public class PunishmentCommands implements CommandExecutor {
     }
     
     private void checkTraining(Punishment punishment, boolean ignoreTraining) {
-        if (plugin.getDataManager().isTrainingMode()) {
+        if (plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher())) {
             if (ignoreTraining) {
                 punishment.setTrainingMode(false);
             }

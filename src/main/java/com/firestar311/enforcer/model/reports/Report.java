@@ -5,7 +5,6 @@ import com.firestar311.enforcer.model.enums.ReportOutcome;
 import com.firestar311.enforcer.model.enums.ReportStatus;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
 import com.firestar311.lib.pagination.Paginatable;
-import com.firestar311.lib.util.Utils;
 import org.bukkit.Location;
 
 import java.util.*;
@@ -56,7 +55,7 @@ public class Report implements Paginatable, Comparable<Report> {
         }
         
         if (serialized.containsKey("location")) {
-            this.location = Utils.getLocationFromString((String) serialized.get("location"));
+            this.location = (Location) serialized.get("location");
         }
         
         if (serialized.containsKey("date")) {
@@ -82,8 +81,8 @@ public class Report implements Paginatable, Comparable<Report> {
     }
     
     public String formatLine(String... strings) {
-        String reporterName = Enforcer.getInstance().getDataManager().getInfo(reporter).getLastName();
-        String targetName = Enforcer.getInstance().getDataManager().getInfo(target).getLastName();
+        String reporterName = Enforcer.getInstance().getPlayerManager().getPlayerInfo(reporter).getLastName();
+        String targetName = Enforcer.getInstance().getPlayerManager().getPlayerInfo(target).getLastName();
         return "&8 - &2<" + this.id + "> " + this.status.getColor() + "(" + this.status.name() + ") "
                 + this.outcome.getColor() + "[" + this.outcome.name() + "] "
                 + "&b" + reporterName + " &7-> &3" + targetName + ": &9" + this.reason;
@@ -196,7 +195,7 @@ public class Report implements Paginatable, Comparable<Report> {
         if (status != null) serialized.put("status", this.status.name());
         if (outcome != null) serialized.put("outcome", this.outcome.name());
         if (evidence != null) serialized.put("evidence", this.evidence.serialze());
-        if (location != null) serialized.put("location", Utils.convertLocationToString(this.location));
+        if (location != null) serialized.put("location", this.location);
         serialized.put("punishments", this.punishments);
         serialized.put("date", this.date);
         serialized.put("reason", this.reason);

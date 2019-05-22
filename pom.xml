@@ -6,7 +6,7 @@
 
     <groupId>com.firestar311</groupId>
     <artifactId>Enforcer</artifactId>
-    <version>1.3.1-SNAPSHOT-J11</version>
+    <version>1.4-SNAPSHOT-J11</version>
     <packaging>jar</packaging>
 
     <name>Enforcer</name>
@@ -76,13 +76,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <version>1.14.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.firestar311</groupId>
             <artifactId>FireLib</artifactId>
-            <version>1.14-SNAPSHOT</version>
+            <version>1.15.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

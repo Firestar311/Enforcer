@@ -27,7 +27,7 @@ public class EnforcerUtils {
             case KICK:
                 return new KickPunishment(server, punisher, target, reason, currentTime);
             case JAIL:
-                Prison prison = plugin.getDataManager().findPrison();
+                Prison prison = plugin.getPrisonManager().findPrison();
                 return new JailPunishment(server, punisher, target, reason, currentTime, prison.getId());
         }
         return null;

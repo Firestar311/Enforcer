@@ -51,7 +51,7 @@ public class ReportCommands implements CommandExecutor {
                 if (args.length == 1) {
                     player.sendMessage(Utils.color("&6---------Report Info---------"));
                     player.sendMessage(Utils.color("&7Report ID: &d" + report.getId()));
-                    player.sendMessage(Utils.color("&7Report Target: &3" + plugin.getDataManager().getInfo(report.getTarget()).getLastName()));
+                    player.sendMessage(Utils.color("&7Report Target: &3" + plugin.getPlayerManager().getPlayerInfo(report.getTarget()).getLastName()));
                     player.sendMessage(Utils.color("&7Report Reason: &9" + report.getReason()));
                     player.sendMessage(Utils.color("&7Report Status: &b" + report.getStatus().getColor() + report.getStatus().name()));
                     player.sendMessage(Utils.color("&7Report Outcome: &b" + report.getOutcome().getColor() + report.getOutcome().name()));
@@ -59,7 +59,7 @@ public class ReportCommands implements CommandExecutor {
                     if (Utils.checkCmdAliases(args, 1, "setevidence", "se")) {
                         if (args.length == 3) {
                             report.setEvidence(new ReportEvidence(0, player.getUniqueId(), EvidenceType.PLAYER, args[2]));
-                            player.sendMessage(Utils.color("&aYou added evidence to the report against" + plugin.getDataManager().getInfo(report.getTarget()).getLastName()));
+                            player.sendMessage(Utils.color("&aYou added evidence to the report against" + plugin.getPlayerManager().getPlayerInfo(report.getTarget()).getLastName()));
                         } else {
                             player.sendMessage(Utils.color("&cYou provided an invalid amount of arguments."));
                             return true;
@@ -83,7 +83,7 @@ public class ReportCommands implements CommandExecutor {
                         report.setOutcome(ReportOutcome.CANCELLED);
                         report.setStatus(ReportStatus.CANCELLED);
                         String format = Messages.REPORT_CANCEL;
-                        PlayerInfo targetInfo = plugin.getDataManager().getInfo(report.getTarget());
+                        PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(report.getTarget());
                         format = format.replace(Variables.TARGET, targetInfo.getLastName()).replace(Variables.ACTOR, player.getName());
                         format = format.replace("{id}", report.getId() + "");
                         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -113,7 +113,7 @@ public class ReportCommands implements CommandExecutor {
                         paginator.display(player, 1);
                     }
                 } else {
-                    PlayerInfo targetInfo = plugin.getDataManager().getInfo(args[0]);
+                    PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(args[0]);
                     if (targetInfo != null) {
                         String rawReason = StringUtils.join(args, " ", 1, args.length);
                         if (StringUtils.isEmpty(rawReason)) {
@@ -121,7 +121,7 @@ public class ReportCommands implements CommandExecutor {
                             return true;
                         }
         
-                        Rule rule = plugin.getDataManager().getRule(rawReason);
+                        Rule rule = plugin.getRuleManager().getRule(rawReason);
                         String reason;
                         if (rule != null) {
                             reason = rule.getName();
@@ -212,7 +212,7 @@ public class ReportCommands implements CommandExecutor {
                     return true;
                 }
                 
-                PlayerInfo info = plugin.getDataManager().getInfo(args[2]);
+                PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[2]);
                 if (info == null) {
                     player.sendMessage(Utils.color("&cYou provided an invalid name."));
                     return true;
@@ -301,7 +301,7 @@ public class ReportCommands implements CommandExecutor {
                     return true;
                 }
                 
-                Punishment punishment = plugin.getDataManager().getPunishment(puId);
+                Punishment punishment = plugin.getPunishmentManager().getPunishment(puId);
                 if (punishment == null) {
                     player.sendMessage(Utils.color("&cThe id you provided does not match a valid punishment"));
                     return true;

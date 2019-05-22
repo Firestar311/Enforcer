@@ -36,7 +36,7 @@ public abstract class MutePunishment extends Punishment {
         sendPunishMessage();
     }
     
-    public void executePardon(UUID remover, long removedDate) {
+    public void reversePunishment(UUID remover, long removedDate) {
         setRemover(remover);
         setRemovedDate(removedDate);
         setActive(false);

@@ -30,8 +30,8 @@ public class PlayerBanJoinListener implements Listener {
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent e) {
         UUID player = e.getUniqueId();
-        if (plugin.getDataManager().isBanned(e.getUniqueId())) {
-            List<Punishment> bans = new ArrayList<>(plugin.getDataManager().getActiveBans(e.getUniqueId()));
+        if (plugin.getPunishmentManager().isBanned(e.getUniqueId())) {
+            List<Punishment> bans = new ArrayList<>(plugin.getPunishmentManager().getActiveBans(e.getUniqueId()));
             BanPunishment worsePunishment = null;
             for (Punishment punishment : bans) {
                 if (worsePunishment == null) {

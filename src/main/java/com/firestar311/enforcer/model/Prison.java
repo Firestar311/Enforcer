@@ -126,7 +126,7 @@ public class Prison extends Cuboid implements Paginatable {
     }
     
     public String getName() {
-        return name;
+        return name == null ? id + "" : name;
     }
     
     public void setName(String name) {

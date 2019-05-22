@@ -22,7 +22,8 @@ public final class Messages {
     public static final String PRISON_REMOVE = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fremoved the prison with id &b" + JAIL_ID;
     public static final String PRISON_SET_NAME = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fset the name of the prison &b" + JAIL_ID + " &fto &b" + DISPLAY;
     public static final String USING_DISPLAYNAMES = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged using display names to &b" + DISPLAY;
-    public static final String TRAINING_MODE = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged training mode to &b" + DISPLAY;
+    public static final String TRAINING_MODE_GLOBAL = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged global training mode to &b" + DISPLAY;
+    public static final String TRAINING_MODE_INDIVIDUAL = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged training mode for &e" + TARGET + " &fto &b" + DISPLAY;
     public static final String PUNISHMENT_KICK = "&a{server} - {TYPE}\n\n&fStaff: &b" + ACTOR + "\n&fReason: &b" + REASON + "\n&fExpires: &c<expire>\n&f{pt} ID: &b{id}";
     public static final String PRISON_REDEFINE = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fredefined the bounds for the prison &b" + DISPLAY;
     public static final String RULE_CREATE = "&6(" + PREFIX + ") &4&l[i] &e<" + RULE_ID + "> &b" + ACTOR + " &fcreated a rule with the name &b" + RULE_NAME + " &fand the internal id &b" + RULE_INTERNALID ;
@@ -56,7 +57,7 @@ public final class Messages {
         format = format.replace(ACTOR, punishment.getPunisherName());
         format = format.replace(REASON, punishment.getReason());
         format = format.replace("{id}", punishment.getId() + "");
-        format = format.replace("{server}", Enforcer.getInstance().getDataManager().getServerName());
+        format = format.replace("{server}", Enforcer.getInstance().getSettingsManager().getServerName());
         
         return format;
     }
@@ -76,13 +77,13 @@ public final class Messages {
                 msg = msg.replace(ACTOR, "&lYou");
                 msg = msg.replace("their", "your");
             } else {
-                if (plugin.getDataManager().isUsingDisplayNames()) {
+                if (plugin.getSettingsManager().isUsingDisplayNames()) {
                     msg = msg.replace(ACTOR, player.getDisplayName());
                 } else {
                     msg = msg.replace(ACTOR, player.getName());
                 }
             }
-            msg = msg.replace(PREFIX, plugin.getDataManager().getPrefix());
+            msg = msg.replace(PREFIX, plugin.getSettingsManager().getPrefix());
             pm.sendMessage(Utils.color(msg));
         }
     }

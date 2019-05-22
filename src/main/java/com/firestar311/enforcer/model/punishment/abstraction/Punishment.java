@@ -236,7 +236,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     
     public String getPunisherName() {
         if (localPunisherName == null) {
-            PlayerInfo info = Enforcer.getInstance().getDataManager().getInfo(this.punisher);
+            PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.punisher);
             if (info != null) {
                 localPunisherName = info.getLastName();
             } else {
@@ -251,7 +251,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     
     public String getTargetName() {
         if (localTargetName == null) {
-            PlayerInfo info = Enforcer.getInstance().getDataManager().getInfo(this.target);
+            PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.target);
             if (info != null) {
                 localTargetName = info.getLastName();
             }
@@ -306,7 +306,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     
     public abstract void executePunishment();
     
-    public abstract void executePardon(UUID remover, long removedDate);
+    public abstract void reversePunishment(UUID remover, long removedDate);
     
     public boolean canSeeMessages(Player p, Visibility visibility) {
         if (visibility.equals(Visibility.NORMAL)) {
@@ -336,7 +336,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
                 msg = msg.replace(Variables.PUNISHER, "&lYou");
             } else {
                 Player player = Bukkit.getPlayer(this.punisher);
-                if (Enforcer.getInstance().getDataManager().isUsingDisplayNames()) {
+                if (Enforcer.getInstance().getSettingsManager().isUsingDisplayNames()) {
                     msg = msg.replace(Variables.PUNISHER, player.getDisplayName());
                 } else {
                     msg = msg.replace(Variables.PUNISHER, getPunisherName());
@@ -355,7 +355,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
                 msg = msg.replace(REMOVER, "&lYou");
             } else {
                 Player player = Bukkit.getPlayer(this.remover);
-                if (Enforcer.getInstance().getDataManager().isUsingDisplayNames()) {
+                if (Enforcer.getInstance().getSettingsManager().isUsingDisplayNames()) {
                     msg = msg.replace(Variables.REMOVER, player.getDisplayName());
                 } else {
                     msg = msg.replace(Variables.REMOVER, getRemoverName());
@@ -418,7 +418,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     
     public String getRemoverName() {
         if (removerName == null) {
-            PlayerInfo info = Enforcer.getInstance().getDataManager().getInfo(this.remover);
+            PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.remover);
             if (info != null) {
                 removerName = info.getLastName();
             }

@@ -70,7 +70,7 @@ public class PunishmentInfoCommand implements CommandExecutor {
             return true;
         }
     
-        Punishment punishment = plugin.getDataManager().getPunishment(id);
+        Punishment punishment = plugin.getPunishmentManager().getPunishment(id);
         
         if (punishment == null) {
             player.sendMessage(Utils.color("&cCould not find a punishment with that id."));

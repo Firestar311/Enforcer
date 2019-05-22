@@ -31,7 +31,8 @@ public class Perms {
     public static final String PRISON_LIST = "enforcer.admin.prison.list";
     public static final String STAFF_HISTORY = "enforcer.history.staff";
     public static final String PLAYER_HISTORY = "enforcer.history.player";
-    public static final String TRAINING_MODE = "enforcer.mode.training";
+    public static final String TRAINING_MODE_GLOBAL = "enforcer.mode.training.global";
+    public static final String TRAINING_MODE_INDIVIDUAL = "enforcer.mode.training.individual";
     public static final String TOGGLE_DISPLAY_NAMES = "enforcer.admin.toggledisplaynames";
     public static final String PUNISH_COMMAND = "enforcer.command.punish";
     public static final String MRULES_MAIN = "enforcer.command.mrules";

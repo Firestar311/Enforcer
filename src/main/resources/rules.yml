@@ -280,11 +280,6 @@ rules:
                         length: 1
                         unit: week
                         id: 0
-                    '1':
-                        punishment: temporary_ban
-                        length: 1
-                        unit: day
-                        id: 1
             '2':
                 actions:
                     '0':

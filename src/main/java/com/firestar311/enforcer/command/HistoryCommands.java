@@ -46,11 +46,11 @@ public class HistoryCommands implements CommandExecutor {
                 if (info == null) return true;
                 UUID target = info.getUuid();
                 List<Punishment> playerPunishments = new LinkedList<>();
-                playerPunishments.addAll(plugin.getDataManager().getBans(target));
-                playerPunishments.addAll(plugin.getDataManager().getMutes(target));
-                playerPunishments.addAll(plugin.getDataManager().getJailPunishments(target));
-                playerPunishments.addAll(plugin.getDataManager().getKicks(target));
-                playerPunishments.addAll(plugin.getDataManager().getWarnings(target));
+                playerPunishments.addAll(plugin.getPunishmentManager().getBans(target));
+                playerPunishments.addAll(plugin.getPunishmentManager().getMutes(target));
+                playerPunishments.addAll(plugin.getPunishmentManager().getJailPunishments(target));
+                playerPunishments.addAll(plugin.getPunishmentManager().getKicks(target));
+                playerPunishments.addAll(plugin.getPunishmentManager().getWarnings(target));
                 Paginator<Punishment> paginator = EnforcerUtils.generatePaginatedPunishmentList(playerPunishments, "&7-=History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})", "&7Type /staffhistory page {nextpage} for more");
                 paginator.display(player, 1, "history");
                 this.historyPaginators.put(player.getUniqueId(), paginator);
@@ -77,7 +77,7 @@ public class HistoryCommands implements CommandExecutor {
                 PlayerInfo info = getPlayerInfo(args[0], player);
                 if (info == null) return true;
                 
-                List<Punishment> allPunishments = new ArrayList<>(plugin.getDataManager().getPunishments());
+                List<Punishment> allPunishments = new ArrayList<>(plugin.getPunishmentManager().getPunishments());
                 List<Punishment> staffPunishments = new LinkedList<>();
                 allPunishments.forEach(punishment -> {
                     if (punishment.getPunisher().equals(info.getUuid())) {
@@ -118,7 +118,7 @@ public class HistoryCommands implements CommandExecutor {
     }
     
     private PlayerInfo getPlayerInfo(String string, Player player) {
-        PlayerInfo info = plugin.getDataManager().getInfo(string);
+        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(string);
         if (info == null) {
             player.sendMessage(Utils.color("&cThat player has never joined the server, they do not have a history."));
             return null;

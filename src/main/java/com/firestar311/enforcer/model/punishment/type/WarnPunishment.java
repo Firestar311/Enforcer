@@ -40,7 +40,7 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     
     public Prompt createPrompt() {
         Player player = Bukkit.getPlayer(target);
-        String code = Enforcer.getInstance().getDataManager().generateAckCode(this.id);
+        String code = Enforcer.getInstance().getPunishmentManager().generateAckCode(this.id);
         if (player != null) {
             prompt = new ValidatingPrompt() {
                 public String getPromptText(ConversationContext context) {
@@ -86,7 +86,7 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
         }
     }
     
-    public void executePardon(UUID remover, long removedDate) {
+    public void reversePunishment(UUID remover, long removedDate) {
     
     }
     

@@ -93,12 +93,12 @@ public class PrisonCommand implements CommandExecutor, Listener {
                     prison = new Prison(id, location, maxPlayers);
                 }
             }
-            plugin.getDataManager().addPrison(prison);
+            plugin.getPrisonManager().addPrison(prison);
             String message = Messages.PRISON_CREATE;
             message = message.replace(Variables.JAIL_ID, prison.getDisplayName());
             sendOutputMessage(player, message);
             
-            Set<Prison> prisons = plugin.getDataManager().getPrisonsWithOverflow();
+            Set<Prison> prisons = plugin.getPrisonManager().getPrisonsWithOverflow();
             Set<UUID> playersToAdd = new HashSet<>();
             
             for (Prison pr : prisons) {
@@ -135,14 +135,14 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 return true;
             }
             
-            if (plugin.getDataManager().getPrisons().isEmpty()) {
+            if (plugin.getPrisonManager().getPrisons().isEmpty()) {
                 player.sendMessage(Utils.color("&cThere are no prisons created."));
                 return true;
             }
             
             PaginatorFactory<Prison> factory = new PaginatorFactory<>();
             factory.setMaxElements(7).setHeader("&7-=List of Prisons=- &e({pagenumber}/{totalpages})").setFooter("&7Type /prison list {nextpage} for more");
-            for (Prison prison : plugin.getDataManager().getPrisons()) {
+            for (Prison prison : plugin.getPrisonManager().getPrisons()) {
                 factory.addElement(prison);
             }
             Paginator<Prison> paginator = factory.build();
@@ -175,7 +175,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
         }
     
         ///prison <id|name> <subcommand>
-        Prison prison = plugin.getDataManager().getPrisonFromString(player, args[0]);
+        Prison prison = plugin.getPrisonManager().getPrisonFromString(player, args[0]);
         if (prison == null) return true;
         
         if (Utils.checkCmdAliases(args, 1, "setlocation", "sl")) {
@@ -195,7 +195,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             message = message.replace(Variables.JAIL_ID, prison.getDisplayName());
             sendOutputMessage(player, message);
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (plugin.getDataManager().isJailed(p.getUniqueId())) {
+                if (plugin.getPunishmentManager().isJailed(p.getUniqueId())) {
                     if (prison.isInhabitant(p.getUniqueId())) {
                         p.teleport(newLocation);
                         p.sendMessage(Utils.color("&dThe prison location was changed by &b" + player.getName() + " &dso you have been teleported to the new location."));
@@ -226,7 +226,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             }
             
             if (amount > prison.getMaxPlayers()) {
-                Set<Prison> prisons = plugin.getDataManager().getPrisonsWithOverflow();
+                Set<Prison> prisons = plugin.getPrisonManager().getPrisonsWithOverflow();
                 Set<UUID> playersToAdd = new HashSet<>();
                 for (Prison pr : prisons) {
                     List<UUID> inhabitants = new LinkedList<>(pr.getInhabitants());
@@ -254,11 +254,11 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 }
                 prison.setMaxPlayers(amount);
                 for (UUID removed : playersToRemove) {
-                    Prison newPrison = plugin.getDataManager().findPrison();
+                    Prison newPrison = plugin.getPrisonManager().findPrison();
                     if (newPrison == null) continue;
                     prison.removeInhabitant(removed);
-                    for (Punishment punishment : plugin.getDataManager().getActiveJails(removed)) {
-                        ((JailPunishment) punishment).setJailId(newPrison.getId());
+                    for (Punishment punishment : plugin.getPunishmentManager().getActiveJails(removed)) {
+                        ((JailPunishment) punishment).setPrisonId(newPrison.getId());
                     }
                     Player inhabitant = Bukkit.getPlayer(removed);
                     if (inhabitant != null) {
@@ -283,9 +283,9 @@ public class PrisonCommand implements CommandExecutor, Listener {
             }
             
             Set<UUID> inhabitants = new HashSet<>(prison.getInhabitants());
-            plugin.getDataManager().removePrison(prison.getId());
+            plugin.getPrisonManager().removePrison(prison.getId());
             for (UUID inhabitant : inhabitants) {
-                Prison newPrison = plugin.getDataManager().findPrison();
+                Prison newPrison = plugin.getPrisonManager().findPrison();
                 Player jailedUser = changePunishmentInfo(newPrison, inhabitant);
                 if (jailedUser != null) {
                     jailedUser.teleport(newPrison.getLocation());
@@ -313,7 +313,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 return true;
             }
             
-            for (Prison pr : plugin.getDataManager().getPrisons()) {
+            for (Prison pr : plugin.getPrisonManager().getPrisons()) {
                 if (pr.getId() != prison.getId()) {
                     if (pr.getName() != null) {
                         if (pr.getName().equalsIgnoreCase(args[2])) {
@@ -358,8 +358,8 @@ public class PrisonCommand implements CommandExecutor, Listener {
     
     private Player changePunishmentInfo(Prison prison, UUID uuid) {
         prison.addInhabitant(uuid);
-        for (Punishment punishment : plugin.getDataManager().getActiveJails(uuid)) {
-            ((JailPunishment) punishment).setJailId(prison.getId());
+        for (Punishment punishment : plugin.getPunishmentManager().getActiveJails(uuid)) {
+            ((JailPunishment) punishment).setPrisonId(prison.getId());
         }
         return Bukkit.getPlayer(uuid);
     }
@@ -397,7 +397,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
         if (name.equalsIgnoreCase("inspecttool")) {
             if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getHand().equals(EquipmentSlot.HAND)) {
                 Location location = e.getClickedBlock().getLocation();
-                for (Prison prison : plugin.getDataManager().getPrisons()) {
+                for (Prison prison : plugin.getPrisonManager().getPrisons()) {
                     if (prison.contains(location)) {
                         System.out.println("Prison contains the block clicked.");
                         player.sendMessage(Utils.color("&aThe block you clicked on is in the prison &b" + prison.getDisplayName()));

@@ -3,11 +3,11 @@ package com.firestar311.enforcer;
 import com.firestar311.enforcer.command.*;
 import com.firestar311.enforcer.hooks.CustomItemsHook;
 import com.firestar311.enforcer.listener.*;
-import com.firestar311.enforcer.manager.DataManager;
-import com.firestar311.enforcer.manager.ReportManager;
+import com.firestar311.enforcer.manager.*;
 import com.firestar311.enforcer.model.punishment.abstraction.MutePunishment;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
 import com.firestar311.enforcer.model.punishment.interfaces.Expireable;
+import com.firestar311.lib.player.PlayerManager;
 import com.firestar311.lib.util.Utils;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
@@ -22,18 +22,29 @@ import java.util.concurrent.TimeUnit;
 
 public final class Enforcer extends JavaPlugin {
 
-    private DataManager dataManager;
+    private PunishmentManager punishmentManager;
+    private PrisonManager prisonManager;
+    private RuleManager ruleManager;
+    private TrainingModeManager trainingModeManager;
     private ReportManager reportManager;
     private Permission permission;
     private CustomItemsHook customItemsHook;
     
     private static Enforcer instance;
+    private SettingsManager settingsManager;
     
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
-        this.dataManager = new DataManager(this);
-        this.dataManager.loadData();
+        this.settingsManager = new SettingsManager(this);
+        this.punishmentManager = new PunishmentManager(this);
+        this.punishmentManager.loadPunishmentData();
+        this.prisonManager = new PrisonManager(this);
+        this.prisonManager.loadPrisonData();
+        this.ruleManager = new RuleManager(this);
+        this.ruleManager.loadRuleData();
+        this.trainingModeManager = new TrainingModeManager(this);
+        this.trainingModeManager.loadTrainingData();
         this.reportManager = new ReportManager(this);
         this.reportManager.loadReports();
         this.getCommand("enforcer").setExecutor(new EnforcerCommand(this));
@@ -58,7 +69,7 @@ public final class Enforcer extends JavaPlugin {
         
         new BukkitRunnable() {
             public void run() {
-                Set<Punishment> punishments = getDataManager().getActivePunishments();
+                Set<Punishment> punishments = getPunishmentManager().getActivePunishments();
                 for (Punishment punishment : punishments) {
                     if (punishment instanceof Expireable) {
                         Expireable expireable = ((Expireable) punishment);
@@ -79,12 +90,11 @@ public final class Enforcer extends JavaPlugin {
     }
 
     public void onDisable() {
-        this.dataManager.saveData();
+        this.punishmentManager.savePunishmentData();
+        this.prisonManager.savePrisonData();
+        this.ruleManager.saveRuleData();
+        this.trainingModeManager.saveTrainingData();
         this.reportManager.saveReports();
-    }
-    
-    public DataManager getDataManager() {
-        return dataManager;
     }
     
     private void registerCommands(CommandExecutor executor, String... cmds) {
@@ -134,5 +144,29 @@ public final class Enforcer extends JavaPlugin {
     
     public ReportManager getReportManager() {
         return reportManager;
+    }
+    
+    public PunishmentManager getPunishmentManager() {
+        return punishmentManager;
+    }
+    
+    public PrisonManager getPrisonManager() {
+        return prisonManager;
+    }
+    
+    public RuleManager getRuleManager() {
+        return ruleManager;
+    }
+    
+    public TrainingModeManager getTrainingModeManager() {
+        return trainingModeManager;
+    }
+    
+    public SettingsManager getSettingsManager() {
+        return settingsManager;
+    }
+    
+    public PlayerManager getPlayerManager() {
+        return getServer().getServicesManager().getRegistration(PlayerManager.class).getProvider();
     }
 }

@@ -27,12 +27,12 @@ public class PlayerChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
         
-        if (plugin.getDataManager().isJailed(player.getUniqueId())) {
+        if (plugin.getPunishmentManager().isJailed(player.getUniqueId())) {
             e.setCancelled(true);
             player.sendMessage(Utils.color("&cYou cannnot speak while jailed."));
             return;
         }
-        if (plugin.getDataManager().isMuted(player.getUniqueId())) {
+        if (plugin.getPunishmentManager().isMuted(player.getUniqueId())) {
             e.setCancelled(true);
             player.sendMessage(Utils.color("&cYou cannot speak while muted."));
             if (this.notifications.containsKey(player.getUniqueId())) {
@@ -54,10 +54,10 @@ public class PlayerChatListener implements Listener {
             return;
         }
     
-        e.getRecipients().removeIf(recipient -> plugin.getDataManager().isJailed(recipient.getUniqueId()));
+        e.getRecipients().removeIf(recipient -> plugin.getPunishmentManager().isJailed(recipient.getUniqueId()));
         
-        for (Punishment punishment : plugin.getDataManager().getWarnings(player.getUniqueId())) {
-            if (!plugin.getDataManager().isTrainingMode()) {
+        for (Punishment punishment : plugin.getPunishmentManager().getWarnings(player.getUniqueId())) {
+            if (!plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher())) {
                 WarnPunishment warning = (WarnPunishment) punishment;
                 if (!warning.isAcknowledged()) {
                     e.setCancelled(true);

@@ -4,7 +4,7 @@ main: com.firestar311.enforcer.Enforcer
 authors: [Firestar311]
 api-version: 1.13
 description: Punishment system by Firestar311
-softdepend: [Vault,CustomItems]
+softdepend: [Vault]
 depend: [FireLib]
 commands:
     moderatorrules:

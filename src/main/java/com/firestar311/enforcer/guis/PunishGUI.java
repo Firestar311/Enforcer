@@ -75,7 +75,7 @@ public class PunishGUI extends PaginatedGUI {
         setToolbarItem(4, NORMAL_BUTTON);
         setToolbarItem(6, SILENT_BUTTON);
         
-        for (Rule r : plugin.getDataManager().getRules()) {
+        for (Rule r : plugin.getRuleManager().getRules()) {
             if (r.getMaterial() != null) {
                 GUIButton button = new GUIButton(r.getItemStack());
                 
@@ -84,7 +84,8 @@ public class PunishGUI extends PaginatedGUI {
                     
                     Player player = ((Player) e.getWhoClicked());
                     
-                    Entry<Integer, Integer> offenseNumbers = plugin.getDataManager().getNextOffense(target, r);
+                    Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player
+                            .getUniqueId(), target, r);
                     
                     RuleOffense offense = r.getOffense(offenseNumbers.getKey());
                     if (offense == null) {
@@ -92,7 +93,7 @@ public class PunishGUI extends PaginatedGUI {
                         return;
                     }
                     
-                    String server = plugin.getDataManager().getPrefix();
+                    String server = plugin.getSettingsManager().getPrefix();
                     long currentTime = System.currentTimeMillis();
                     UUID punisher = player.getUniqueId();
                     String reason = r.getName() + " Offense #" + offenseNumbers.getValue();
@@ -109,7 +110,7 @@ public class PunishGUI extends PaginatedGUI {
                         punishment.setVisibility(visibility);
                         punishment.setRuleId(r.getId());
                         punishment.setOffenseNumber(offenseNumbers.getValue());
-                        plugin.getDataManager().addPunishment(punishment);
+                        plugin.getPunishmentManager().addPunishment(punishment);
                         punishment.executePunishment();
                     }
                     player.closeInventory();

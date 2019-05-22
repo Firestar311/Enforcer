@@ -16,39 +16,56 @@ import java.util.UUID;
 
 public class JailPunishment extends Punishment {
     
-    private int jailId = -1;
+    private int prisonId = -1;
+    private String jailedInventory;
+    private boolean unjailedWhileOffline, notifiedOfOfflineJail, notifiedOfOfflineUnjail;
     
     public JailPunishment(Map<String, Object> serialized) {
         super(serialized);
-        if (serialized.containsKey("jailId")) {
-            this.jailId = (int) serialized.get("jailId");
+        if (serialized.containsKey("prisonId")) {
+            this.prisonId = (int) serialized.get("prisonId");
+        }
+        
+        if (serialized.containsKey("jailedInventory")) {
+            this.jailedInventory = (String) serialized.get("jailedInventory");
+        }
+        
+        if (serialized.containsKey("unjailedWhileOffline")) {
+            this.unjailedWhileOffline = (boolean) serialized.get("unjailedWhileOffline");
+        }
+        
+        if (serialized.containsKey("notifiedOfOfflineJail")) {
+            this.notifiedOfOfflineJail = (boolean) serialized.get("notifiedOfOfflineJail");
+        }
+        
+        if (serialized.containsKey("notifiedOfOfflineUnjail")) {
+            this.notifiedOfOfflineUnjail = (boolean) serialized.get("notifiedOfOfflineJail");
         }
     }
     
-    public JailPunishment(String server, UUID punisher, UUID target, String reason, long date, int jailId) {
+    public JailPunishment(String server, UUID punisher, UUID target, String reason, long date, int prisonId) {
         super(PunishmentType.JAIL, server, punisher, target, reason, date);
-        this.jailId = jailId;
+        this.prisonId = prisonId;
     }
     
-    public JailPunishment(String server, UUID punisher, UUID target, String reason, long date, Visibility visibility, int jailId) {
+    public JailPunishment(String server, UUID punisher, UUID target, String reason, long date, Visibility visibility, int prisonId) {
         super(PunishmentType.JAIL, server, punisher, target, reason, date, visibility);
-        this.jailId = jailId;
+        this.prisonId = prisonId;
     }
     
-    public JailPunishment(int id, String server, UUID punisher, UUID target, String reason, long date, boolean active, boolean purgatory, Visibility visibility, int jailId) {
+    public JailPunishment(int id, String server, UUID punisher, UUID target, String reason, long date, boolean active, boolean purgatory, Visibility visibility, int prisonId) {
         super(id, PunishmentType.JAIL, server, punisher, target, reason, date, active, purgatory, visibility);
-        this.jailId = jailId;
+        this.prisonId = prisonId;
     }
     
     public void executePunishment() {
         Player player = Bukkit.getPlayer(target);
-        Prison prison = Enforcer.getInstance().getDataManager().getPrison(this.jailId);
+        Prison prison = Enforcer.getInstance().getPrisonManager().getPrison(this.prisonId);
         prison.addInhabitant(this.target);
         if (player != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Enforcer.getInstance(), () -> player.teleport(prison.getLocation()));
             player.sendMessage(Utils.color("&cYou have been jailed by &7" + getPunisherName() + " &cfor the reason &7" + this.getReason()));
-            String inv = InventoryStore.itemsToString(player.getInventory().getContents());
-            Enforcer.getInstance().getDataManager().addInvString(player.getUniqueId(), inv);
+            this.jailedInventory = InventoryStore.itemsToString(player.getInventory().getContents());
             player.getInventory().clear();
         } else {
             setOffline(true);
@@ -57,13 +74,13 @@ public class JailPunishment extends Punishment {
         sendPunishMessage();
     }
     
-    public void executePardon(UUID remover, long removedDate) {
+    public void reversePunishment(UUID remover, long removedDate) {
         setRemover(remover);
         setRemovedDate(removedDate);
         setActive(false);
         sendRemovalMessage();
         
-        Prison prison = Enforcer.getInstance().getDataManager().getPrison(this.jailId);
+        Prison prison = Enforcer.getInstance().getPrisonManager().getPrison(this.prisonId);
         if (prison != null) {
             prison.removeInhabitant(this.target);
         }
@@ -73,23 +90,52 @@ public class JailPunishment extends Punishment {
             target.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             target.sendMessage(Utils.color("&aYou have been unjailed by &b" + getRemoverName()));
             try {
-                ItemStack[] items = InventoryStore.stringToItems(Enforcer.getInstance().getDataManager().getJailedInv(target.getUniqueId()));
+                ItemStack[] items = InventoryStore.stringToItems(this.jailedInventory);
                 target.getInventory().setContents(items);
                 target.sendMessage(Utils.color("&7&oYour inventory items have been restored."));
             } catch (Exception e) {
                 target.sendMessage(Utils.color("&cThere was a problem restoring your inventory. Please contact the plugin developer"));
             }
         } else {
-            Enforcer.getInstance().getDataManager().addUnjailedWhileOffline(this.target);
+            this.unjailedWhileOffline = true;
+            this.notifiedOfOfflineJail = false;
         }
     }
     
-    public int getJailId() {
-        return jailId;
+    public boolean wasNotifiedOfOfflineUnjail() {
+        return notifiedOfOfflineUnjail;
     }
     
-    public void setJailId(int id) {
-        this.getAuditLog().addAuditEntry("Prison ID changed from " + this.jailId + " to " + id);
-        this.jailId = id;
+    public void setNotifiedOfOfflineUnjail(boolean notifiedOfOfflineUnjail) {
+        this.notifiedOfOfflineUnjail = notifiedOfOfflineUnjail;
+    }
+    
+    public int getPrisonId() {
+        return prisonId;
+    }
+    
+    public void setPrisonId(int id) {
+        this.getAuditLog().addAuditEntry("Prison ID changed from " + this.prisonId + " to " + id);
+        this.prisonId = id;
+    }
+    
+    public void setJailedInventory(String jailedInventory) {
+        this.jailedInventory = jailedInventory;
+    }
+    
+    public String getJailedInventory() {
+        return jailedInventory;
+    }
+    
+    public boolean wasUnjailedWhileOffline() {
+        return unjailedWhileOffline;
+    }
+    
+    public boolean wasNotifiedOfOfflineJail() {
+        return notifiedOfOfflineJail;
+    }
+    
+    public void setNotifiedOfOfflineJail(boolean notifiedOfOfflineJail) {
+        this.notifiedOfOfflineJail = notifiedOfOfflineJail;
     }
 }
