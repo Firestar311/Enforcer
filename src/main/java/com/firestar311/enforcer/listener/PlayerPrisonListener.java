@@ -55,8 +55,7 @@ public class PlayerPrisonListener implements Listener {
                     if (player.getInventory().getSize() > 0) {
                         player.getInventory().clear();
                     }
-                    player.sendMessage(Utils
-                            .color("&cYou were outside of the prison bounds, teleporting you to the spawn location."));
+                    player.sendMessage(Utils.color("&cYou were outside of the prison bounds, teleporting you to the spawn location."));
                 }
             }
         } else {
@@ -74,8 +73,7 @@ public class PlayerPrisonListener implements Listener {
                                 player.sendMessage(Utils.color("&7&oYour inventory items have been restored."));
                                 jailPunishment.setNotifiedOfOfflineUnjail(true);
                             } catch (Exception e) {
-                                player.sendMessage(Utils
-                                        .color("&cThere was a problem restoring your inventory. Please contact the plugin developer"));
+                                player.sendMessage(Utils.color("&cThere was a problem restoring your inventory. Please contact the plugin developer"));
                             }
                         }
                     }
@@ -85,8 +83,7 @@ public class PlayerPrisonListener implements Listener {
         
         if (plugin.getPrisonManager().getPrisons().isEmpty()) {
             if (player.hasPermission(Perms.ENFORCER_ADMIN)) {
-                player.sendMessage(Utils
-                        .color("&c&lThere are currently no prisons set and the jail punishment type is enabled. Jails will not work."));
+                player.sendMessage(Utils.color("&c&lThere are currently no prisons set and the jail punishment type is enabled. Jails will not work."));
             }
         }
     }
