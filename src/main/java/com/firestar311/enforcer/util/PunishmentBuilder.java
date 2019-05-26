@@ -27,6 +27,10 @@ public class PunishmentBuilder {
         this.type = type;
     }
     
+    public PunishmentBuilder(UUID target) {
+        this.target = target;
+    }
+    
     public PunishmentBuilder setRuleId(int ruleId) {
         this.ruleId = ruleId;
         return this;
@@ -127,6 +131,58 @@ public class PunishmentBuilder {
                 throw new IllegalArgumentException("Punishment type can expire but no length for that time is defined");
             }
         }
+    }
+    
+    public int getRuleId() {
+        return ruleId;
+    }
+    
+    public int getOffenseNumber() {
+        return offenseNumber;
+    }
+    
+    public PunishmentType getType() {
+        return type;
+    }
+    
+    public String getServer() {
+        return server;
+    }
+    
+    public UUID getPunisher() {
+        return punisher;
+    }
+    
+    public UUID getTarget() {
+        return target;
+    }
+    
+    public String getReason() {
+        return reason;
+    }
+    
+    public long getDate() {
+        return date;
+    }
+    
+    public long getLength() {
+        return length;
+    }
+    
+    public boolean isOffline() {
+        return offline;
+    }
+    
+    public boolean isTrainingMode() {
+        return trainingMode;
+    }
+    
+    public Visibility getVisibility() {
+        return visibility;
+    }
+    
+    public int getPrisonId() {
+        return prisonId;
     }
     
     public Punishment build() {

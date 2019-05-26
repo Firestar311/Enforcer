@@ -5,6 +5,7 @@ import com.firestar311.enforcer.model.enums.Visibility;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
 import com.firestar311.enforcer.model.rule.*;
 import com.firestar311.enforcer.util.EnforcerUtils;
+import com.firestar311.enforcer.util.PunishmentBuilder;
 import com.firestar311.lib.builder.ItemBuilder;
 import com.firestar311.lib.gui.*;
 import com.firestar311.lib.player.PlayerInfo;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -23,19 +25,13 @@ public class PunishGUI extends PaginatedGUI {
     static {
         PaginatedGUI.prepare(Enforcer.getInstance());
     }
-   
-    public PunishGUI(Enforcer plugin, PlayerInfo t) {
-        super(plugin, "Punish > " + t.getLastName(), false, 54);
     
-        GUIButton PUBLIC_BUTTON = new GUIButton(ItemBuilder.start(Material.DIAMOND).withName("&9PUBLIC")
-                                                                   .withLore(Utils.wrapLore(35, "Make this punishment a public punishment, where all players can see the notification")).buildItem());
-        GUIButton NORMAL_BUTTON = new GUIButton(ItemBuilder.start(Material.QUARTZ).withName("&9NORMAL")
-                                                                   .withLore(Utils.wrapLore(35, "Make this punishment a normal punishment to where only staff members with the notify permission" +
-                                                                           " will be able to see the notification. This is also the default.")).withEnchantment(Enchantment.ARROW_DAMAGE, 1)
-                                                                   .withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
-        GUIButton SILENT_BUTTON = new GUIButton(ItemBuilder.start(Material.REDSTONE).withName("&9SILENT")
-                                                                   .withLore(Utils.wrapLore(35, "Make this punishment a silent punishment to where only staff members with the permission for " +
-                                                                           "your group or higher (Permission inheritance is key) will be able to see the notification.")).buildItem());
+    public PunishGUI(Enforcer plugin, Player pu, PlayerInfo t) {
+        super(plugin, "Punish > " + t.getLastName(), false, 54);
+        
+        GUIButton PUBLIC_BUTTON = new GUIButton(ItemBuilder.start(Material.DIAMOND).withName("&9PUBLIC").withLore(Utils.wrapLore(35, "Make this punishment a public punishment, where all players can see the notification")).buildItem());
+        GUIButton NORMAL_BUTTON = new GUIButton(ItemBuilder.start(Material.QUARTZ).withName("&9NORMAL").withLore(Utils.wrapLore(35, "Make this punishment a normal punishment to where only staff members with the notify permission" + " will be able to see the notification. This is also the default.")).withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
+        GUIButton SILENT_BUTTON = new GUIButton(ItemBuilder.start(Material.REDSTONE).withName("&9SILENT").withLore(Utils.wrapLore(35, "Make this punishment a silent punishment to where only staff members with the permission for " + "your group or higher (Permission inheritance is key) will be able to see the notification.")).buildItem());
         
         ButtonListener listener = event -> {
             ItemStack itemStack = event.getCurrentItem();
@@ -43,22 +39,19 @@ public class PunishGUI extends PaginatedGUI {
                 if (itemStack.getItemMeta().getDisplayName() != null) {
                     if (itemStack.getItemMeta().getDisplayName().contains("PUBLIC")) {
                         System.out.println("Public button");
-                        PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants()
-                                .withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
+                        PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants().withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
                         NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants().buildItem());
                         SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants().buildItem());
                     } else if (itemStack.getItemMeta().getDisplayName().contains("NORMAL")) {
                         System.out.println("Normal button");
                         PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants().buildItem());
-                        NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants()
-                                .withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
+                        NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants().withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
                         SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants().buildItem());
                     } else if (itemStack.getItemMeta().getDisplayName().contains("SILENT")) {
                         System.out.println("Silent button");
                         PUBLIC_BUTTON.setItem(new ItemBuilder(PUBLIC_BUTTON.getItem()).clearEnchants().buildItem());
                         NORMAL_BUTTON.setItem(new ItemBuilder(NORMAL_BUTTON.getItem()).clearEnchants().buildItem());
-                        SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants()
-                                .withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
+                        SILENT_BUTTON.setItem(new ItemBuilder(SILENT_BUTTON.getItem()).clearEnchants().withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
                     }
                     
                     event.getClickedInventory().setItem(47, PUBLIC_BUTTON.getItem());
@@ -67,7 +60,7 @@ public class PunishGUI extends PaginatedGUI {
                 }
             }
         };
-    
+        
         PUBLIC_BUTTON.setListener(listener);
         NORMAL_BUTTON.setListener(listener);
         SILENT_BUTTON.setListener(listener);
@@ -77,15 +70,31 @@ public class PunishGUI extends PaginatedGUI {
         
         for (Rule r : plugin.getRuleManager().getRules()) {
             if (r.getMaterial() != null) {
-                GUIButton button = new GUIButton(r.getItemStack());
+                Entry<Integer, Integer> oN = plugin.getRuleManager().getNextOffense(pu.getUniqueId(), t.getUuid(), r);
+                
+                RuleOffense off = r.getOffense(oN.getKey());
+                if (off == null) {
+                    return;
+                }
+                
+                List<String> lore = r.getItemStack().getItemMeta().getLore();
+                lore.add("");
+                lore.add("&fThe next punishment for &b" + t.getLastName());
+                lore.add("&fWill result in the following");
+                lore.add("&fReason: &e" + r.getName() + " Offense #" + off.getOffenseNumber());
+                for (RulePunishment rP : off.getPunishments().values()) {
+                    lore.add(" &8- " + EnforcerUtils.getPunishString(rP.getType(), rP.getLength()));
+                }
+                
+                ItemStack itemStack = ItemBuilder.start(r.getItemStack()).clearLore().withLore(lore).buildItem();
+                GUIButton button = new GUIButton(itemStack);
                 
                 button.setListener(e -> {
                     final UUID target = t.getUuid();
                     
                     Player player = ((Player) e.getWhoClicked());
                     
-                    Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player
-                            .getUniqueId(), target, r);
+                    Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player.getUniqueId(), target, r);
                     
                     RuleOffense offense = r.getOffense(offenseNumbers.getKey());
                     if (offense == null) {
@@ -98,8 +107,12 @@ public class PunishGUI extends PaginatedGUI {
                     UUID punisher = player.getUniqueId();
                     String reason = r.getName() + " Offense #" + offenseNumbers.getValue();
                     for (RulePunishment rulePunishment : offense.getPunishments().values()) {
-                        Punishment punishment = EnforcerUtils.getPunishmentFromRule(plugin, target, server, currentTime, punisher, reason, rulePunishment);
-    
+                        PunishmentBuilder puBuilder = new PunishmentBuilder(target);
+                        puBuilder.setType(rulePunishment.getType());
+                        puBuilder.setReason(reason).setPunisher(punisher).setServer(server).setDate(currentTime).setLength(rulePunishment.getLength());
+                        puBuilder.setRuleId(r.getId());
+                        puBuilder.setOffenseNumber(offenseNumbers.getValue());
+                        
                         Visibility visibility = Visibility.NORMAL;
                         if (PUBLIC_BUTTON.getItem().getItemMeta().hasEnchant(Enchantment.ARROW_DAMAGE)) {
                             visibility = Visibility.PUBLIC;
@@ -107,9 +120,8 @@ public class PunishGUI extends PaginatedGUI {
                             visibility = Visibility.SILENT;
                         }
                         
-                        punishment.setVisibility(visibility);
-                        punishment.setRuleId(r.getId());
-                        punishment.setOffenseNumber(offenseNumbers.getValue());
+                        puBuilder.setVisibility(visibility);
+                        Punishment punishment = puBuilder.build();
                         plugin.getPunishmentManager().addPunishment(punishment);
                         punishment.executePunishment();
                     }

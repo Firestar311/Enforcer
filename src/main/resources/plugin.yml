@@ -12,6 +12,7 @@ commands:
     enforcer:
         aliases: [enf]
     punish:
+        aliases: [pu]
     ban:
     tempban:
     mute:
@@ -33,3 +34,4 @@ commands:
         aliases: [r]
     reportadmin:
         aliases: [ra]
+    punishment:

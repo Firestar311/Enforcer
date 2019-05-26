@@ -53,6 +53,7 @@ public class Perms {
     public static final String MRULES_OFFENSES_PUNISHMENTS_CLEAR = "enforcer.rules.offenses.punishments.clear";
     public static final String OFFLINE_PUNISH = "enforcer.punishments.punish.offline";
     public static final String FLAG_IGNORE_TRAINING = "enforcer.command.flag.ignoretraining";
+    public static final String FLAG_IGNORE_CONFIRM = "enforcer.command.flag.ignoreconfirm";
     public static final String REPORT_ADMIN = "enforcer.command.reportadmin";
     public static final String REPORT_ADMIN_ASSIGN = "enforcer.command.reportadmin.assign";
     public static final String REPORT_ADMIN_STATUS = "enforcer.command.reportadmin.status";

@@ -12,21 +12,28 @@ rules:
                         length: 7
                         unit: days
                         id: 0
-                    '1':
+            '2':
+                actions:
+                    '0':
                         punishment: temporary_ban
                         length: 12
                         unit: days
-                        id: 1
-                    '2':
+                        id: 0
+            '3':
+                actions:
+                    '0':
                         punishment: temporary_ban
                         length: 30
                         unit: days
-                        id: 2
-                    '3':
+                        id: 0
+            '4':
+                actions:
+                    '0':
                         punishment: permanent_ban
                         length: -1
                         unit: ''
-                        id: 3
+                        id: 0
+
     compromised_account:
         id: 1
         name: Compromised Account

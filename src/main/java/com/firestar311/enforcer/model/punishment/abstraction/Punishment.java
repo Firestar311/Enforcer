@@ -588,19 +588,22 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
         this.trainingMode = trainingMode;
     }
     
-    public static long calculateExpireDate(long currentDate, String rawText) {
+    public static long calculateLength(String rawText) {
         String expireTime = "P";
         String time = rawText.toUpperCase();
         String[] a = time.split("D");
-        
+    
         if (a.length == 1) {
             expireTime += a[0].contains("H") || a[0].contains("M") || a[0].contains("S") ? "T" + a[0] : a[0] + "d";
         } else if (a.length == 2) {
             expireTime = a[0] + "dT" + a[1];
         }
-        
-        long expire = Duration.parse(expireTime).toMillis();
-        return currentDate + expire;
+    
+        return Duration.parse(expireTime).toMillis();
+    }
+    
+    public static long calculateExpireDate(long currentDate, String rawText) {
+        return calculateLength(rawText) + currentDate;
     }
     
     public int compareTo(Punishment o) {

@@ -1,43 +1,45 @@
 package com.firestar311.enforcer.util;
 
-import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.model.Prison;
+import com.firestar311.enforcer.model.enums.PunishmentType;
 import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
-import com.firestar311.enforcer.model.punishment.type.*;
-import com.firestar311.enforcer.model.rule.RulePunishment;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
+import com.firestar311.lib.util.Utils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class EnforcerUtils {
-    public static Punishment getPunishmentFromRule(Enforcer plugin, UUID target, String server, long currentTime, UUID punisher, String reason, RulePunishment rulePunishment) {
-        long expire = currentTime + rulePunishment.getLength();
-        switch (rulePunishment.getType()) {
-            case PERMANENT_BAN:
-                return new PermanentBan(server, punisher, target, reason, currentTime);
-            case TEMPORARY_BAN:
-                return new TemporaryBan(server, punisher, target, reason, currentTime, expire);
-            case PERMANENT_MUTE:
-                return new PermanentMute(server, punisher, target, reason, currentTime);
-            case TEMPORARY_MUTE:
-                return new TemporaryMute(server, punisher, target, reason, currentTime, expire);
-            case WARN:
-                return new WarnPunishment(server, punisher, target, reason, currentTime);
-            case KICK:
-                return new KickPunishment(server, punisher, target, reason, currentTime);
-            case JAIL:
-                Prison prison = plugin.getPrisonManager().findPrison();
-                return new JailPunishment(server, punisher, target, reason, currentTime, prison.getId());
-        }
-        return null;
-    }
-    
     public static Paginator<Punishment> generatePaginatedPunishmentList(List<Punishment> punishments, String header, String footer) {
         Collections.sort(punishments);
         PaginatorFactory<Punishment> factory = new PaginatorFactory<>();
         factory.setMaxElements(7).setHeader(header).setFooter(footer);
         punishments.forEach(factory::addElement);
         return factory.build();
+    }
+    
+    public static String getPunishString(PunishmentBuilder puBuilder) {
+        return getPunishString(puBuilder.getType(), puBuilder.getLength());
+    }
+    
+    public static String getPunishString(PunishmentType type, long length) {
+        String punishmentString = type.getColor();
+        switch (type) {
+            case PERMANENT_BAN: punishmentString += "Permanent Ban";
+                break;
+            case TEMPORARY_BAN: punishmentString += "Ban for " + Utils.formatTime(length);
+                break;
+            case PERMANENT_MUTE: punishmentString += "Permanent Mute";
+                break;
+            case TEMPORARY_MUTE: punishmentString += "Mute for " + Utils.formatTime(length);
+                break;
+            case WARN: punishmentString += "Warning";
+                break;
+            case KICK: punishmentString += "Kick";
+                break;
+            case JAIL: punishmentString += "Jail";
+                break;
+        }
+        return punishmentString;
     }
 }

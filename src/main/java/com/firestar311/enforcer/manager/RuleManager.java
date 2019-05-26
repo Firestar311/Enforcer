@@ -8,6 +8,7 @@ import com.firestar311.lib.config.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.*;
@@ -21,6 +22,12 @@ public class RuleManager {
     
     public RuleManager(Enforcer plugin) {
         this.plugin = plugin;
+        
+        File rulesFile = new File(plugin.getDataFolder() + File.separator + "rules.yml");
+        if (!rulesFile.exists()) {
+            plugin.saveResource("rules.yml", true);
+        }
+        
         this.configManager = new ConfigManager(plugin, "rules");
         this.configManager.setup();
     }
@@ -28,13 +35,13 @@ public class RuleManager {
     
     public void loadRuleData() {
         FileConfiguration config = configManager.getConfig();
-        if (config.getConfigurationSection("rules") == null) return;
+        if (config.getConfigurationSection("rules") == null) { return; }
         for (String r : config.getConfigurationSection("rules").getKeys(false)) {
             Rule rule = new Rule(config.getInt("rules." + r + ".id"), r, config.getString("rules." + r + ".name"), config.getString("rules." + r + ".description"));
             if (config.contains("rules." + r + ".material")) {
                 rule.setMaterial(Material.valueOf(config.getString("rules." + r + ".material").toUpperCase()));
             }
-                if (config.contains("rules." + r + ".offenses")) {
+            if (config.contains("rules." + r + ".offenses")) {
                 for (String o : config.getConfigurationSection("rules." + r + ".offenses").getKeys(false)) {
                     int offenseNumber = Integer.parseInt(o);
                     RuleOffense action = new RuleOffense(offenseNumber);
@@ -81,8 +88,8 @@ public class RuleManager {
             if (rule.getMaterial() != null) {
                 config.set(basePath + ".material", rule.getMaterial().name());
             }
-            
-            if (rule.getOffenses().isEmpty()) continue;
+    
+            if (rule.getOffenses().isEmpty()) { continue; }
             
             for (Entry<Integer, RuleOffense> actionEntry : rule.getOffenses().entrySet()) {
                 String actionBase = basePath + ".offenses." + actionEntry.getKey() + ".actions";
@@ -106,12 +113,17 @@ public class RuleManager {
         this.rules.put(rule.getId(), rule);
     }
     
+    public void removeRule(int id) {
+        this.rules.remove(id);
+    }
+    
     public Set<Rule> getRules() {
         return new TreeSet<>(this.rules.values());
     }
     
     public Rule getRule(String ruleString) {
         Rule rule = null;
+        ruleString = ruleString.strip();
         try {
             int id = Integer.parseInt(ruleString);
             return this.rules.get(id);
@@ -127,13 +139,9 @@ public class RuleManager {
         return rule;
     }
     
-    public void removeRule(int id) {
-        this.rules.remove(id);
-    }
-    
     public Entry<Integer, Integer> getNextOffense(UUID punisher, UUID target, Rule rule) {
         Set<Punishment> punishments = plugin.getPunishmentManager().getPunishmentsByRule(target, rule, plugin.getTrainingModeManager().isTrainingMode(punisher));
-        if (punishments.isEmpty()) return new SimpleEntry<>(1, 1);
+        if (punishments.isEmpty()) { return new SimpleEntry<>(1, 1); }
         int offense = punishments.size() + 1;
         if (offense > rule.getOffenses().size()) {
             return new SimpleEntry<>(rule.getOffenses().size(), offense);

@@ -87,7 +87,7 @@ public class Rule implements Paginatable, Comparable<Rule> {
     }
     
     public ItemStack getItemStack() {
-        List<String> descLore = Utils.wrapLore(35, description);
+        List<String> descLore = Utils.wrapLore(45, description);
         
         if (this.itemStack == null) {
             if (material != null) this.itemStack = ItemBuilder.start(material).withName("&a&l" + getName()).withLore(descLore).buildItem();

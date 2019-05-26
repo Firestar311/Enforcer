@@ -8,6 +8,7 @@ import com.firestar311.enforcer.model.punishment.abstraction.*;
 import com.firestar311.enforcer.model.punishment.interfaces.Expireable;
 import com.firestar311.enforcer.model.punishment.type.*;
 import com.firestar311.enforcer.model.rule.Rule;
+import com.firestar311.enforcer.util.Code;
 import com.firestar311.lib.config.ConfigManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 
 public class PunishmentManager {
     
-    private final char[] CODE_CHARS = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     private final int CODE_AMOUNT = 6;
     private Enforcer plugin;
     private ConfigManager configManager;
@@ -185,17 +185,7 @@ public class PunishmentManager {
     }
     
     public String generateAckCode(int id) {
-        StringBuilder codeBuilder = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < CODE_AMOUNT; i++) {
-            char c = CODE_CHARS[random.nextInt(CODE_CHARS.length - 1)];
-            if (random.nextInt(100) < 50) {
-                c = Character.toUpperCase(c);
-            }
-            codeBuilder.append(c);
-        }
-        
-        String code = codeBuilder.toString();
+        String code = Code.generateNewCode(6);
         this.ackCodes.put(id, code);
         return code;
     }

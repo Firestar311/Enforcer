@@ -48,7 +48,7 @@ public final class Enforcer extends JavaPlugin {
         this.reportManager = new ReportManager(this);
         this.reportManager.loadReports();
         this.getCommand("enforcer").setExecutor(new EnforcerCommand(this));
-        this.registerCommands(new PunishmentCommands(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail");
+        this.registerCommands(new PunishmentCommands(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail", "punishment");
         this.registerCommands(new PardonCommands(this), "unban", "unmute", "unjail", "pardon");
         this.registerCommands(new HistoryCommands(this), "history", "staffhistory");
         this.getCommand("prison").setExecutor(new PrisonCommand(this));

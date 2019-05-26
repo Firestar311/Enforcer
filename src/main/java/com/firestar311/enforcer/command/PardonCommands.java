@@ -30,7 +30,7 @@ public class PardonCommands implements CommandExecutor {
         
         PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[0]);
         if (info == null) {
-            player.sendMessage(Utils.color("&cCould not find a player by that name. Pardoning players that have yet to join is not supported yet."));
+            player.sendMessage(Utils.color("&cCould not find a player by that name."));
             return true;
         }
         

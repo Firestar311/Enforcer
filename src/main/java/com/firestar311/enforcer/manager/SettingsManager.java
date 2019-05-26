@@ -8,7 +8,7 @@ public class SettingsManager {
     
     private final int configVersion = 2;
     
-    private boolean usingDisplayNames;
+    private boolean usingDisplayNames, confirmPunishments;
     
     private String prefix;
     private String serverName;
@@ -32,6 +32,10 @@ public class SettingsManager {
             plugin.getConfig().set("server", "Server");
         }
         this.serverName = plugin.getConfig().getString("server");
+        if (!plugin.getConfig().getBoolean("confirmpunishments")) {
+            plugin.getConfig().set("confirmpunishments", true);
+        }
+        this.confirmPunishments = plugin.getConfig().getBoolean("confirmpunishments");
         plugin.saveConfig();
     }
     
@@ -53,5 +57,14 @@ public class SettingsManager {
     
     public void setUsingDisplayNames(boolean usingDisplayNames) {
         this.usingDisplayNames = usingDisplayNames;
+    }
+    
+    public boolean mustConfirmPunishments() {
+        return confirmPunishments;
+    }
+    
+    public SettingsManager setConfirmPunishments(boolean confirmPunishments) {
+        this.confirmPunishments = confirmPunishments;
+        return this;
     }
 }
