@@ -27,7 +27,7 @@ public class PunishmentCommands implements CommandExecutor {
     
     private Enforcer plugin;
     
-    private Map<String, PunishmentBuilder> punishmentBuilders = new HashMap<>();
+    private Map<String, List<PunishmentBuilder>> punishmentBuilders = new HashMap<>();
     
     public PunishmentCommands(Enforcer plugin) {
         this.plugin = plugin;
@@ -44,8 +44,6 @@ public class PunishmentCommands implements CommandExecutor {
                 return true;
             }
             
-            System.out.println("Punishment confirm");
-            
             if (args[0].equalsIgnoreCase("confirm")) {
                 if (!(args.length > 1)) {
                     return true;
@@ -56,15 +54,25 @@ public class PunishmentCommands implements CommandExecutor {
                     return true;
                 }
                 
-                PunishmentBuilder punishmentBuilder = this.punishmentBuilders.get(code);
-                Punishment punishment = punishmentBuilder.build();
-                if (punishment instanceof JailPunishment) {
-                    plugin.getPunishmentManager().addJailPunishment((JailPunishment) punishment);
-                } else {
-                    plugin.getPunishmentManager().addPunishment(punishment);
+                List<PunishmentBuilder> builders = this.punishmentBuilders.get(code);
+                for (PunishmentBuilder punishmentBuilder : builders) {
+                    Punishment punishment = punishmentBuilder.build();
+                    if (punishment instanceof JailPunishment) {
+                        plugin.getPunishmentManager().addJailPunishment((JailPunishment) punishment);
+                    } else {
+                        plugin.getPunishmentManager().addPunishment(punishment);
+                    }
+                    
+                    punishment.executePunishment();
                 }
-                
-                punishment.executePunishment();
+            } else if (args[0].equalsIgnoreCase("cancel")) {
+                if (!(args.length > 1)) {
+                    return true;
+                }
+    
+                String code = args[1];
+                this.punishmentBuilders.remove(code);
+                sender.sendMessage(Utils.color("&aCancelled that/those punishment(s)"));
             }
             
             return true;
@@ -104,7 +112,7 @@ public class PunishmentCommands implements CommandExecutor {
                 }
             }
         } catch (Exception ignored) {}
-    
+        
         Visibility visibility = Visibility.NORMAL;
         boolean ignoreTraining = false, ignoreConfirm = false;
         for (String arg : args) {
@@ -123,13 +131,13 @@ public class PunishmentCommands implements CommandExecutor {
                 }
                 ignoreTraining = true;
             }
-        
+            
             if (arg.equalsIgnoreCase("-c")) {
                 if (!player.hasPermission(Perms.FLAG_IGNORE_CONFIRM)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to ignore confirmation."));
                     return true;
                 }
-            
+                
                 ignoreConfirm = true;
             }
         }
@@ -145,7 +153,7 @@ public class PunishmentCommands implements CommandExecutor {
                 player.openInventory(punishGUI.getInventory());
                 return true;
             }
-    
+            
             StringBuilder sb = new StringBuilder();
             for (int i = 1; i < args.length; i++) {
                 if (!args[i].startsWith("-")) {
@@ -155,7 +163,7 @@ public class PunishmentCommands implements CommandExecutor {
                     }
                 }
             }
-    
+            
             Rule rule = plugin.getRuleManager().getRule(sb.toString());
             if (rule == null) {
                 player.sendMessage(Utils.color("&cThe value you provided does not match to a valid rule."));
@@ -183,18 +191,30 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setOffenseNumber(offenseNumbers.getValue());
                 puBuilders.add(puBuilder);
             }
-    
-            for (PunishmentBuilder puBuilder : puBuilders) {
+            
+            if (puBuilders.size() == 1) {
+                PunishmentBuilder puBuilder = puBuilders.get(0);
                 if (plugin.getSettingsManager().mustConfirmPunishments()) {
                     if (!ignoreConfirm) {
                         String code = Code.generateNewCode(6);
-                        this.punishmentBuilders.put(code, puBuilder);
+                        addPunishmentBuilder(code, puBuilder);
                         sendConfirmMessage(player, puBuilder, code);
                         return true;
                     }
-                    player.sendMessage(Utils.color("&2You are ignoring the punishment confirmation for this punishment."));
                 }
-    
+            } else {
+                String code = Code.generateNewCode(6);
+                if (!ignoreConfirm) {
+                    sendConfirmMessage(player, code, target, reason, puBuilders);
+                    addPunishmentBuilders(code, puBuilders.toArray(new PunishmentBuilder[0]));
+                    return true;
+                }
+            }
+            if (ignoreConfirm) {
+                player.sendMessage(Utils.color("&2You are ignoring the punishment confirmation for this punishment."));
+            }
+            
+            for (PunishmentBuilder puBuilder : puBuilders) {
                 Punishment punishment = puBuilder.build();
                 plugin.getPunishmentManager().addPunishment(punishment);
                 punishment.executePunishment();
@@ -293,7 +313,7 @@ public class PunishmentCommands implements CommandExecutor {
             if (plugin.getSettingsManager().mustConfirmPunishments()) {
                 if (!ignoreConfirm) {
                     String code = Code.generateNewCode(6);
-                    this.punishmentBuilders.put(code, puBuilder);
+                    addPunishmentBuilder(code, puBuilder);
                     sendConfirmMessage(player, puBuilder, code);
                     return true;
                 }
@@ -315,8 +335,38 @@ public class PunishmentCommands implements CommandExecutor {
         player.sendMessage(Utils.color("&4║ &fReason: &e" + puBuilder.getReason()));
         String punishmentString = EnforcerUtils.getPunishString(puBuilder);
         player.sendMessage(Utils.color("&4║ &fThis action will result in the punishment " + punishmentString));
+    
+        BaseComponent[] baseComponents = new ComponentBuilder("║ ").color(ChatColor.DARK_RED).append("Click to ").color(ChatColor.WHITE).append("[Confirm]").color(ChatColor.GREEN).bold(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to confirm punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment confirm " + code)).append(" [Cancel]").color(ChatColor.RED).bold(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to cancel punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment cancel " + code)).create();
+        player.spigot().sendMessage(baseComponents);
+        player.sendMessage(Utils.color("&4╚═════════════════════════════"));
+        player.sendMessage("");
+    }
+    
+    private void sendConfirmMessage(Player player, String code, UUID target, String reason, List<PunishmentBuilder> builders) {
+        PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(target);
+        player.sendMessage("");
+        player.sendMessage(Utils.color("&4╔═════════════════════════════"));
+        player.sendMessage(Utils.color("&4║ &fYou are about to punish &b" + targetInfo.getLastName() + " "));
+        player.sendMessage(Utils.color("&4║ &fReason: &e" + reason));
+        List<String> punishmentStrings = new ArrayList<>();
+        for (PunishmentBuilder puBuilder : builders) {
+            punishmentStrings.add(EnforcerUtils.getPunishString(puBuilder));
+        }
         
-        BaseComponent[] baseComponents = new ComponentBuilder("║ ").color(ChatColor.DARK_RED).append("Click to confirm").color(ChatColor.AQUA).underlined(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to confirm punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment confirm " + code)).create();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < punishmentStrings.size(); i++) {
+            String puString = punishmentStrings.get(i);
+            sb.append(Utils.color(" &8- ")).append(Utils.color(puString));
+            if (i < punishmentStrings.size() - 1) {
+                sb.append("\n");
+            }
+        }
+        
+        BaseComponent[] punishmentComponents = new ComponentBuilder("║ ").color(ChatColor.DARK_RED).append("This action will result in ").color(ChatColor.WHITE).append(builders.size() + " punishments").color(ChatColor.DARK_AQUA).event(new HoverEvent(Action.SHOW_TEXT, TextComponent.fromLegacyText(sb.toString()))).create();
+        player.spigot().sendMessage(punishmentComponents);
+        //player.sendMessage(Utils.color("&4║ &fThis action will result in the punishment " + punishmentString));
+        
+        BaseComponent[] baseComponents = new ComponentBuilder("║ ").color(ChatColor.DARK_RED).append("Click to ").color(ChatColor.WHITE).append("[Confirm]").color(ChatColor.GREEN).bold(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to confirm punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment confirm " + code)).append(" [Cancel]").color(ChatColor.RED).bold(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to cancel punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment cancel " + code)).create();
         player.spigot().sendMessage(baseComponents);
         player.sendMessage(Utils.color("&4╚═════════════════════════════"));
         player.sendMessage("");
@@ -349,6 +399,22 @@ public class PunishmentCommands implements CommandExecutor {
         } catch (Exception e) {
             player.sendMessage(Utils.color("&cInvalid time format."));
             return -1;
+        }
+    }
+    
+    private void addPunishmentBuilder(String code, PunishmentBuilder builder) {
+        if (this.punishmentBuilders.containsKey(code)) {
+            this.punishmentBuilders.get(code).add(builder);
+        } else {
+            this.punishmentBuilders.put(code, new ArrayList<>(Collections.singletonList(builder)));
+        }
+    }
+    
+    private void addPunishmentBuilders(String code, PunishmentBuilder... builders) {
+        if (this.punishmentBuilders.containsKey(code)) {
+            this.punishmentBuilders.get(code).addAll(Arrays.asList(builders));
+        } else {
+            this.punishmentBuilders.put(code, new ArrayList<>(Arrays.asList(builders)));
         }
     }
 }
