@@ -102,6 +102,7 @@ public class RuleManager {
                 }
             }
         }
+        this.configManager.saveConfig();
     }
     
     public void addRule(Rule rule) {
