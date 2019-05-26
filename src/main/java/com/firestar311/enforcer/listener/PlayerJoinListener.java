@@ -17,13 +17,13 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 
 import java.util.*;
 
-public class PlayerBanJoinListener implements Listener {
+public class PlayerJoinListener implements Listener {
     
     private Enforcer plugin;
     
     private Map<UUID, Integer> notifications = new HashMap<>();
     
-    public PlayerBanJoinListener(Enforcer plugin) {
+    public PlayerJoinListener(Enforcer plugin) {
         this.plugin = plugin;
     }
     
@@ -64,6 +64,9 @@ public class PlayerBanJoinListener implements Listener {
                         } else if (this.notifications.get(player) == 5) {
                             p.sendMessage(Utils.color("&c" + e.getName() + " continues to join, silencing notifications"));
                         }
+                    }
+                    if (plugin.getPunishmentManager().getPunishments(e.getUniqueId()).size() > 14) {
+                        p.sendMessage(Utils.color("&c" + e.getName() + " has a total of 15 or more infractions on their history."));
                     }
                 }
             }

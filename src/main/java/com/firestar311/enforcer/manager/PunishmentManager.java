@@ -322,4 +322,14 @@ public class PunishmentManager {
         
         return punishments;
     }
+    
+    public Set<Punishment> getPunishments(UUID uuid) {
+        Set<Punishment> punishments = new HashSet<>();
+        for (Punishment punishment : this.punishments.values()) {
+            if (punishment.getTarget().equals(uuid)) {
+                punishments.add(punishment);
+            }
+        }
+        return punishments;
+    }
 }

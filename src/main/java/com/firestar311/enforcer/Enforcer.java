@@ -55,7 +55,7 @@ public final class Enforcer extends JavaPlugin {
         this.getCommand("punishmentinfo").setExecutor(new PunishmentInfoCommand(this));
         this.getCommand("moderatorrules").setExecutor(new RuleCommand(this));
         this.registerCommands(new ReportCommands(this), "report", "reportadmin");
-        this.getServer().getPluginManager().registerEvents(new PlayerBanJoinListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerChatListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerPrisonListener(this), this);
         this.customItemsHook = new CustomItemsHook(this);
