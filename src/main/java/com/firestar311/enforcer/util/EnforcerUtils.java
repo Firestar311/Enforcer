@@ -1,7 +1,8 @@
 package com.firestar311.enforcer.util;
 
-import com.firestar311.enforcer.model.enums.PunishmentType;
-import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
+import com.firestar311.enforcer.modules.punishments.PunishmentBuilder;
+import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
+import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
 import com.firestar311.lib.util.Utils;

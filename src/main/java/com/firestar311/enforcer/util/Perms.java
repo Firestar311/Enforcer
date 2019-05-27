@@ -2,7 +2,6 @@ package com.firestar311.enforcer.util;
 
 @SuppressWarnings("unused")
 public class Perms {
-    
     public static final String STAFF_PERMISSION = "enforcer.staff";
     public static final String NOTIFY_PUNISHMENTS = "enforcer.notify.punishments";
     public static final String NOTIFY_JOIN = "enforcer.notify.join";
@@ -31,9 +30,13 @@ public class Perms {
     public static final String PRISON_LIST = "enforcer.admin.prison.list";
     public static final String STAFF_HISTORY = "enforcer.history.staff";
     public static final String PLAYER_HISTORY = "enforcer.history.player";
-    public static final String TRAINING_MODE_GLOBAL = "enforcer.mode.training.global";
-    public static final String TRAINING_MODE_INDIVIDUAL = "enforcer.mode.training.individual";
-    public static final String TOGGLE_DISPLAY_NAMES = "enforcer.admin.toggledisplaynames";
+    public static final String SETTINGS_TRAINING_MODE = "enforcer.settings.trainingmode";
+    public static final String SETTINGS_TRAINING_MODE_GLOBAL = "enforcer.settings.trainingmode.global";
+    public static final String SETTINGS_TRAINING_MODE_INDIVIDUAL = "enforcer.settings.trainingmode.individual";
+    public static final String SETTINGS_DISPLAYNAMES = "enforcer.settings.displaynames";
+    public static final String SETTINGS_CONFIRM_PUNISHMENTS = "enforcer.settings.confirmpunishments";
+    public static final String SETTINGS_PREFIX = "enforcer.settings.prefix";
+    public static final String SETTINGS_SERVER = "enforcer.settings.server";
     public static final String PUNISH_COMMAND = "enforcer.command.punish";
     public static final String MRULES_MAIN = "enforcer.command.mrules";
     public static final String MRULES_CREATE = "enforcer.rules.create";

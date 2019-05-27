@@ -67,4 +67,12 @@ public class SettingsManager {
         this.confirmPunishments = confirmPunishments;
         return this;
     }
+    
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+    
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
 }

@@ -1,10 +1,11 @@
 package com.firestar311.enforcer.util;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.model.punishment.abstraction.BanPunishment;
-import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
-import com.firestar311.enforcer.model.punishment.interfaces.Expireable;
-import com.firestar311.enforcer.model.punishment.type.KickPunishment;
+import com.firestar311.enforcer.modules.punishments.Colors;
+import com.firestar311.enforcer.modules.punishments.type.abstraction.BanPunishment;
+import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
+import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
+import com.firestar311.enforcer.modules.punishments.type.impl.KickPunishment;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ public final class Messages {
     public static final String PRISON_SET_NAME = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fset the name of the prison &b" + JAIL_ID + " &fto &b" + DISPLAY;
     public static final String USING_DISPLAYNAMES = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged using display names to &b" + DISPLAY;
     public static final String TRAINING_MODE_GLOBAL = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged global training mode to &b" + DISPLAY;
+    public static final String SETTING_CONFIRMPUNISHMENTS = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged confirming punishments to &b" + DISPLAY;
     public static final String TRAINING_MODE_INDIVIDUAL = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fchanged training mode for &e" + TARGET + " &fto &b" + DISPLAY;
     public static final String PUNISHMENT_KICK = "&a{server} - {TYPE}\n\n&fStaff: &b" + ACTOR + "\n&fReason: &b" + REASON + "\n&fExpires: &c<expire>\n&f{pt} ID: &b{id}";
     public static final String PRISON_REDEFINE = "&6(" + PREFIX + ") &4&l[i] &b" + ACTOR + " &fredefined the bounds for the prison &b" + DISPLAY;

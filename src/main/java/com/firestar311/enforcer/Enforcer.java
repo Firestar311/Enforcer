@@ -1,12 +1,20 @@
 package com.firestar311.enforcer;
 
-import com.firestar311.enforcer.command.*;
-import com.firestar311.enforcer.hooks.CustomItemsHook;
-import com.firestar311.enforcer.listener.*;
-import com.firestar311.enforcer.manager.*;
-import com.firestar311.enforcer.model.punishment.abstraction.MutePunishment;
-import com.firestar311.enforcer.model.punishment.abstraction.Punishment;
-import com.firestar311.enforcer.model.punishment.interfaces.Expireable;
+import com.firestar311.enforcer.modules.punishments.cmds.HistoryCommands;
+import com.firestar311.enforcer.manager.SettingsManager;
+import com.firestar311.enforcer.manager.TrainingModeManager;
+import com.firestar311.enforcer.modules.prison.*;
+import com.firestar311.enforcer.modules.punishments.PunishmentManager;
+import com.firestar311.enforcer.modules.punishments.cmds.*;
+import com.firestar311.enforcer.modules.punishments.listeners.PlayerChatListener;
+import com.firestar311.enforcer.modules.punishments.listeners.PlayerJoinListener;
+import com.firestar311.enforcer.modules.punishments.type.abstraction.MutePunishment;
+import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
+import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
+import com.firestar311.enforcer.modules.reports.ReportCommands;
+import com.firestar311.enforcer.modules.reports.ReportManager;
+import com.firestar311.enforcer.modules.rules.RuleCommand;
+import com.firestar311.enforcer.modules.rules.RuleManager;
 import com.firestar311.lib.player.PlayerManager;
 import com.firestar311.lib.util.Utils;
 import net.milkbowl.vault.permission.Permission;
@@ -28,7 +36,6 @@ public final class Enforcer extends JavaPlugin {
     private TrainingModeManager trainingModeManager;
     private ReportManager reportManager;
     private Permission permission;
-    private CustomItemsHook customItemsHook;
     
     private static Enforcer instance;
     private SettingsManager settingsManager;
@@ -58,7 +65,6 @@ public final class Enforcer extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerChatListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerPrisonListener(this), this);
-        this.customItemsHook = new CustomItemsHook(this);
         
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (rsp != null) {
@@ -136,10 +142,6 @@ public final class Enforcer extends JavaPlugin {
     
     public Permission getPermission() {
         return permission;
-    }
-    
-    public CustomItemsHook getCustomItemsHook() {
-        return customItemsHook;
     }
     
     public ReportManager getReportManager() {
