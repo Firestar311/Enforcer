@@ -1,6 +1,7 @@
 package com.firestar311.enforcer.model.rule;
 
 import com.firestar311.lib.pagination.Paginatable;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -10,8 +11,11 @@ public class RuleOffense implements Paginatable {
     
     private int offenseNumber;
     
-    public RuleOffense(int offenseNumber) {
+    private Rule parent;
+    
+    public RuleOffense(Rule parent, int offenseNumber) {
         this.offenseNumber = offenseNumber;
+        this.parent = parent;
     }
     
     public RuleOffense() {}
@@ -53,5 +57,13 @@ public class RuleOffense implements Paginatable {
     
     public void clearPunishments() {
         this.punishments.clear();
+    }
+    
+    public String getPermission() {
+        return parent.getPermission() + ".offenses." + this.offenseNumber;
+    }
+    
+    public boolean hasPermission(Player player) {
+        return player.hasPermission("enforcer.rules.*") || player.hasPermission(parent.getPermission() + ".offenses.*") || player.hasPermission(getPermission());
     }
 }

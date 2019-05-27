@@ -15,6 +15,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -69,65 +70,84 @@ public class PunishGUI extends PaginatedGUI {
         setToolbarItem(6, SILENT_BUTTON);
         
         for (Rule r : plugin.getRuleManager().getRules()) {
-            if (r.getMaterial() != null) {
-                Entry<Integer, Integer> oN = plugin.getRuleManager().getNextOffense(pu.getUniqueId(), t.getUuid(), r);
-                
-                RuleOffense off = r.getOffense(oN.getKey());
-                if (off == null) {
-                    return;
-                }
-                
-                List<String> lore = r.getItemStack().getItemMeta().getLore();
-                lore.add("");
-                lore.add("&fThe next punishment for &b" + t.getLastName());
-                lore.add("&fWill result in the following");
-                lore.add("&fReason: &e" + r.getName() + " Offense #" + off.getOffenseNumber());
-                for (RulePunishment rP : off.getPunishments().values()) {
-                    lore.add(" &8- " + EnforcerUtils.getPunishString(rP.getType(), rP.getLength()));
-                }
-                
-                ItemStack itemStack = ItemBuilder.start(r.getItemStack()).clearLore().withLore(lore).buildItem();
-                GUIButton button = new GUIButton(itemStack);
-                
-                button.setListener(e -> {
-                    final UUID target = t.getUuid();
-                    
-                    Player player = ((Player) e.getWhoClicked());
-                    
-                    Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player.getUniqueId(), target, r);
-                    
-                    RuleOffense offense = r.getOffense(offenseNumbers.getKey());
-                    if (offense == null) {
-                        player.sendMessage(Utils.color("&cThere was a severe problem getting the next offense, use a manual punishment if an emergency, otherwise, contact the plugin developer"));
+            if (r.hasPermission(pu)) {
+                if (r.getMaterial() != null) {
+                    Entry<Integer, Integer> oN = plugin.getRuleManager().getNextOffense(pu.getUniqueId(), t.getUuid(), r);
+        
+                    final RuleOffense off = r.getOffense(oN.getKey());
+                    if (off == null) {
                         return;
                     }
-                    
-                    String server = plugin.getSettingsManager().getPrefix();
-                    long currentTime = System.currentTimeMillis();
-                    UUID punisher = player.getUniqueId();
-                    String reason = r.getName() + " Offense #" + offenseNumbers.getValue();
-                    for (RulePunishment rulePunishment : offense.getPunishments().values()) {
-                        PunishmentBuilder puBuilder = new PunishmentBuilder(target);
-                        puBuilder.setType(rulePunishment.getType());
-                        puBuilder.setReason(reason).setPunisher(punisher).setServer(server).setDate(currentTime).setLength(rulePunishment.getLength());
-                        puBuilder.setRuleId(r.getId());
-                        puBuilder.setOffenseNumber(offenseNumbers.getValue());
-                        
-                        Visibility visibility = Visibility.NORMAL;
-                        if (PUBLIC_BUTTON.getItem().getItemMeta().hasEnchant(Enchantment.ARROW_DAMAGE)) {
-                            visibility = Visibility.PUBLIC;
-                        } else if (SILENT_BUTTON.getItem().getItemMeta().hasEnchant(Enchantment.ARROW_DAMAGE)) {
-                            visibility = Visibility.SILENT;
+        
+                    List<String> lore = r.getItemStack().getItemMeta().getLore();
+                    lore.add("");
+                    if (off.hasPermission(pu)) {
+                        lore.add("&fThe next punishment for &b" + t.getLastName());
+                        lore.add("&fWill result in the following");
+                        lore.add("&fReason: &e" + r.getName() + " Offense #" + off.getOffenseNumber());
+                        for (RulePunishment rP : off.getPunishments().values()) {
+                            lore.add(" &8- " + EnforcerUtils.getPunishString(rP.getType(), rP.getLength()));
+                        }
+                    } else {
+                        lore.add("&4You do not have permission to punish on the next offense");
+                    }
+        
+                    ItemStack itemStack = ItemBuilder.start(r.getItemStack()).clearLore().withLore(lore).buildItem();
+                    GUIButton button = new GUIButton(itemStack);
+        
+                    button.setListener(e -> {
+                        final UUID target = t.getUuid();
+            
+                        Player player = ((Player) e.getWhoClicked());
+                        Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player.getUniqueId(), target, r);
+            
+                        RuleOffense offense = r.getOffense(offenseNumbers.getKey());
+                        if (offense == null) {
+                            player.sendMessage(Utils.color("&cThere was a severe problem getting the next offense, use a manual punishment if an emergency, otherwise, contact the plugin developer"));
+                            return;
                         }
                         
-                        puBuilder.setVisibility(visibility);
-                        Punishment punishment = puBuilder.build();
-                        plugin.getPunishmentManager().addPunishment(punishment);
-                        punishment.executePunishment();
-                    }
-                    player.closeInventory();
-                });
-                addButton(button);
+                        if (offense.hasPermission(player)) {
+                            String server = plugin.getSettingsManager().getPrefix();
+                            long currentTime = System.currentTimeMillis();
+                            UUID punisher = player.getUniqueId();
+                            String reason = r.getName() + " Offense #" + offenseNumbers.getValue();
+                            for (RulePunishment rulePunishment : offense.getPunishments().values()) {
+                                PunishmentBuilder puBuilder = new PunishmentBuilder(target);
+                                puBuilder.setType(rulePunishment.getType());
+                                puBuilder.setReason(reason).setPunisher(punisher).setServer(server).setDate(currentTime).setLength(rulePunishment.getLength());
+                                puBuilder.setRuleId(r.getId());
+                                puBuilder.setOffenseNumber(offenseNumbers.getValue());
+        
+                                Visibility visibility = Visibility.NORMAL;
+                                if (PUBLIC_BUTTON.getItem().getItemMeta().hasEnchant(Enchantment.ARROW_DAMAGE)) {
+                                    visibility = Visibility.PUBLIC;
+                                } else if (SILENT_BUTTON.getItem().getItemMeta().hasEnchant(Enchantment.ARROW_DAMAGE)) {
+                                    visibility = Visibility.SILENT;
+                                }
+        
+                                puBuilder.setVisibility(visibility);
+                                Punishment punishment = puBuilder.build();
+                                plugin.getPunishmentManager().addPunishment(punishment);
+                                punishment.executePunishment();
+                            }
+                            player.closeInventory();
+                        } else {
+                            ItemStack cache = button.getItem();
+                            ItemStack warning = ItemBuilder.start(Material.BARRIER).withName("&4You cannot perform that action.").withLore("&cYou are not allowed to punish", "&cthat player because you do not", "&chave the Offense Permission.").buildItem();
+                        
+                            e.getClickedInventory().setItem(e.getSlot(), warning);
+                            new BukkitRunnable() {
+                                public void run() {
+                                    try {
+                                        e.getClickedInventory().setItem(e.getSlot(), cache);
+                                    } catch (Exception ex) {}
+                                }
+                            }.runTaskLater(plugin, 120L);
+                        }
+                    });
+                    addButton(button);
+                }
             }
         }
     }

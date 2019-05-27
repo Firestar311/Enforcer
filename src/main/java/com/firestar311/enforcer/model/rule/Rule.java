@@ -4,6 +4,7 @@ import com.firestar311.lib.builder.ItemBuilder;
 import com.firestar311.lib.pagination.Paginatable;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -109,5 +110,13 @@ public class Rule implements Paginatable, Comparable<Rule> {
     
     public void clearOffenses() {
         this.offenses.clear();
+    }
+    
+    public String getPermission() {
+        return "enforcer.rules." + internalId;
+    }
+    
+    public boolean hasPermission(Player player) {
+        return player.hasPermission("enforcer.rules.*") || player.hasPermission(getPermission());
     }
 }

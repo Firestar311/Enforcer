@@ -170,11 +170,21 @@ public class PunishmentCommands implements CommandExecutor {
                 return true;
             }
             
+            if (!rule.hasPermission(player)) {
+                player.sendMessage(Utils.color("&cYou do not have permission to punish with this rule."));
+                return true;
+            }
+            
             Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player.getUniqueId(), info.getUuid(), rule);
             
             RuleOffense offense = rule.getOffense(offenseNumbers.getKey());
             if (offense == null) {
                 player.sendMessage(Utils.color("&cThere was a severe problem getting the next offense, use a manual punishment if an emergency, otherwise, contact the plugin developer"));
+                return true;
+            }
+            
+            if (!offense.hasPermission(player)) {
+                player.sendMessage(Utils.color("&cYou do not have permission to punish with this offense."));
                 return true;
             }
             

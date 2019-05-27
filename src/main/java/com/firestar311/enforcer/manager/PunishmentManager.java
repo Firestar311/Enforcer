@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 public class PunishmentManager {
     
-    private final int CODE_AMOUNT = 6;
     private Enforcer plugin;
     private ConfigManager configManager;
     private Map<Integer, Punishment> punishments = new TreeMap<>();

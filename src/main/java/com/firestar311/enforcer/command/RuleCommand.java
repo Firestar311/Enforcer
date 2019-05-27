@@ -163,7 +163,8 @@ public class RuleCommand implements CommandExecutor {
                     " &8- &7Rule Name: &e" + rule.getName()+ "\n" +
                     " &8- &7Rule Description: &e" + rule.getDescription()+ "\n" +
                     " &8- &7Rule Material: &e" + rule.getMaterial() + "\n" +
-                    " &8- &7Offense Count: &e" + rule.getOffenses().size()));
+                    " &8- &7Offense Count: &e" + rule.getOffenses().size() + "\n" +
+                    " &8- &7Rule Permission: &e" + rule.getPermission()));
         } else if (Utils.checkCmdAliases(args, 1, "setname", "sn")) {
             if (!player.hasPermission(Perms.MRULES_SET_NAME)) {
                 player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
@@ -252,6 +253,7 @@ public class RuleCommand implements CommandExecutor {
                 factory.setMaxElements(7).setHeader("&7-=Punishments for " + rule.getName() + ":" + offenseNumber + "=- &e({pagenumber}/{totalpages})").setFooter("&7Type /mrules page {nextpage} for more");
                 offense.getPunishments().forEach((id, punishment) -> factory.addElement(punishment));
                 Paginator<RulePunishment> paginator = factory.build();
+                player.sendMessage(Utils.color("&7Permission for offense: &e" + offense.getPermission()));
                 paginator.display(player, 1);
                 this.paginators.put(player.getUniqueId(), paginator);
                 return true;

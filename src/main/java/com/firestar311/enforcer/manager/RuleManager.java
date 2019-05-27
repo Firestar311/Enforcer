@@ -44,7 +44,7 @@ public class RuleManager {
             if (config.contains("rules." + r + ".offenses")) {
                 for (String o : config.getConfigurationSection("rules." + r + ".offenses").getKeys(false)) {
                     int offenseNumber = Integer.parseInt(o);
-                    RuleOffense action = new RuleOffense(offenseNumber);
+                    RuleOffense action = new RuleOffense(rule, offenseNumber);
                     for (String a : config.getConfigurationSection("rules." + r + ".offenses." + o + ".actions").getKeys(false)) {
                         int aN = Integer.parseInt(a);
                         PunishmentType type = PunishmentType.getType(config.getString("rules." + r + ".offenses." + o + ".actions." + a + ".punishment").toUpperCase());

@@ -20,11 +20,13 @@ public class RulePunishment implements Paginatable {
         this.cUnits = cUnits;
     }
     
-    public RulePunishment(PunishmentType type, int cLenth, String cUnits) {
-        this.type = type;
-        this.cLength = cLenth;
-        this.cUnits = cUnits;
-        this.length = Enforcer.convertTime(cUnits, cLength);
+    public RulePunishment(PunishmentType type, int cLength, String cUnits) {
+        this(type, Enforcer.convertTime(cUnits, cLength), cLength, cUnits);
+    }
+    
+    public String formatLine(String... args) {
+        if (length == -1) { return "&dAction: " + id + " " + type.getDisplayName(); }
+        return "&dAction: " + id + " " + type.getDisplayName() + " &b" + Utils.formatTime(length);
     }
     
     public PunishmentType getType() {
@@ -50,10 +52,5 @@ public class RulePunishment implements Paginatable {
     
     public void setId(int id) {
         this.id = id;
-    }
-    
-    public String formatLine(String... args) {
-        if (length == -1) return "&dAction: " + id + " " + type.getDisplayName();
-        return "&dAction: " + id + " " + type.getDisplayName() + " &b" + Utils.formatTime(length);
     }
 }
