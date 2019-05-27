@@ -81,6 +81,11 @@ public class PunishmentCommands implements CommandExecutor {
         Player player = ((Player) sender);
         String prefix = plugin.getSettingsManager().getPrefix();
         
+        if (!(args.length > 0)) {
+            player.sendMessage(Utils.color("&cYou must provide a player to punish."));
+            return true;
+        }
+        
         PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[0]);
         if (info == null) {
             player.sendMessage(Utils.color("&cCould not find a player by that name."));
