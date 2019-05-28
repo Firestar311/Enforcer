@@ -46,6 +46,11 @@ public class ReportCommands implements CommandExecutor {
                     return true;
                 }
                 
+                if (!(report.getReporter().equals(player.getUniqueId()) || player.hasPermission(Perms.STAFF_PERMISSION))) {
+                    player.sendMessage(Utils.color("&cYou must be staff or the reporter to view a report."));
+                    return true;
+                }
+                
                 if (args.length == 1) {
                     player.sendMessage(Utils.color("&6---------Report Info---------"));
                     player.sendMessage(Utils.color("&7Report ID: &d" + report.getId()));
