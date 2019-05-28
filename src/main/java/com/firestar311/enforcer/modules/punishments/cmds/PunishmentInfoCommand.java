@@ -2,20 +2,13 @@ package com.firestar311.enforcer.modules.punishments.cmds;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.firestar311.lib.audit.AuditEntry;
-import com.firestar311.lib.pagination.Paginator;
-import com.firestar311.lib.pagination.PaginatorFactory;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
-import java.util.*;
-
 public class PunishmentInfoCommand implements CommandExecutor {
 
     private Enforcer plugin;
-    
-    private Map<UUID, Paginator<AuditEntry>> auditPaginators = new HashMap<>();
     
     public PunishmentInfoCommand(Enforcer plugin){
         this.plugin = plugin;
@@ -38,29 +31,6 @@ public class PunishmentInfoCommand implements CommandExecutor {
             player.sendMessage(Utils.color("&cYou do not have enough arguments."));
             return true;
         }
-        
-        if (Utils.checkCmdAliases(args, 0, "page", "p")) {
-            if (!(args.length > 1)) {
-                player.sendMessage(Utils.color("&cYou must provide a page number."));
-                return true;
-            }
-            
-            if (!this.auditPaginators.containsKey(player.getUniqueId())) {
-                player.sendMessage(Utils.color("&cYou do not have any results yet."));
-                return true;
-            }
-            
-            int page;
-            try {
-                page = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                player.sendMessage(Utils.color("&cThe value for the page you provided is not a number."));
-                return true;
-            }
-            
-            Paginator<AuditEntry> paginator = this.auditPaginators.get(player.getUniqueId());
-            paginator.display(player, page);
-        }
     
         int id;
         try {
@@ -77,15 +47,7 @@ public class PunishmentInfoCommand implements CommandExecutor {
             return true;
         }
         
-        if (Utils.checkCmdAliases(args, 1, "auditlog", "al")) {
-            PaginatorFactory<AuditEntry> factory = new PaginatorFactory<>();
-            factory.setMaxElements(7).setHeader("&a-=Audit log for Punishment " + punishment.getId() + "=- &e({pagenumber}/{totalpages})").setFooter("&aType /punishmentinfo page {nextpage} for more");
-            punishment.getAuditLog().getAuditEntries().forEach(factory::addElement);
-            Paginator<AuditEntry> paginator = factory.build();
-            this.auditPaginators.put(player.getUniqueId(), paginator);
-    
-            paginator.display(player, 1);
-        }
+        
         return true;
     }
 }
