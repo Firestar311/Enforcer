@@ -33,7 +33,7 @@ public class RuleCommand implements CommandExecutor {
         Player player = ((Player) sender);
         
         if (!player.hasPermission(Perms.MRULES_MAIN)) {
-            player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+            player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_MAIN));
             return true;
         }
         
@@ -70,7 +70,7 @@ public class RuleCommand implements CommandExecutor {
             }
             
             if (!player.hasPermission(Perms.MRULES_CREATE)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_CREATE));
                 return true;
             }
             
@@ -106,7 +106,7 @@ public class RuleCommand implements CommandExecutor {
             }
             
             if (!player.hasPermission(Perms.MRULES_SET_DESCRIPTION)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_SET_DESCRIPTION));
                 return true;
             }
             
@@ -124,7 +124,7 @@ public class RuleCommand implements CommandExecutor {
             }
             
             if (!player.hasPermission(Perms.MRULES_REMOVE)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_REMOVE));
                 return true;
             }
             
@@ -137,7 +137,7 @@ public class RuleCommand implements CommandExecutor {
             }
             
             if (!player.hasPermission(Perms.MRULES_SET_MATERIAL)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_SET_MATERIAL));
                 return true;
             }
             
@@ -153,14 +153,14 @@ public class RuleCommand implements CommandExecutor {
             player.sendMessage(Utils.color("&aSet the material of the rule &b" + rule.getInternalId() + " &ato &b" + material.name()));
         } else if (Utils.checkCmdAliases(args, 1, "view", "v")) {
             if (!player.hasPermission(Perms.MRULES_VIEW)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_VIEW));
                 return true;
             }
             
             player.sendMessage(Utils.color("&aViewing information for rule " + rule.getName() + "\n" + " &8- &7Rule ID: &e" + rule.getId() + "\n" + " &8- &7Rule Internal ID: &e" + rule.getInternalId() + "\n" + " &8- &7Rule Name: &e" + rule.getName() + "\n" + " &8- &7Rule Description: &e" + rule.getDescription() + "\n" + " &8- &7Rule Material: &e" + rule.getMaterial() + "\n" + " &8- &7Offense Count: &e" + rule.getOffenses().size() + "\n" + " &8- &7Rule Permission: &e" + rule.getPermission()));
         } else if (Utils.checkCmdAliases(args, 1, "setname", "sn")) {
             if (!player.hasPermission(Perms.MRULES_SET_NAME)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_SET_NAME));
                 return true;
             }
             
@@ -182,13 +182,13 @@ public class RuleCommand implements CommandExecutor {
             }
             
             if (!player.hasPermission(Perms.MRULES_OFFENSES_MAIN)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_MAIN));
                 return true;
             }
             
             if (Utils.checkCmdAliases(args, 2, "list", "l")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_LIST)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_LIST));
                     return true;
                 }
                 PaginatorFactory<RuleOffense> factory = new PaginatorFactory<>();
@@ -200,7 +200,7 @@ public class RuleCommand implements CommandExecutor {
                 return true;
             } else if (Utils.checkCmdAliases(args, 2, "create", "c")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_CREATE)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to create offenses"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_CREATE));
                     return true;
                 }
                 
@@ -225,7 +225,7 @@ public class RuleCommand implements CommandExecutor {
             
             if (Utils.checkCmdAliases(args, 3, "setlength", "sl")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_LENGTH)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to set the offense length"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_LENGTH));
                     return true;
                 }
                 
@@ -251,7 +251,7 @@ public class RuleCommand implements CommandExecutor {
                 player.sendMessage(Utils.color("&aYou set the length to &b" + rawLength + unit.name().toLowerCase() + " &afor offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getName()));
             } else if (Utils.checkCmdAliases(args, 3, "punishments", "pu")) {
                 if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_PUNISHMENTS));
                     return true;
                 }
                 
@@ -259,7 +259,7 @@ public class RuleCommand implements CommandExecutor {
                 
                 if (Utils.checkCmdAliases(args, 4, "add", "a")) {
                     if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_ADD)) {
-                        player.sendMessage(Utils.color("&cYou do not have permission to add punishments to offenses."));
+                        player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_PUNISHMENTS_ADD));
                         return true;
                     }
                     
@@ -298,7 +298,7 @@ public class RuleCommand implements CommandExecutor {
                     player.sendMessage(Utils.color("&e[" + rulePunishment.getId() + "] &aAdded a punishment with the type " + type.getDisplayName() + " &aand the length &b" + length + " " + unit.getName().toLowerCase() + " &ato offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getInternalId()));
                 } else if (Utils.checkCmdAliases(args, 4, "remove", "r")) {
                     if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_REMOVE)) {
-                        player.sendMessage(Utils.color("&cYou do not have permission to remove punishments from offenses."));
+                        player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_PUNISHMENTS_REMOVE));
                         return true;
                     }
                     
@@ -319,7 +319,7 @@ public class RuleCommand implements CommandExecutor {
                     player.sendMessage(Utils.color("&aRemoved the punishment with the id &b" + id + " &afrom the offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getName()));
                 } else if (Utils.checkCmdAliases(args, 4, "clear", "c")) {
                     if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_CLEAR)) {
-                        player.sendMessage(Utils.color("&cYou do not have permission to clear punishments from offenses."));
+                        player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_PUNISHMENTS_CLEAR));
                         return true;
                     }
                     
@@ -327,7 +327,7 @@ public class RuleCommand implements CommandExecutor {
                     player.sendMessage(Utils.color("&aYou cleared all punishments from offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getName()));
                 } else if (Utils.checkCmdAliases(args, 4, "list", "l")) {
                     if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_LIST)) {
-                        player.sendMessage(Utils.color("&cYou do not have permission to list punishments of offenses."));
+                        player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_OFFENSES_PUNISHMENTS_LIST));
                         return true;
                     }
                     

@@ -61,7 +61,6 @@ public class PlayerChatListener implements Listener {
                 WarnPunishment warning = (WarnPunishment) punishment;
                 if (!warning.isAcknowledged()) {
                     e.setCancelled(true);
-                    plugin.getLogger().info(player.getName() + " is warned");
                     warning.createPrompt();
                     break;
                 }

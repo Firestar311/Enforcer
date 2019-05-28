@@ -151,7 +151,7 @@ public class ReportCommands implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("reportadmin")) {
             if (!player.hasPermission(Perms.REPORT_ADMIN)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN));
                 return true;
             }
             
@@ -206,7 +206,7 @@ public class ReportCommands implements CommandExecutor {
             
             if (Utils.checkCmdAliases(args, 1, "assign", "a")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_ASSIGN)) {
-                    player.sendMessage(Utils.color("&cYou lack permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN_ASSIGN));
                     return true;
                 }
                 
@@ -225,7 +225,7 @@ public class ReportCommands implements CommandExecutor {
                 player.sendMessage(Utils.color("&aYou assigned " + info.getLastName() + " to the report " + report.getId())); //TODO Proper message like others
             } else if (Utils.checkCmdAliases(args, 1, "setstatus", "ss")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_STATUS)) {
-                    player.sendMessage(Utils.color("&cYou lack permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN_STATUS));
                     return true;
                 }
                 
@@ -252,7 +252,7 @@ public class ReportCommands implements CommandExecutor {
                 player.sendMessage(Utils.color(String.format("&aYou changed the status of the report &b%d &afrom &b%s &ato &b%s&a.", report.getId(), oldStatus, status)));
             } else if (Utils.checkCmdAliases(args, 1, "setoutcome", "so")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_OUTCOME)) {
-                    player.sendMessage(Utils.color("&cYou lack permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN_OUTCOME));
                     return true;
                 }
                 
@@ -279,7 +279,7 @@ public class ReportCommands implements CommandExecutor {
                 player.sendMessage(Utils.color(String.format("&aYou changed the outcome of the report &b%d &afrom &b%s &ato &b%s&a.", report.getId(), oldOutcome, outcome)));
             } else if (Utils.checkCmdAliases(args, 1, "teleport", "tp")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_TELEPORT)) {
-                    player.sendMessage(Utils.color("&cYou lack permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN_TELEPORT));
                     return true;
                 }
                 
@@ -287,7 +287,7 @@ public class ReportCommands implements CommandExecutor {
                 player.sendMessage(Utils.color("&aYou teleported to the location of where the report was created."));
             } else if (Utils.checkCmdAliases(args, 1, "addpunishment", "ap")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_PUNISHMENT)) {
-                    player.sendMessage(Utils.color("&cYou lack permission to use that command."));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN_PUNISHMENT));
                     return true;
                 }
                 

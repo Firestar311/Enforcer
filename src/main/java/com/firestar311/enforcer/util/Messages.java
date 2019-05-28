@@ -41,6 +41,14 @@ public final class Messages {
         }
     }
     
+    public static String noPermissionCommand(String permission) {
+        return Utils.color("&cYou must have the permission &7(" + permission + ") &cto use that command.");
+    }
+    
+    public static String noPermissionAction(String permission) {
+        return Utils.color("&cYou must have the permission &7(" + permission + ") &cto perform that action.");
+    }
+    
     public static String formatPunishKick(Punishment punishment) {
         String format = PUNISHMENT_KICK;
         if (punishment instanceof BanPunishment) {

@@ -46,13 +46,13 @@ public class PrisonCommand implements CommandExecutor, Listener {
         }
         
         if (!player.hasPermission(Perms.PRISON_MAIN)) {
-            player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+            player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_MAIN));
             return true;
         }
         
         if (Utils.checkCmdAliases(args, 0, "create", "c")) {
             if (!player.hasPermission(Perms.PRISON_ADD)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_ADD));
                 return true;
             }
             
@@ -115,21 +115,21 @@ public class PrisonCommand implements CommandExecutor, Listener {
         }
         if (Utils.checkCmdAliases(args, 0, "pos1")) {
             if (!player.hasPermission(Perms.PRISON_SELECTION)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_SELECTION));
                 return true;
             }
             
             selectionManager.setPointA(player, player.getLocation());
         } else if (Utils.checkCmdAliases(args, 0, "pos2")) {
             if (!player.hasPermission(Perms.PRISON_SELECTION)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_SELECTION));
                 return true;
             }
             
             selectionManager.setPointB(player, player.getLocation());
         } else if (Utils.checkCmdAliases(args, 0, "list")) {
             if (!player.hasPermission(Perms.PRISON_LIST)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_LIST));
                 return true;
             }
             
@@ -159,7 +159,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             return true;
         } else if (Utils.checkCmdAliases(args, 0, "clearselection", "cs")) {
             if (!player.hasPermission(Perms.PRISON_CLEAR_SELECTION)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_CLEAR_SELECTION));
                 return true;
             }
             if (!selectionManager.hasSelection(player)) {
@@ -178,7 +178,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
         
         if (Utils.checkCmdAliases(args, 1, "setlocation", "sl")) {
             if (!player.hasPermission(Perms.SET_PRISON_LOCATION)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.SET_PRISON_LOCATION));
                 return true;
             }
             
@@ -202,7 +202,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             }
         } else if (Utils.checkCmdAliases(args, 1, "setmaxplayers", "smp")) {
             if (!player.hasPermission(Perms.PRISON_SET_MAX_PLAYERS)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_SET_MAX_PLAYERS));
                 return true;
             }
             
@@ -271,7 +271,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             sendOutputMessage(player, message);
         } else if (Utils.checkCmdAliases(args, 1, "remove", "r")) {
             if (!player.hasPermission(Perms.PRISON_REMOVE)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_REMOVE));
                 return true;
             }
             
@@ -295,14 +295,14 @@ public class PrisonCommand implements CommandExecutor, Listener {
             sendOutputMessage(player, message);
         } else if (Utils.checkCmdAliases(args, 1, "teleport", "tp")) {
             if (!player.hasPermission(Perms.PRISON_TELEPORT)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_TELEPORT));
                 return true;
             }
             player.teleport(prison.getLocation());
             player.sendMessage(Utils.color("&aYou were teleported to the spawn location of the prison &b" + prison.getDisplayName()));
         } else if (Utils.checkCmdAliases(args, 1, "setname", "sn")) {
             if (!player.hasPermission(Perms.PRISON_SET_NAME)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_SET_NAME));
                 return true;
             }
             
@@ -330,7 +330,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             sendOutputMessage(player, message);
         } else if (Utils.checkCmdAliases(args, 1, "redefine")) {
             if (!player.hasPermission(Perms.PRISON_REDEFINE)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PRISON_REDEFINE));
                 return true;
             }
             if (!selectionManager.hasSelection(player)) {
@@ -402,7 +402,6 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 Location location = e.getClickedBlock().getLocation();
                 for (Prison prison : plugin.getPrisonManager().getPrisons()) {
                     if (prison.contains(location)) {
-                        System.out.println("Prison contains the block clicked.");
                         player.sendMessage(Utils.color("&aThe block you clicked on is in the prison &b" + prison.getDisplayName()));
                     }
                 }

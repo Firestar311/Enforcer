@@ -101,7 +101,7 @@ public class PunishmentCommands implements CommandExecutor {
         
         if (Bukkit.getPlayer(info.getUuid()) == null) {
             if (!player.hasPermission(Perms.OFFLINE_PUNISH)) {
-                player.sendMessage(Utils.color("&cYou cannot punish offline players."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.OFFLINE_PUNISH));
                 return true;
             }
         }
@@ -149,7 +149,7 @@ public class PunishmentCommands implements CommandExecutor {
         
         if (cmd.getName().equalsIgnoreCase("punish")) {
             if (!player.hasPermission(Perms.PUNISH_COMMAND)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PUNISH_COMMAND));
                 return true;
             }
             
@@ -247,7 +247,7 @@ public class PunishmentCommands implements CommandExecutor {
             
             if (cmd.getName().equalsIgnoreCase("ban")) {
                 if (!player.hasPermission(Perms.BAN)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.BAN + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.BAN));
                     return true;
                 }
                 reason = getReason(1, args);
@@ -255,7 +255,7 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setType(PunishmentType.PERMANENT_BAN);
             } else if (cmd.getName().equalsIgnoreCase("tempban")) {
                 if (!player.hasPermission(Perms.TEMP_BAN)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.TEMP_BAN + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.TEMP_BAN));
                     return true;
                 }
                 
@@ -269,7 +269,7 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setType(PunishmentType.TEMPORARY_BAN).setLength(expire);
             } else if (cmd.getName().equalsIgnoreCase("mute")) {
                 if (!player.hasPermission(Perms.MUTE)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.MUTE + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.MUTE));
                     return true;
                 }
                 
@@ -277,7 +277,7 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setType(PunishmentType.PERMANENT_MUTE);
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
                 if (!player.hasPermission(Perms.TEMP_MUTE)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.TEMP_MUTE + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.TEMP_MUTE));
                     return true;
                 }
                 
@@ -292,7 +292,7 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setType(PunishmentType.TEMPORARY_MUTE).setLength(expire);
             } else if (cmd.getName().equalsIgnoreCase("kick")) {
                 if (!player.hasPermission(Perms.KICK)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.KICK + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.KICK));
                     return true;
                 }
                 
@@ -300,7 +300,7 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setType(PunishmentType.KICK);
             } else if (cmd.getName().equalsIgnoreCase("warn")) {
                 if (!player.hasPermission(Perms.WARN)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.WARN + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.WARN));
                     return true;
                 }
                 
@@ -308,7 +308,7 @@ public class PunishmentCommands implements CommandExecutor {
                 puBuilder.setType(PunishmentType.WARN);
             } else if (cmd.getName().equalsIgnoreCase("jail")) {
                 if (!player.hasPermission(Perms.JAIL)) {
-                    player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.JAIL + ")"));
+                    player.sendMessage(Messages.noPermissionCommand(Perms.JAIL));
                     return true;
                 }
                 

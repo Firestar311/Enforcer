@@ -3,6 +3,7 @@ package com.firestar311.enforcer.modules.punishments.cmds;
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.Visibility;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
+import com.firestar311.enforcer.util.Messages;
 import com.firestar311.enforcer.util.Perms;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
@@ -49,7 +50,7 @@ public class PardonCommands implements CommandExecutor {
         Set<Punishment> punishments = new HashSet<>();
         if (cmd.getName().equalsIgnoreCase("unban")) {
             if (!player.hasPermission(Perms.UNBAN)) {
-                player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.UNBAN + ")"));
+                player.sendMessage(Messages.noPermissionCommand(Perms.UNBAN));
                 return true;
             }
             punishments.addAll(plugin.getPunishmentManager().getActiveBans(info.getUuid()));
@@ -59,7 +60,7 @@ public class PardonCommands implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("unmute")) {
             if (!player.hasPermission(Perms.UNMUTE)) {
-                player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.UNMUTE + ")"));
+                player.sendMessage(Messages.noPermissionCommand(Perms.UNMUTE));
                 return true;
             }
             punishments.addAll(plugin.getPunishmentManager().getActiveMutes(info.getUuid()));
@@ -69,7 +70,7 @@ public class PardonCommands implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("unjail")) {
             if (!player.hasPermission(Perms.UNJAIL)) {
-                player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.UNJAIL + ")"));
+                player.sendMessage(Messages.noPermissionCommand(Perms.UNJAIL));
                 return true;
             }
             punishments.addAll(plugin.getPunishmentManager().getActiveJails(info.getUuid()));
@@ -79,7 +80,7 @@ public class PardonCommands implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("pardon")) {
             if (!player.hasPermission(Perms.PARDON)) {
-                player.sendMessage(Utils.color("&cYou lack the permission &7(" + Perms.UNJAIL + ")"));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PARDON));
                 return true;
             }
             

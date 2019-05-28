@@ -2,6 +2,7 @@ package com.firestar311.enforcer.modules.punishments.cmds;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
+import com.firestar311.enforcer.util.Messages;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -23,7 +24,7 @@ public class PunishmentInfoCommand implements CommandExecutor {
         Player player = ((Player) sender);
         
         if (!player.hasPermission("enforcer.info.punishment")) {
-            player.sendMessage("&cYou do not have enough permission");
+            player.sendMessage(Messages.noPermissionCommand("enforcer.info.punishment"));
             return true;
         }
         

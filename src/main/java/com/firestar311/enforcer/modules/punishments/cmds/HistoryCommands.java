@@ -2,8 +2,7 @@ package com.firestar311.enforcer.modules.punishments.cmds;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.firestar311.enforcer.util.EnforcerUtils;
-import com.firestar311.enforcer.util.Perms;
+import com.firestar311.enforcer.util.*;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
@@ -38,7 +37,7 @@ public class HistoryCommands implements CommandExecutor {
         
         if (cmd.getName().equalsIgnoreCase("history")) {
             if (!player.hasPermission(Perms.PLAYER_HISTORY)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to view player history."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.PLAYER_HISTORY));
                 return true;
             }
             if (args.length == 1) {
@@ -65,7 +64,7 @@ public class HistoryCommands implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("staffhistory")) {
             if (!player.hasPermission(Perms.STAFF_HISTORY)) {
-                player.sendMessage(Utils.color("&cYou do not have permission to view staff history."));
+                player.sendMessage(Messages.noPermissionCommand(Perms.STAFF_HISTORY));
                 return true;
             }
             if (args.length == 1) {
