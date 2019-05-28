@@ -59,6 +59,10 @@ public class RuleOffense implements Paginatable {
         this.punishments.clear();
     }
     
+    public boolean hasPunishment(int id) {
+        return this.punishments.keySet().contains(id);
+    }
+    
     public String getPermission() {
         return parent.getPermission() + ".offenses." + this.offenseNumber;
     }

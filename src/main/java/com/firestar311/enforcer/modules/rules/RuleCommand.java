@@ -122,7 +122,7 @@ public class RuleCommand implements CommandExecutor {
                 player.sendMessage(Utils.color("&cUsage: /mrules <id> remove|r"));
                 return true;
             }
-    
+            
             if (!player.hasPermission(Perms.MRULES_REMOVE)) {
                 player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                 return true;
@@ -135,7 +135,7 @@ public class RuleCommand implements CommandExecutor {
                 player.sendMessage(Utils.color("&cUsage: /mrules <id> setmaterial|sr <material>"));
                 return true;
             }
-    
+            
             if (!player.hasPermission(Perms.MRULES_SET_MATERIAL)) {
                 player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                 return true;
@@ -157,20 +157,13 @@ public class RuleCommand implements CommandExecutor {
                 return true;
             }
             
-            player.sendMessage(Utils.color("&aViewing information for rule " + rule.getName() + "\n" +
-                    " &8- &7Rule ID: &e" + rule.getId() + "\n" +
-                    " &8- &7Rule Internal ID: &e" + rule.getInternalId() + "\n" +
-                    " &8- &7Rule Name: &e" + rule.getName()+ "\n" +
-                    " &8- &7Rule Description: &e" + rule.getDescription()+ "\n" +
-                    " &8- &7Rule Material: &e" + rule.getMaterial() + "\n" +
-                    " &8- &7Offense Count: &e" + rule.getOffenses().size() + "\n" +
-                    " &8- &7Rule Permission: &e" + rule.getPermission()));
+            player.sendMessage(Utils.color("&aViewing information for rule " + rule.getName() + "\n" + " &8- &7Rule ID: &e" + rule.getId() + "\n" + " &8- &7Rule Internal ID: &e" + rule.getInternalId() + "\n" + " &8- &7Rule Name: &e" + rule.getName() + "\n" + " &8- &7Rule Description: &e" + rule.getDescription() + "\n" + " &8- &7Rule Material: &e" + rule.getMaterial() + "\n" + " &8- &7Offense Count: &e" + rule.getOffenses().size() + "\n" + " &8- &7Rule Permission: &e" + rule.getPermission()));
         } else if (Utils.checkCmdAliases(args, 1, "setname", "sn")) {
             if (!player.hasPermission(Perms.MRULES_SET_NAME)) {
                 player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                 return true;
             }
-    
+            
             String name = StringUtils.join(args, ' ', 2, args.length);
             
             Rule existing = plugin.getRuleManager().getRule(name);
@@ -182,12 +175,12 @@ public class RuleCommand implements CommandExecutor {
             rule.setName(name);
             rule.setInternalId(name);
             player.sendMessage(Utils.color("&aSet the name of rule &b" + rule.getId() + " &ato &b" + rule.getName() + " &aand the internal id to &b" + rule.getInternalId()));
-        } else if (Utils.checkCmdAliases(args, 1, "offenses", "of")) {
+        } else if (Utils.checkCmdAliases(args, 1, "offenses", "off")) {
             if (!(args.length > 2)) {
-                player.sendMessage(Utils.color("&cUsage: /mrules <rule> offenses|of <list|create|offenseId> <options...>"));
+                player.sendMessage(Utils.color("&cUsage: /mrules <rule> offenses|of <list|punishments> <options...>"));
                 return true;
             }
-    
+            
             if (!player.hasPermission(Perms.MRULES_OFFENSES_MAIN)) {
                 player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                 return true;
@@ -205,123 +198,121 @@ public class RuleCommand implements CommandExecutor {
                 paginator.display(player, 1);
                 this.paginators.put(player.getUniqueId(), paginator);
                 return true;
-            }
-            if (Utils.checkCmdAliases(args, 2, "create", "c")) {
-                if (!player.hasPermission(Perms.MRULES_OFFESNES_CREATE)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
+            } else if (Utils.checkCmdAliases(args, 2, "create", "c")) {
+                if (!player.hasPermission(Perms.MRULES_OFFENSES_CREATE)) {
+                    player.sendMessage(Utils.color("&cYou do not have permission to create offenses"));
                     return true;
                 }
                 
-                RuleOffense offense = new RuleOffense();
-                rule.addOffense(offense);
-                player.sendMessage(Utils.color("&aCreated a new offense for the rule &b" + rule.getInternalId() + " &awith the offense number &b" + offense.getOffenseNumber()));
-                return true;
-            }
-            if (Utils.checkCmdAliases(args, 2, "clear")) {
-                if (!player.hasPermission(Perms.MRULES_OFFENSES_CLEAR)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
-                    return true;
-                }
-                
-                rule.clearOffenses();
-                player.sendMessage(Utils.color("&aCleared the offenses of the rule &b" + rule.getName()));
-                return true;
+                RuleOffense ruleOffense = new RuleOffense();
+                rule.addOffense(ruleOffense);
+                player.sendMessage(Utils.color("&aAdded a a new offense with the offense number &b" + ruleOffense.getOffenseNumber() + " &ato the rule &b" + rule.getName()));
             }
     
             int offenseNumber;
             try {
                 offenseNumber = Integer.parseInt(args[2]);
             } catch (NumberFormatException e) {
-                player.sendMessage(Utils.color("&cThe value you provided for the offense number is not a valid number"));
+                player.sendMessage(Utils.color("&cThe value you provided for the offense was not a valid number."));
                 return true;
             }
             
             RuleOffense offense = rule.getOffense(offenseNumber);
-            
             if (offense == null) {
-                offense = new RuleOffense();
-                rule.addOffense(offense);
-                player.sendMessage(Utils.color("&aCreated a new offense for the rule &b" + rule.getInternalId() + " &awith the offense number &b" + offense.getOffenseNumber()));
-            }
-    
-            if (Utils.checkCmdAliases(args, 3, "list", "l")) {
-                if (!player.hasPermission(Perms.MRULES_OFFESNES_PUNISHMENTS_LIST)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
-                    return true;
-                }
-                PaginatorFactory<RulePunishment> factory = new PaginatorFactory<>();
-                factory.setMaxElements(7).setHeader("&7-=Punishments for " + rule.getName() + ":" + offenseNumber + "=- &e({pagenumber}/{totalpages})").setFooter("&7Type /mrules page {nextpage} for more");
-                offense.getPunishments().forEach((id, punishment) -> factory.addElement(punishment));
-                Paginator<RulePunishment> paginator = factory.build();
-                player.sendMessage(Utils.color("&7Permission for offense: &e" + offense.getPermission()));
-                paginator.display(player, 1);
-                this.paginators.put(player.getUniqueId(), paginator);
+                player.sendMessage(Utils.color("&cThe value you provided did not match a valid offense within that rule"));
                 return true;
             }
-            if (Utils.checkCmdAliases(args, 3, "remove", "r")) {
-                if (!player.hasPermission(Perms.MRULES_OFFENSES_REMOVE)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to remove rules."));
-                    return true;
-                }
-                rule.removeOffense(offense.getOffenseNumber());
-                player.sendMessage(Utils.color("&cRemoved the offense " + offense.getOffenseNumber() + " from the rule " + rule.getInternalId()));
-            } else if (Utils.checkCmdAliases(args, 3, "addpunishment", "ap")) {
-                if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_ADD)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
-                    return true;
-                }
-                if (!(args.length > 4)) {
-                    player.sendMessage(Utils.color("&cUsage: /mrules <rule> offenses <id> addpunishment <type> [length] [units]"));
-                    return true;
-                }
-                
-                PunishmentType type = PunishmentType.getType(args[4].toUpperCase());
-                int length = -1;
-                String units = "";
-                
-                String message;
-                
-                if (type.equals(PunishmentType.TEMPORARY_BAN) || type.equals(PunishmentType.TEMPORARY_MUTE)) {
-                    length = Integer.valueOf(args[5]);
-                    units = args[6];
-                    message = "&e[<id>] &aAdded a punishment with the type " + type.getDisplayName() + " &aand the length &b" + length + " " + units + " &ato offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getInternalId();
-                } else {
-                    message = "&e[<id>] &aAdded a punishment with the type " + type.getDisplayName() + " &ato offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getInternalId();
-                }
-                
-                RulePunishment punishment = new RulePunishment(type, length, units);
-                offense.addPunishment(punishment);
-                message = message.replace("<id>", punishment.getId() + "");
-                player.sendMessage(Utils.color(message));
-            } else if (Utils.checkCmdAliases(args, 3, "removepunishment", "rp")) {
-                if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_REMOVE)) {
+    
+            if (Utils.checkCmdAliases(args, 3, "punishments", "pu")) {
+                if (!player.hasPermission(Perms.MRULES_OFFESNES_PUNISHMENTS)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                     return true;
                 }
                 
-                if (!(args.length > 4)) {
-                    player.sendMessage(Utils.color("&cUsage: /mrules <rule> offenses <id> removepunishment <id>"));
-                    return true;
-                }
+                //moderatorrules <rule> offenses|of <offense> punishments|p <add|a|remove|r|clear|c> [options…]
                 
-                int id;
-                try {
-                    id = Integer.parseInt(args[4]);
-                } catch (NumberFormatException e) {
-                    player.sendMessage(Utils.color("&cYou provided an invalid number for the punishment id."));
-                    return true;
+                if (Utils.checkCmdAliases(args, 4, "add", "a")) {
+                    if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_ADD)) {
+                        player.sendMessage(Utils.color("&cYou do not have permission to add punishments to offenses."));
+                        return true;
+                    }
+                    
+                    // /mrules <rule> offenses <offense> punishments <add> <type> <number> <units>
+                    if (!(args.length > 7)) {
+                        player.sendMessage(Utils.color("&cYou must provide a type, number and unit"));
+                        return true;
+                    }
+                    
+                    PunishmentType type;
+                    try {
+                        type = PunishmentType.getType(args[5].toUpperCase());
+                    } catch (Exception e) {
+                        player.sendMessage(Utils.color("Invalid punishment type."));
+                        return true;
+                    }
+                    
+                    int length;
+                    try {
+                        length = Integer.parseInt(args[6]);
+                    } catch (NumberFormatException e) {
+                        player.sendMessage(Utils.color("&cThe value for the length was not a valid number."));
+                        return true;
+                    }
+                    
+                    Unit unit;
+                    try {
+                        unit = Unit.matchUnit(args[7]);
+                    } catch (Exception e) {
+                        player.sendMessage(Utils.color("&cThe value you provided for the unit was invalid."));
+                        return true;
+                    }
+                    
+                    RulePunishment rulePunishment = new RulePunishment(type, length, unit);
+                    offense.addPunishment(rulePunishment);
+                    player.sendMessage(Utils.color("&e[" + rulePunishment.getId() + "] &aAdded a punishment with the type " + type.getDisplayName() + " &aand the length &b" + length + " " + unit.getName().toLowerCase() + " &ato offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getInternalId()));
+                } else if (Utils.checkCmdAliases(args, 4, "remove", "r")) {
+                    if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_REMOVE)) {
+                        player.sendMessage(Utils.color("&cYou do not have permission to remove punishments from offenses."));
+                        return true;
+                    }
+                    
+                    int id;
+                    try {
+                        id = Integer.parseInt(args[5]);
+                    } catch (NumberFormatException e) {
+                        player.sendMessage(Utils.color("&cThe value for the punishment id was not a valid number"));
+                        return true;
+                    }
+                    
+                    if (!offense.hasPunishment(id)) {
+                        player.sendMessage(Utils.color("&cThat offense does not have a punishment with that id."));
+                        return true;
+                    }
+                    
+                    offense.removePunishment(id);
+                    player.sendMessage(Utils.color("&aRemoved the punishment with the id &b" + id + " &afrom the offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getName()));
+                } else if (Utils.checkCmdAliases(args, 4, "clear", "c")) {
+                    if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_CLEAR)) {
+                        player.sendMessage(Utils.color("&cYou do not have permission to clear punishments from offenses."));
+                        return true;
+                    }
+                    
+                    offense.clearPunishments();
+                    player.sendMessage(Utils.color("&aYou cleared all punishments from offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getName()));
+                } else if (Utils.checkCmdAliases(args, 4, "list", "l")) {
+                    if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_LIST)) {
+                        player.sendMessage(Utils.color("&cYou do not have permission to list punishments of offenses."));
+                        return true;
+                    }
+                    
+                    PaginatorFactory<RulePunishment> factory = new PaginatorFactory<>();
+                    factory.setHeader("&7List of Offense Punishments &e({pagenumber}/{totalpages})").setFooter("&6Type /mrules page {nexpage} for more.").setMaxElements(7);
+                    factory.addElements(offense.getPunishments().values().toArray(new RulePunishment[0]));
+                    player.sendMessage(Utils.color("&7Permission for offense: &e" + offense.getPermission()));
+                    Paginator<RulePunishment> paginator = factory.build();
+                    paginator.display(player, 1);
+                    this.paginators.put(player.getUniqueId(), paginator);
                 }
-                
-                offense.removePunishment(id);
-                player.sendMessage(Utils.color("&aRemoved the punishment &b" + id + " &afrom the offense number &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getInternalId()));
-            } else if (Utils.checkCmdAliases(args, 3, "clearpunishments", "cp")) {
-                if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS_CLEAR)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
-                    return true;
-                }
-                
-                offense.clearPunishments();
-                player.sendMessage(Utils.color("&aCleared all punishments of the offense number &b" + offense.getOffenseNumber() + " &afor the rule &b" + rule.getName()));
             }
         }
         

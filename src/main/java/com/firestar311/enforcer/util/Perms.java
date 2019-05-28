@@ -46,7 +46,8 @@ public class Perms {
     public static final String MRULES_VIEW = "enforcer.rules.view";
     public static final String MRULES_OFFENSES_MAIN = "enforcer.rules.offenses.main";
     public static final String MRULES_OFFENSES_LIST = "enforcer.rules.offenses.list";
-    public static final String MRULES_OFFESNES_CREATE = "enforcer.rules.offenses.create";
+    public static final String MRULES_OFFENSES_CREATE = "enforcer.rules.offenses.create";
+    public static final String MRULES_OFFESNES_PUNISHMENTS = "enforcer.rules.offenses.punishments";
     public static final String MRULES_OFFESNES_PUNISHMENTS_LIST = "enforcer.rules.offenses.punishments.list";
     public static final String MRULES_OFFENSES_REMOVE = "enforcer.rules.offenses.remove";
     public static final String MRULES_OFFENSES_PUNISHMENTS_ADD = "enforcer.rules.offenses.punishments.add";
@@ -54,6 +55,7 @@ public class Perms {
     public static final String MRULES_SET_NAME = "enforcer.rules.setname";
     public static final String MRULES_OFFENSES_CLEAR = "enforcer.rules.offenses.clear";
     public static final String MRULES_OFFENSES_PUNISHMENTS_CLEAR = "enforcer.rules.offenses.punishments.clear";
+    public static final String MRULES_OFFENSES_PUNISHMENTS_LIST = "enforcer.rules.offenses.punishments.list";
     public static final String OFFLINE_PUNISH = "enforcer.punishments.punish.offline";
     public static final String FLAG_IGNORE_TRAINING = "enforcer.command.flag.ignoretraining";
     public static final String FLAG_IGNORE_CONFIRM = "enforcer.command.flag.ignoreconfirm";
