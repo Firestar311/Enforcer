@@ -47,7 +47,8 @@ public class Perms {
     public static final String MRULES_OFFENSES_MAIN = "enforcer.rules.offenses.main";
     public static final String MRULES_OFFENSES_LIST = "enforcer.rules.offenses.list";
     public static final String MRULES_OFFENSES_CREATE = "enforcer.rules.offenses.create";
-    public static final String MRULES_OFFESNES_PUNISHMENTS = "enforcer.rules.offenses.punishments";
+    public static final String MRULES_OFFENSES_LENGTH = "enforcer.rules.offenses.length";
+    public static final String MRULES_OFFENSES_PUNISHMENTS = "enforcer.rules.offenses.punishments";
     public static final String MRULES_OFFESNES_PUNISHMENTS_LIST = "enforcer.rules.offenses.punishments.list";
     public static final String MRULES_OFFENSES_REMOVE = "enforcer.rules.offenses.remove";
     public static final String MRULES_OFFENSES_PUNISHMENTS_ADD = "enforcer.rules.offenses.punishments.add";

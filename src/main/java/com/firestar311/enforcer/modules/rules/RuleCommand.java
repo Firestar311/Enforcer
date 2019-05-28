@@ -208,7 +208,7 @@ public class RuleCommand implements CommandExecutor {
                 rule.addOffense(ruleOffense);
                 player.sendMessage(Utils.color("&aAdded a a new offense with the offense number &b" + ruleOffense.getOffenseNumber() + " &ato the rule &b" + rule.getName()));
             }
-    
+            
             int offenseNumber;
             try {
                 offenseNumber = Integer.parseInt(args[2]);
@@ -222,9 +222,35 @@ public class RuleCommand implements CommandExecutor {
                 player.sendMessage(Utils.color("&cThe value you provided did not match a valid offense within that rule"));
                 return true;
             }
-    
-            if (Utils.checkCmdAliases(args, 3, "punishments", "pu")) {
-                if (!player.hasPermission(Perms.MRULES_OFFESNES_PUNISHMENTS)) {
+            
+            if (Utils.checkCmdAliases(args, 3, "setlength", "sl")) {
+                if (!player.hasPermission(Perms.MRULES_OFFENSES_LENGTH)) {
+                    player.sendMessage(Utils.color("&cYou do not have permission to set the offense length"));
+                    return true;
+                }
+                
+                int rawLength;
+                try {
+                    rawLength = Integer.parseInt(args[4]);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(Utils.color("&cThe value you provided for the length is not a valid number"));
+                    return true;
+                }
+                
+                Unit unit;
+                try {
+                    unit = Unit.matchUnit(args[5]);
+                } catch (Exception e) {
+                    player.sendMessage(Utils.color("&cYou provided an invalid unit type"));
+                    return true;
+                }
+                
+                long length = unit.convertTime(rawLength);
+                
+                offense.setLength(length);
+                player.sendMessage(Utils.color("&aYou set the length to &b" + rawLength + unit.name().toLowerCase() + " &afor offense &b" + offense.getOffenseNumber() + " &aof the rule &b" + rule.getName()));
+            } else if (Utils.checkCmdAliases(args, 3, "punishments", "pu")) {
+                if (!player.hasPermission(Perms.MRULES_OFFENSES_PUNISHMENTS)) {
                     player.sendMessage(Utils.color("&cYou do not have permission to use that command."));
                     return true;
                 }

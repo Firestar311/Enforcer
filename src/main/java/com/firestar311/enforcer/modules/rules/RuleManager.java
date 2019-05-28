@@ -45,6 +45,11 @@ public class RuleManager {
                 for (String o : config.getConfigurationSection("rules." + r + ".offenses").getKeys(false)) {
                     int offenseNumber = Integer.parseInt(o);
                     RuleOffense action = new RuleOffense(rule, offenseNumber);
+                    int actionLength = 0;
+                    if (config.contains("rules." + r + ".offenses." + o + ".length")) {
+                        actionLength = config.getInt("rules." + r + ".offenses." + o + ".length");
+                    }
+                    action.setLength(actionLength);
                     for (String a : config.getConfigurationSection("rules." + r + ".offenses." + o + ".actions").getKeys(false)) {
                         int aN = Integer.parseInt(a);
                         PunishmentType type = PunishmentType.getType(config.getString("rules." + r + ".offenses." + o + ".actions." + a + ".punishment").toUpperCase());
@@ -92,6 +97,7 @@ public class RuleManager {
             if (rule.getOffenses().isEmpty()) { continue; }
             
             for (Entry<Integer, RuleOffense> actionEntry : rule.getOffenses().entrySet()) {
+                config.set(basePath + ".offenses." + actionEntry.getKey() + ".length", actionEntry.getValue().getLength());
                 String actionBase = basePath + ".offenses." + actionEntry.getKey() + ".actions";
                 for (Entry<Integer, RulePunishment> punishmentEntry : actionEntry.getValue().getPunishments().entrySet()) {
                     String punishmentBase = actionBase + "." + punishmentEntry.getKey();
@@ -144,6 +150,26 @@ public class RuleManager {
         Set<Punishment> punishments = plugin.getPunishmentManager().getPunishmentsByRule(target, rule, plugin.getTrainingModeManager().isTrainingMode(punisher));
         if (punishments.isEmpty()) { return new SimpleEntry<>(1, 1); }
         int offense = punishments.size() + 1;
+        RuleOffense previousOffense = rule.getOffense(punishments.size());
+        if (previousOffense.getLength() != 0) {
+            Punishment latestPunishment = null;
+            for (Punishment punishment : punishments) {
+                if (latestPunishment == null) {
+                    latestPunishment = punishment;
+                } else {
+                    if (punishment.getDate() > latestPunishment.getDate()) {
+                        latestPunishment = punishment;
+                    }
+                }
+            }
+            
+            if (latestPunishment != null) {
+                long expire = latestPunishment.getDate() + previousOffense.getLength();
+                if (System.currentTimeMillis() > expire) {
+                    return new SimpleEntry<>(latestPunishment.getOffenseNumber(), latestPunishment.getOffenseNumber());
+                }
+            }
+        }
         if (offense > rule.getOffenses().size()) {
             return new SimpleEntry<>(rule.getOffenses().size(), offense);
         }

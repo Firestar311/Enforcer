@@ -10,6 +10,7 @@ public class RuleOffense implements Paginatable {
     private SortedMap<Integer, RulePunishment> punishments = new TreeMap<>();
     
     private int offenseNumber;
+    private long length;
     
     private Rule parent;
     
@@ -33,6 +34,10 @@ public class RuleOffense implements Paginatable {
             punishment.setId(id);
         }
         this.punishments.put(id, punishment);
+    }
+    
+    public void setLength(long length) {
+        this.length = length;
     }
     
     public SortedMap<Integer, RulePunishment> getPunishments() {
@@ -69,5 +74,9 @@ public class RuleOffense implements Paginatable {
     
     public boolean hasPermission(Player player) {
         return player.hasPermission("enforcer.rules.*") || player.hasPermission(parent.getPermission() + ".offenses.*") || player.hasPermission(getPermission());
+    }
+    
+    public long getLength() {
+        return length;
     }
 }
