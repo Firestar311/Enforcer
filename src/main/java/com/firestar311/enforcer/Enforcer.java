@@ -127,6 +127,45 @@ public final class Enforcer extends JavaPlugin {
             player.sendMessage(Utils.color("&7Server Name : &e" + getSettingsManager().getServerName()));
             return true;
         }
+        
+        if (Utils.checkCmdAliases(args, 0, "testtime", "tt")) {
+            if (!player.isOp()) {
+                player.sendMessage(Utils.color("&cOnly operators can use that command."));
+                return true;
+            }
+            
+            if (args.length != 2) {
+                player.sendMessage(Utils.color("You must provide a length of time"));
+                return true;
+            }
+            
+            long oldWayLength = -1;
+            long newWayLength = -1;
+            
+            try {
+                oldWayLength = Punishment.calculateLength(args[1]);
+            } catch (Exception e) {}
+            
+            try {
+                newWayLength = EnforcerUtils.parseTime(args[1]);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            player.sendMessage(Utils.color("&aYou provided the time argument: &b" + args[1]));
+            if (oldWayLength == -1) {
+                player.sendMessage(Utils.color("&aThe Old Way had an error"));
+            } else {
+                player.sendMessage(Utils.color("&aThe Old Way got &b" + oldWayLength + "&e(" + Utils.formatTime(oldWayLength) + ")"));
+            }
+            
+            if (newWayLength == -1) {
+                player.sendMessage(Utils.color("&aThe New Way had an error"));
+            } else {
+                player.sendMessage(Utils.color("&aThe New Way got &b" + newWayLength + " &e(" + Utils.formatTime(newWayLength) + ")"));
+            }
+            return true;
+        }
     
         if (Utils.checkCmdAliases(args, 0, "settings", "s")) {
             if (Utils.checkCmdAliases(args, 1, "toggledisplaynames", "tdn")) {

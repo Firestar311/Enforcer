@@ -27,7 +27,7 @@ public enum Unit {
         return TimeUnit.DAYS.toMillis(rawLength) * 30;
     }},
     
-    YEARS("minutes", "minute", "min") { public long convertTime(long rawLength) {
+    YEARS("years", "year", "y") { public long convertTime(long rawLength) {
         return TimeUnit.DAYS.toMillis(rawLength) * 365;
     }};
     

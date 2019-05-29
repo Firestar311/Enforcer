@@ -259,7 +259,7 @@ public class PunishmentCommands implements CommandExecutor {
                     return true;
                 }
                 
-                long expire = Punishment.calculateLength(args[1]);
+                long expire = EnforcerUtils.parseTime(args[1]);
                 
                 if (!(args.length > 2)) {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
@@ -281,7 +281,7 @@ public class PunishmentCommands implements CommandExecutor {
                     return true;
                 }
                 
-                long expire = Punishment.calculateLength(args[1]);
+                long expire = EnforcerUtils.parseTime(args[1]);
                 
                 if (!(args.length > 2)) {
                     player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
