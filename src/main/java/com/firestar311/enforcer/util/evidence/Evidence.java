@@ -1,4 +1,4 @@
-package com.firestar311.enforcer.util;
+package com.firestar311.enforcer.util.evidence;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;

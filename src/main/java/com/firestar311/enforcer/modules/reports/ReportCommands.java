@@ -5,6 +5,8 @@ import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.reports.enums.*;
 import com.firestar311.enforcer.modules.rules.rule.Rule;
 import com.firestar311.enforcer.util.*;
+import com.firestar311.enforcer.util.evidence.Evidence;
+import com.firestar311.enforcer.util.evidence.EvidenceType;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
 import com.firestar311.lib.player.PlayerInfo;

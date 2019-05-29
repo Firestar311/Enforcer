@@ -4,7 +4,7 @@ import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
-import com.firestar311.enforcer.util.Evidence;
+import com.firestar311.enforcer.util.evidence.Evidence;
 import com.firestar311.lib.pagination.Paginatable;
 import org.bukkit.Location;
 
