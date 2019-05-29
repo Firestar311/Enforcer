@@ -3,27 +3,52 @@ package com.firestar311.enforcer.modules.punishments;
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
 import com.firestar311.enforcer.modules.punishments.type.impl.*;
+import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
+import com.firestar311.enforcer.util.evidence.Evidence;
 import org.apache.commons.lang.StringUtils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.UUID;
 
 public class PunishmentBuilder {
     
-    private int ruleId = -1, offenseNumber = -1;
-    private PunishmentType type;
-    private String server;
-    private UUID punisher, target;
-    private String reason;
-    private long date = 0, length = 0;
-    private boolean offline = false, trainingMode = false;
-    private Visibility visibility;
-    private int prisonId = -1;
+    protected int id, ruleId = -1, offenseNumber = -1, prisonId;
+    protected PunishmentType type;
+    protected String server;
+    protected UUID punisher, target, remover;
+    protected String reason;
+    protected long date, removedDate, length;
+    protected boolean active, purgatory, offline = false, trainingMode = false;
+    protected Visibility visibility, pardonVisibility = Visibility.NORMAL;
+    protected Evidence evidence;
     
     public PunishmentBuilder(UUID target, PunishmentType type) {
         this.target = target;
         this.type = type;
+    }
+    
+    public PunishmentBuilder(Map<String, Object> serialized) {
+        for (Field field : getClass().getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                if (serialized.containsKey(field.getName())) {
+                    if (field.getType().isEnum()) {
+                        Class<?> enumClass = field.getType();
+                        Method valueOf = enumClass.getMethod("valueOf", String.class);
+                        field.set(this, valueOf.invoke(null, (String) serialized.get(field.getName())));
+                    } else if (field.getType().isAssignableFrom(UUID.class)) {
+                        field.set(this, UUID.fromString((String) serialized.get(field.getName())));
+                    } else {
+                        field.set(this, serialized.get(field.getName()));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     public PunishmentBuilder(UUID target) {
@@ -215,6 +240,10 @@ public class PunishmentBuilder {
         
         punishment.setOffline(offline);
         punishment.setTrainingMode(trainingMode);
+        punishment.setEvidence(evidence);
+        punishment.setRemover(remover);
+        punishment.setRemovedDate(removedDate);
+        punishment.setPardonVisibility(pardonVisibility);
         return punishment;
     }
 }
