@@ -22,25 +22,6 @@ public class JailPunishment extends Punishment {
     
     public JailPunishment(Map<String, Object> serialized) {
         super(serialized);
-        if (serialized.containsKey("prisonId")) {
-            this.prisonId = (int) serialized.get("prisonId");
-        }
-        
-        if (serialized.containsKey("jailedInventory")) {
-            this.jailedInventory = (String) serialized.get("jailedInventory");
-        }
-        
-        if (serialized.containsKey("unjailedWhileOffline")) {
-            this.unjailedWhileOffline = (boolean) serialized.get("unjailedWhileOffline");
-        }
-        
-        if (serialized.containsKey("notifiedOfOfflineJail")) {
-            this.notifiedOfOfflineJail = (boolean) serialized.get("notifiedOfOfflineJail");
-        }
-        
-        if (serialized.containsKey("notifiedOfOfflineUnjail")) {
-            this.notifiedOfOfflineUnjail = (boolean) serialized.get("notifiedOfOfflineJail");
-        }
     }
     
     public JailPunishment(String server, UUID punisher, UUID target, String reason, long date, int prisonId) {
@@ -115,7 +96,6 @@ public class JailPunishment extends Punishment {
     }
     
     public void setPrisonId(int id) {
-        this.getAuditLog().addAuditEntry("Prison ID changed from " + this.prisonId + " to " + id);
         this.prisonId = id;
     }
     

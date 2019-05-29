@@ -61,7 +61,7 @@ public class ReportCommands implements CommandExecutor {
                 } else {
                     if (Utils.checkCmdAliases(args, 1, "setevidence", "se")) {
                         if (args.length == 3) {
-                            report.setEvidence(new ReportEvidence(0, player.getUniqueId(), EvidenceType.PLAYER, args[2]));
+                            report.setEvidence(new Evidence(0, player.getUniqueId(), EvidenceType.PLAYER, args[2]));
                             player.sendMessage(Utils.color("&aYou added evidence to the report against" + plugin.getPlayerManager().getPlayerInfo(report.getTarget()).getLastName()));
                         } else {
                             player.sendMessage(Utils.color("&cYou provided an invalid amount of arguments."));

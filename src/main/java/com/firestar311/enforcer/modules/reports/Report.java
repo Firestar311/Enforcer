@@ -4,6 +4,7 @@ import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
+import com.firestar311.enforcer.util.Evidence;
 import com.firestar311.lib.pagination.Paginatable;
 import org.bukkit.Location;
 
@@ -16,7 +17,7 @@ public class Report implements Paginatable, Comparable<Report> {
     private ReportStatus status;
     private ReportOutcome outcome;
     private List<Integer> punishments = new ArrayList<>();
-    private ReportEvidence evidence;
+    private Evidence evidence;
     private Location location;
     private long date;
     private String reason;
@@ -51,7 +52,7 @@ public class Report implements Paginatable, Comparable<Report> {
         }
         
         if (serialized.containsKey("evidence")) {
-            this.evidence = new ReportEvidence((Map<String, Object>) serialized.get("evidence"));
+            this.evidence = new Evidence((Map<String, Object>) serialized.get("evidence"));
         }
         
         if (serialized.containsKey("location")) {
@@ -116,7 +117,7 @@ public class Report implements Paginatable, Comparable<Report> {
         return punishments;
     }
     
-    public ReportEvidence getEvidence() {
+    public Evidence getEvidence() {
         return evidence;
     }
     
@@ -163,7 +164,7 @@ public class Report implements Paginatable, Comparable<Report> {
         return this;
     }
     
-    public Report setEvidence(ReportEvidence evidence) {
+    public Report setEvidence(Evidence evidence) {
         this.evidence = evidence;
         return this;
     }
@@ -194,7 +195,7 @@ public class Report implements Paginatable, Comparable<Report> {
         if (assignee != null) serialized.put("assignee", this.assignee.toString());
         if (status != null) serialized.put("status", this.status.name());
         if (outcome != null) serialized.put("outcome", this.outcome.name());
-        if (evidence != null) serialized.put("evidence", this.evidence.serialze());
+        if (evidence != null) serialized.put("evidence", this.evidence.serialize());
         if (location != null) serialized.put("location", this.location);
         serialized.put("punishments", this.punishments);
         serialized.put("date", this.date);

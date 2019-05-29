@@ -1,24 +1,29 @@
-package com.firestar311.enforcer.modules.reports;
+package com.firestar311.enforcer.util;
 
-import com.firestar311.enforcer.modules.reports.enums.EvidenceType;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.util.*;
 
-public class ReportEvidence {
+public class Evidence implements ConfigurationSerializable {
+    
+    static {
+        ConfigurationSerialization.registerClass(Evidence.class);
+    }
     
     private int id;
     private UUID submitter;
     private String link;
     private EvidenceType type;
     
-    public ReportEvidence(int id, UUID submitter, EvidenceType type, String link) {
+    public Evidence(int id, UUID submitter, EvidenceType type, String link) {
         this.id = id;
         this.submitter = submitter;
         this.link = link;
         this.type = type;
     }
     
-    public ReportEvidence(Map<String, Object> serialized) {
+    public Evidence(Map<String, Object> serialized) {
         if (serialized.containsKey("id")) {
             this.id = (int) serialized.get("id");
         }
@@ -49,7 +54,7 @@ public class ReportEvidence {
         return type;
     }
     
-    public Map<String, Object> serialze() {
+    public Map<String, Object> serialize() {
         Map<String, Object> serialized = new HashMap<>();
         serialized.put("id", this.id);
         serialized.put("submitter", submitter.toString());

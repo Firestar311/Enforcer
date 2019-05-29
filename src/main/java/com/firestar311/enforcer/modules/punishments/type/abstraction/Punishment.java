@@ -2,13 +2,12 @@ package com.firestar311.enforcer.modules.punishments.type.abstraction;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.Colors;
-import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.Visibility;
+import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
+import com.firestar311.enforcer.modules.punishments.type.impl.*;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Acknowledgeable;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
-import com.firestar311.enforcer.modules.punishments.type.impl.*;
 import com.firestar311.enforcer.util.*;
-import com.firestar311.lib.audit.AuditLog;
 import com.firestar311.lib.pagination.Paginatable;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
@@ -18,6 +17,7 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.*;
 
@@ -35,10 +35,9 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     protected long date, removedDate;
     protected boolean active, purgatory, offline = false, trainingMode = false;
     protected Visibility visibility, pardonVisibility = Visibility.NORMAL;
+    protected Evidence evidence;
     
     protected String localPunisherName, localTargetName, removerName;
-    
-    protected AuditLog auditLog = new AuditLog();
     
     public Punishment(PunishmentType type, String server, UUID punisher, UUID target, String reason, long date) {
         this(-1, type, server, punisher, target, reason, date, true, false, Visibility.NORMAL);
@@ -59,95 +58,28 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
         this.date = date;
         this.visibility = visibility;
         this.purgatory = purgatory;
-        getAuditLog().addAuditEntry("Punishment was created");
     }
     
     public Punishment(Map<String, Object> serialized) {
-        if (serialized.containsKey("id")) {
-            this.id = (int) serialized.get("id");
-        }
-        
-        if (serialized.containsKey("type")) {
-            this.type = PunishmentType.valueOf((String) serialized.get("type"));
-        }
-        
-        if (serialized.containsKey("server")) {
-            this.server = (String) serialized.get("server");
-        }
-        
-        if (serialized.containsKey("punisher")) {
-            this.punisher = UUID.fromString((String) serialized.get("punisher"));
-        }
-        
-        if (serialized.containsKey("target")) {
-            this.target = UUID.fromString((String) serialized.get("target"));
-        }
-        
-        if (serialized.containsKey("remover")) {
-            this.remover = UUID.fromString((String) serialized.get("remover"));
-        }
-        
-        if (serialized.containsKey("reason")) {
-            this.reason = (String) serialized.get("reason");
-        }
-        
-        if (serialized.containsKey("date")) {
-            this.date = (long) serialized.get("date");
-        }
-        
-        if (serialized.containsKey("removedDate")) {
+        List<Field> fields = new ArrayList<>();
+        searchClasses(fields, getClass());
+        for (Field field : fields) {
             try {
-                this.removedDate = (long) serialized.get("removedDate");
-            } catch (Exception ignored) {
+                field.setAccessible(true);
+                if (serialized.containsKey(field.getName())) {
+                    if (field.getType().isEnum()) {
+                        Class<?> enumClass = field.getType();
+                        Method valueOf = enumClass.getMethod("valueOf", String.class);
+                        field.set(this, valueOf.invoke(null, (String) serialized.get(field.getName())));
+                    } else if (field.getType().isAssignableFrom(UUID.class)) {
+                        field.set(this, UUID.fromString((String) serialized.get(field.getName())));
+                    } else {
+                        field.set(this, serialized.get(field.getName()));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-        
-        if (serialized.containsKey("active")) {
-            this.active = (boolean) serialized.get("active");
-        }
-        
-        if (serialized.containsKey("purgatory")) {
-            this.purgatory = (boolean) serialized.get("purgatory");
-        }
-        
-        if (serialized.containsKey("offline")) {
-            this.offline = (boolean) serialized.get("offline");
-        }
-        
-        if (serialized.containsKey("trainingMode")) {
-            this.trainingMode = (boolean) serialized.get("trainingMode");
-        }
-        
-        if (serialized.containsKey("visibility")) {
-            this.visibility = Visibility.valueOf((String) serialized.get("visibility"));
-        }
-        
-        if (serialized.containsKey("pardonVisibility")) {
-            this.pardonVisibility = Visibility.valueOf((String) serialized.get("pardonVisibility"));
-        }
-        
-        if (serialized.containsKey("localPunisherName")) {
-            this.localPunisherName = (String) serialized.get("localPunisherName");
-        }
-        
-        if (serialized.containsKey("localTargetName")) {
-            this.localTargetName = (String) serialized.get("localTargetName");
-        }
-        
-        if (serialized.containsKey("removerName")) {
-            this.removerName = (String) serialized.get("removerName");
-        }
-        
-        if (serialized.containsKey("auditLog")) {
-            this.auditLog = new AuditLog((String) serialized.get("auditLog"));
-        }
-        
-        if (serialized.containsKey("ruleId")) {
-            this.ruleId = (int) serialized.get("ruleId");
-        }
-        
-        if (serialized.containsKey("offenseNumber")) {
-            this.offenseNumber = (int) serialized.get("offenseNumber");
         }
     }
     
@@ -179,9 +111,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
                 } else if (field.getType().isAssignableFrom(PunishmentType.class)) {
                     PunishmentType type = (PunishmentType) field.get(punishment);
                     serialized.put(field.getName(), type.name());
-                } else if (field.getType().isAssignableFrom(AuditLog.class)) {
-                    AuditLog auditLog = (AuditLog) field.get(punishment);
-                    serialized.put(field.getName(), auditLog.serialize());
                 } else {
                     if (!field.getType().isAssignableFrom(Prompt.class)) {
                         serialized.put(field.getName(), field.get(punishment));
@@ -288,7 +217,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public final void setActive(boolean active) {
-        this.getAuditLog().addAuditEntry("Active changed from " + this.active + " to " + active);
         this.active = active;
     }
     
@@ -301,8 +229,15 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setId(int id) {
-        this.getAuditLog().addAuditEntry("ID changed from " + this.id + " to " + id);
         this.id = id;
+    }
+    
+    public Evidence getEvidence() {
+        return evidence;
+    }
+    
+    public void setEvidence(Evidence evidence) {
+        this.evidence = evidence;
     }
     
     public abstract void executePunishment();
@@ -404,9 +339,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setRemover(UUID remover) {
-        String oldRemover = (this.remover != null) ? getRemoverName() : "noone";
         this.remover = remover;
-        this.getAuditLog().addAuditEntry("Remover changed from " + oldRemover + " to " + getRemoverName());
     }
     
     public UUID getRemover() {
@@ -439,7 +372,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setRemovedDate(long removedDate) {
-        this.getAuditLog().addAuditEntry("Removal date changed from " + this.removedDate + " to " + removedDate);
         this.removedDate = removedDate;
     }
     
@@ -448,7 +380,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setVisibility(Visibility visibility) {
-        this.getAuditLog().addAuditEntry("Visibility changed from " + this.visibility.toString() + " to " + visibility.toString());
         this.visibility = visibility;
     }
     
@@ -457,7 +388,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setPardonVisibility(Visibility pardonVisibility) {
-        this.getAuditLog().addAuditEntry("Pardon Visibility changed from " + this.pardonVisibility.toString() + " to " + pardonVisibility.toString());
         this.pardonVisibility = pardonVisibility;
     }
     
@@ -576,7 +506,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setOffline(boolean offline) {
-        this.getAuditLog().addAuditEntry("Offline changed from " + this.offline + " to " + offline);
         this.offline = offline;
     }
     
@@ -585,7 +514,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setTrainingMode(boolean trainingMode) {
-        this.getAuditLog().addAuditEntry("Training mode changed from " + this.trainingMode + " to " + trainingMode);
         this.trainingMode = trainingMode;
     }
     
@@ -611,16 +539,11 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
         return Long.compare(this.getDate(), o.getDate());
     }
     
-    public AuditLog getAuditLog() {
-        return auditLog;
-    }
-    
     public int getRuleId() {
         return ruleId;
     }
     
     public void setRuleId(int ruleId) {
-        this.auditLog.addAuditEntry("Rule id changed from " + this.ruleId + " to " + ruleId);
         this.ruleId = ruleId;
     }
     
@@ -629,7 +552,6 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     }
     
     public void setOffenseNumber(int offenseNumber) {
-        this.auditLog.addAuditEntry("Offense Number changed from " + this.offenseNumber + " to " + offenseNumber);
         this.offenseNumber = offenseNumber;
     }
     

@@ -21,9 +21,6 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     
     public WarnPunishment(Map<String, Object> serialized) {
         super(serialized);
-        if (serialized.containsKey("acknowledged")) {
-            this.acknowledged = (boolean) serialized.get("acknowledged");
-        }
     }
     
     public WarnPunishment(String server, UUID punisher, UUID target, String reason, long date) {
@@ -95,12 +92,10 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     }
     
     public void setAcknowledged(boolean value) {
-        this.getAuditLog().addAuditEntry("Acknowledged changed from " + this.acknowledged + " to " + value);
         this.acknowledged = value;
     }
     
     public void onAcknowledge() {
-        this.getAuditLog().addAuditEntry("Acknowledged changed from " + this.acknowledged + " to " + true);
         this.acknowledged = true;
     }
     

@@ -15,9 +15,6 @@ public class TemporaryMute extends MutePunishment implements Expireable {
     
     public TemporaryMute(Map<String, Object> serialized) {
         super(serialized);
-        if (serialized.containsKey("expire")) {
-            this.expire = Long.valueOf(serialized.get("expire") + "");
-        }
     }
     
     public TemporaryMute(String server, UUID punisher, UUID target, String reason, long date, long expire) {
@@ -52,7 +49,6 @@ public class TemporaryMute extends MutePunishment implements Expireable {
     }
     
     public void setExpireDate(long expireDate) {
-        this.getAuditLog().addAuditEntry("Expire date changed from " + this.expire + " to " + expireDate);
         this.expire = expireDate;
     }
 }
