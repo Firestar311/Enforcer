@@ -1,21 +1,23 @@
 package com.firestar311.enforcer;
 
 import com.firestar311.enforcer.manager.SettingsManager;
-import com.firestar311.enforcer.manager.TrainingModeManager;
-import com.firestar311.enforcer.modules.prison.*;
+import com.firestar311.enforcer.modules.history.HistoryManager;
+import com.firestar311.enforcer.modules.history.HistoryModule;
+import com.firestar311.enforcer.modules.pardon.*;
+import com.firestar311.enforcer.modules.prison.PrisonManager;
+import com.firestar311.enforcer.modules.prison.PrisonModule;
 import com.firestar311.enforcer.modules.punishments.PunishmentManager;
-import com.firestar311.enforcer.modules.punishments.cmds.*;
-import com.firestar311.enforcer.modules.punishments.listeners.PlayerChatListener;
-import com.firestar311.enforcer.modules.punishments.listeners.PlayerJoinListener;
+import com.firestar311.enforcer.modules.punishments.PunishmentModule;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.MutePunishment;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
-import com.firestar311.enforcer.modules.reports.ReportCommands;
 import com.firestar311.enforcer.modules.reports.ReportManager;
-import com.firestar311.enforcer.modules.rules.RuleCommand;
+import com.firestar311.enforcer.modules.reports.ReportModule;
 import com.firestar311.enforcer.modules.rules.RuleManager;
+import com.firestar311.enforcer.modules.rules.RuleModule;
+import com.firestar311.enforcer.modules.training.TrainingManager;
+import com.firestar311.enforcer.modules.training.TrainingModule;
 import com.firestar311.enforcer.util.*;
-import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.player.PlayerManager;
 import com.firestar311.lib.util.Utils;
 import net.milkbowl.vault.permission.Permission;
@@ -31,13 +33,15 @@ import java.util.concurrent.TimeUnit;
 
 public final class Enforcer extends JavaPlugin {
 
-    private PunishmentManager punishmentManager;
-    private PrisonManager prisonManager;
-    private RuleManager ruleManager;
-    private TrainingModeManager trainingModeManager;
-    private ReportManager reportManager;
+    private PunishmentModule punishmentModule;
+    private PrisonModule prisonModule;
+    private RuleModule ruleModule;
+    private TrainingModule trainingModule;
+    private ReportModule reportModule;
     private SettingsManager settingsManager;
     private Permission permission;
+    private HistoryModule historyModule;
+    private PardonModule pardonModule;
     
     private static Enforcer instance;
     
@@ -45,26 +49,20 @@ public final class Enforcer extends JavaPlugin {
         instance = this;
         this.saveDefaultConfig();
         this.settingsManager = new SettingsManager(this);
-        this.punishmentManager = new PunishmentManager(this);
-        this.punishmentManager.loadPunishmentData();
-        this.prisonManager = new PrisonManager(this);
-        this.prisonManager.loadPrisonData();
-        this.ruleManager = new RuleManager(this);
-        this.ruleManager.loadRuleData();
-        this.trainingModeManager = new TrainingModeManager(this);
-        this.trainingModeManager.loadTrainingData();
-        this.reportManager = new ReportManager(this);
-        this.reportManager.loadReports();
-        this.registerCommands(new PunishmentCommands(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail", "punishment");
+        this.punishmentModule = new PunishmentModule(this, "punishments", new PunishmentManager(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail", "punishment");
+        this.prisonModule = new PrisonModule(this, "prison", new PrisonManager(this), "prison");
+        this.ruleModule = new RuleModule(this, "rules", new RuleManager(this), "moderatorrules");
+        this.historyModule = new HistoryModule(this, "history", new HistoryManager(this), "history", "staffhistory");
+        this.pardonModule = new PardonModule(this, "pardon", new PardonManager(this), "unban", "unmute", "unjail", "pardon");
+        this.trainingModule = new TrainingModule(this, "training", new TrainingManager(this), "trainingmode");
+        this.reportModule = new ReportModule(this, "reports", new ReportManager(this), "report", "reportadmin");
+        this.punishmentModule.setup();
+        this.prisonModule.setup();
+        this.ruleModule.setup();
+        this.reportModule.setup();
+        this.trainingModule.setup();
+        this.historyModule.setup();
         this.registerCommands(new PardonCommands(this), "unban", "unmute", "unjail", "pardon");
-        this.registerCommands(new HistoryCommands(this), "history", "staffhistory");
-        this.getCommand("prison").setExecutor(new PrisonCommand(this));
-        this.getCommand("punishmentinfo").setExecutor(new PunishmentInfoCommand(this));
-        this.getCommand("moderatorrules").setExecutor(new RuleCommand(this));
-        this.registerCommands(new ReportCommands(this), "report", "reportadmin");
-        this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new PlayerChatListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new PlayerPrisonListener(this), this);
         
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (rsp != null) {
@@ -75,7 +73,7 @@ public final class Enforcer extends JavaPlugin {
         
         new BukkitRunnable() {
             public void run() {
-                Set<Punishment> punishments = getPunishmentManager().getActivePunishments();
+                Set<Punishment> punishments = getPunishmentModule().getManager().getActivePunishments();
                 for (Punishment punishment : punishments) {
                     if (punishment instanceof Expireable) {
                         Expireable expireable = ((Expireable) punishment);
@@ -96,11 +94,11 @@ public final class Enforcer extends JavaPlugin {
     }
 
     public void onDisable() {
-        this.punishmentManager.savePunishmentData();
-        this.prisonManager.savePrisonData();
-        this.ruleManager.saveRuleData();
-        this.trainingModeManager.saveTrainingData();
-        this.reportManager.saveReports();
+        this.punishmentModule.desetup();
+        this.prisonModule.desetup();
+        this.ruleModule.desetup();
+        this.trainingModule.desetup();
+        this.reportModule.desetup();
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -177,43 +175,6 @@ public final class Enforcer extends JavaPlugin {
                 String message = Messages.USING_DISPLAYNAMES;
                 message = message.replace(Variables.DISPLAY, getSettingsManager().isUsingDisplayNames() + "");
                 sendOutputMessage(player, message);
-            } else if (Utils.checkCmdAliases(args, 1, "trainingmode", "tm")) {
-                if (!player.hasPermission(Perms.SETTINGS_TRAINING_MODE)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to toggle training mode."));
-                    return true;
-                }
-            
-                if (args.length > 1) {
-                    if (Utils.checkCmdAliases(args, 2, "global", "g")) {
-                        if (!player.hasPermission(Perms.SETTINGS_TRAINING_MODE_GLOBAL)) {
-                            player.sendMessage(Utils.color("&cYou cannot change global training mode status."));
-                            return true;
-                        }
-                        getTrainingModeManager().setGlobalTrainingMode(!getTrainingModeManager().getGlobalTrainingMode());
-                        String message = Messages.TRAINING_MODE_GLOBAL;
-                    
-                        message = message.replace(Variables.DISPLAY, getTrainingModeManager().getGlobalTrainingMode() + "");
-                        sendOutputMessage(player, message);
-                    } else {
-                        if (!player.hasPermission(Perms.SETTINGS_TRAINING_MODE_INDIVIDUAL)) {
-                            player.sendMessage("&cYou cannot change the training mode for individual players");
-                            return true;
-                        }
-                        if (args.length > 2) {
-                            PlayerInfo target = getServer().getServicesManager().getRegistration(PlayerManager.class).getProvider().getPlayerInfo(args[2]);
-                            if (target != null) {
-                                boolean var = getTrainingModeManager().toggleTrainingMode(target.getUuid());
-                                String message = Messages.TRAINING_MODE_INDIVIDUAL;
-                            
-                                message = message.replace(Variables.DISPLAY, var + "");
-                                message = message.replace(Variables.TARGET, target.getLastName());
-                                sendOutputMessage(player, message);
-                            } else {
-                                player.sendMessage(Utils.color("&cThe target you provided is invalid."));
-                            }
-                        }
-                    }
-                }
             } else if (Utils.checkCmdAliases(args, 1, "confirmpunishments", "cp")) {
                 if (!player.hasPermission(Perms.SETTINGS_CONFIRM_PUNISHMENTS)) {
                     player.sendMessage(Utils.color("&cYou cannot change the confirm punishments setting."));
@@ -262,6 +223,7 @@ public final class Enforcer extends JavaPlugin {
         }
     }
     
+    @Deprecated(forRemoval = true)
     public static long convertTime(String units, long rawLength) {
         if (!units.equals("")) {
             if (units.equalsIgnoreCase("seconds") || units.equalsIgnoreCase("second") || units.equalsIgnoreCase("s")) {
@@ -297,24 +259,24 @@ public final class Enforcer extends JavaPlugin {
         return permission;
     }
     
-    public ReportManager getReportManager() {
-        return reportManager;
+    public ReportModule getReportModule() {
+        return reportModule;
     }
     
-    public PunishmentManager getPunishmentManager() {
-        return punishmentManager;
+    public PunishmentModule getPunishmentModule() {
+        return punishmentModule;
     }
     
-    public PrisonManager getPrisonManager() {
-        return prisonManager;
+    public PrisonModule getPrisonModule() {
+        return prisonModule;
     }
     
-    public RuleManager getRuleManager() {
-        return ruleManager;
+    public RuleModule getRuleModule() {
+        return ruleModule;
     }
     
-    public TrainingModeManager getTrainingModeManager() {
-        return trainingModeManager;
+    public TrainingModule getTrainingModule() {
+        return trainingModule;
     }
     
     public SettingsManager getSettingsManager() {
@@ -327,5 +289,13 @@ public final class Enforcer extends JavaPlugin {
     
     private void sendOutputMessage(Player player, String message) {
         Messages.sendOutputMessage(player, message, this);
+    }
+    
+    public HistoryModule getHistoryModule() {
+        return historyModule;
+    }
+    
+    public PardonModule getPardonModule() {
+        return pardonModule;
     }
 }

@@ -29,7 +29,7 @@ public class PlayerPrisonListener implements Listener {
     
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        if (plugin.getPunishmentManager().isJailed(e.getPlayer().getUniqueId())) {
+        if (plugin.getPunishmentModule().getManager().isJailed(e.getPlayer().getUniqueId())) {
             e.setCancelled(true);
             e.getPlayer().sendMessage(Utils.color("&cYou cannot break blocks while jailed."));
         }
@@ -37,7 +37,7 @@ public class PlayerPrisonListener implements Listener {
     
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (plugin.getPunishmentManager().isJailed(e.getPlayer().getUniqueId())) {
+        if (plugin.getPunishmentModule().getManager().isJailed(e.getPlayer().getUniqueId())) {
             e.setCancelled(true);
             e.getPlayer().sendMessage(Utils.color("&cYou cannot place blocks while jailed."));
         }
@@ -46,8 +46,8 @@ public class PlayerPrisonListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        if (plugin.getPunishmentManager().isJailed(e.getPlayer().getUniqueId())) {
-            Prison prison = plugin.getPrisonManager().getPrison(player.getUniqueId());
+        if (plugin.getPunishmentModule().getManager().isJailed(e.getPlayer().getUniqueId())) {
+            Prison prison = plugin.getPrisonModule().getManager().getPrison(player.getUniqueId());
             if (prison != null) {
                 if (!prison.contains(player)) {
                     player.teleport(prison.getLocation());
@@ -58,7 +58,7 @@ public class PlayerPrisonListener implements Listener {
                 }
             }
         } else {
-            for (Punishment punishment : plugin.getPunishmentManager().getJailPunishments(player.getUniqueId())) {
+            for (Punishment punishment : plugin.getPunishmentModule().getManager().getJailPunishments(player.getUniqueId())) {
                 JailPunishment jailPunishment = ((JailPunishment) punishment);
                 
                 new BukkitRunnable() {
@@ -80,7 +80,7 @@ public class PlayerPrisonListener implements Listener {
             }
         }
         
-        if (plugin.getPrisonManager().getPrisons().isEmpty()) {
+        if (plugin.getPrisonModule().getManager().getPrisons().isEmpty()) {
             if (player.hasPermission(Perms.ENFORCER_ADMIN)) {
                 player.sendMessage(Utils.color("&c&lThere are currently no prisons set and the jail punishment type is enabled. Jails will not work."));
             }
@@ -90,7 +90,7 @@ public class PlayerPrisonListener implements Listener {
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
-        if (plugin.getPunishmentManager().isJailed(e.getPlayer().getUniqueId())) {
+        if (plugin.getPunishmentModule().getManager().isJailed(e.getPlayer().getUniqueId())) {
             e.setCancelled(true);
             p.sendMessage(Utils.color("&cYou cannot use commands while jailed."));
         }
@@ -100,7 +100,7 @@ public class PlayerPrisonListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             Player p = ((Player) e.getDamager());
-            if (plugin.getPunishmentManager().isJailed(p.getUniqueId())) {
+            if (plugin.getPunishmentModule().getManager().isJailed(p.getUniqueId())) {
                 e.setCancelled(true);
                 p.sendMessage(Utils.color("&cYou cannot damage entites while in jail."));
             }
@@ -111,7 +111,7 @@ public class PlayerPrisonListener implements Listener {
     public void foodChangeEvent(FoodLevelChangeEvent e) {
         if (e.getEntity() instanceof Player) {
             Player p = ((Player) e.getEntity());
-            if (plugin.getPunishmentManager().isJailed(p.getUniqueId())) {
+            if (plugin.getPunishmentModule().getManager().isJailed(p.getUniqueId())) {
                 p.setFoodLevel(20);
                 p.setSaturation(20L);
             }

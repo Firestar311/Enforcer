@@ -29,7 +29,12 @@ public enum Unit {
     
     YEARS("years", "year", "y") { public long convertTime(long rawLength) {
         return TimeUnit.DAYS.toMillis(rawLength) * 365;
+    }},
+    
+    UNDEFINED("undefined") { public long convertTime(long rawLength) {
+        return -1;
     }};
+    
     
     private String name;
     private String[] aliases;
@@ -62,6 +67,6 @@ public enum Unit {
             }
         }
         
-        throw new IllegalArgumentException("Invalid unit type");
+        return UNDEFINED;
     }
 }

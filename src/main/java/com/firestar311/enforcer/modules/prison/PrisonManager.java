@@ -1,7 +1,7 @@
 package com.firestar311.enforcer.modules.prison;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.lib.config.ConfigManager;
+import com.firestar311.enforcer.modules.base.Manager;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -9,17 +9,15 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class PrisonManager {
+public class PrisonManager extends Manager {
     
-    private ConfigManager configManager;
     private Map<Integer, Prison> prisons = new TreeMap<>();
     
     public PrisonManager(Enforcer plugin) {
-        this.configManager = new ConfigManager(plugin, "prisons");
-        configManager.setup();
+        super(plugin, "prisons");
     }
     
-    public void savePrisonData() {
+    public void saveData() {
         FileConfiguration config = configManager.getConfig();
         config.set("prisons", null);
         for (Entry<Integer, Prison> entry : this.prisons.entrySet()) {
@@ -30,7 +28,7 @@ public class PrisonManager {
         configManager.saveConfig();
     }
     
-    public void loadPrisonData() {
+    public void loadData() {
         FileConfiguration config = configManager.getConfig();
         if (config.contains("prisons")) {
             for (String i : config.getConfigurationSection("prisons").getKeys(false)) {

@@ -1,36 +1,32 @@
 package com.firestar311.enforcer.modules.punishments;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.base.Manager;
 import com.firestar311.enforcer.modules.prison.Prison;
+import com.firestar311.enforcer.modules.punishments.type.abstraction.*;
+import com.firestar311.enforcer.modules.punishments.type.impl.*;
+import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
 import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
-import com.firestar311.enforcer.modules.punishments.type.abstraction.*;
-import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
-import com.firestar311.enforcer.modules.punishments.type.impl.*;
 import com.firestar311.enforcer.modules.rules.rule.Rule;
 import com.firestar311.enforcer.util.Code;
-import com.firestar311.lib.config.ConfigManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class PunishmentManager {
+public class PunishmentManager extends Manager {
     
-    private Enforcer plugin;
-    private ConfigManager configManager;
     private Map<Integer, Punishment> punishments = new TreeMap<>();
     private Map<Integer, String> ackCodes = new TreeMap<>();
     
     public PunishmentManager(Enforcer plugin) {
-        this.plugin = plugin;
-        
-        this.configManager = new ConfigManager(plugin, "punishments");
+        super(plugin, "punishments");
         this.configManager.setup();
     }
     
-    public void savePunishmentData() {
+    public void saveData() {
         FileConfiguration config = configManager.getConfig();
         for (Punishment punishment : punishments.values()) {
             Map<String, Object> serialized = Punishment.serialize(punishment);
@@ -41,7 +37,7 @@ public class PunishmentManager {
         configManager.saveConfig();
     }
     
-    public void loadPunishmentData() {
+    public void loadData() {
         FileConfiguration config = configManager.getConfig();
         if (!config.contains("punishments")) {
             plugin.getLogger().info("Could not find any punishments to load.");
@@ -65,11 +61,11 @@ public class PunishmentManager {
             punishment.setId(id);
         }
         
-        if (plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher())) {
+        if (plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher())) {
             punishment.setTrainingMode(true);
         }
         
-        plugin.getReportManager().getReports().values().stream()
+        plugin.getReportModule().getManager().getReports().values().stream()
               .filter(report -> report.getTarget().equals(punishment.getTarget()))
               .filter(report -> report.getReason().equalsIgnoreCase(punishment.getReason())).forEach(report -> {
             report.addPunishment(punishment);
@@ -102,7 +98,7 @@ public class PunishmentManager {
         }
         if (punishment.isActive()) {
             if (punishment.isTrainingPunishment()) {
-                return plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher());
+                return plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher());
             }
             return true;
         }
@@ -130,7 +126,7 @@ public class PunishmentManager {
         for (Punishment punishment : getWarnings(uuid)) {
             if (punishment.isActive()) {
                 if (punishment.isTrainingPunishment()) {
-                    return plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher());
+                    return plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher());
                 }
                 return true;
             }
@@ -146,7 +142,7 @@ public class PunishmentManager {
         for (Punishment punishment : getKicks(uuid)) {
             if (punishment.isActive()) {
                 if (punishment.isTrainingPunishment()) {
-                    return plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher());
+                    return plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher());
                 }
                 return true;
             }
@@ -158,7 +154,7 @@ public class PunishmentManager {
         addPunishment(punishment);
         if (punishment.isActive()) {
             try {
-                Prison prison = plugin.getPrisonManager().findPrison();
+                Prison prison = plugin.getPrisonModule().getManager().findPrison();
                 punishment.setPrisonId(prison.getId());
             } catch (Exception e) {
                 plugin.getLogger()
@@ -171,7 +167,7 @@ public class PunishmentManager {
         for (Punishment punishment : getJailPunishments(uuid)) {
             if (punishment.isActive()) {
                 if (punishment.isTrainingPunishment()) {
-                    return plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher());
+                    return plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher());
                 }
                 return true;
             }
@@ -300,7 +296,7 @@ public class PunishmentManager {
     public Set<Punishment> getPunishmentsByRule(UUID target, Rule rule, boolean trainingMode) {
         Set<Punishment> punishments = new HashSet<>();
         
-        for (Punishment punishment : plugin.getPunishmentManager().getPunishments()) {
+        for (Punishment punishment : getPunishments()) {
             if (punishment.getTarget().equals(target)) {
                 if (punishment.getRuleId() == rule.getId()) {
                     boolean toAdd = true;

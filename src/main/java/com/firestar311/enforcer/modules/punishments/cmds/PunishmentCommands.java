@@ -1,14 +1,16 @@
 package com.firestar311.enforcer.modules.punishments.cmds;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.modules.punishments.PunishGUI;
 import com.firestar311.enforcer.modules.prison.Prison;
 import com.firestar311.enforcer.modules.punishments.*;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.punishments.type.impl.JailPunishment;
+import com.firestar311.enforcer.modules.rules.RuleManager;
 import com.firestar311.enforcer.modules.rules.rule.*;
 import com.firestar311.enforcer.util.*;
+import com.firestar311.enforcer.util.evidence.Evidence;
+import com.firestar311.enforcer.util.evidence.EvidenceType;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
 import net.md_5.bungee.api.ChatColor;
@@ -44,6 +46,12 @@ public class PunishmentCommands implements CommandExecutor {
                 return true;
             }
             
+            if (!sender.hasPermission("enforcer.command.punishment")) {
+                return true;
+            }
+    
+            PunishmentManager punishmentManager = plugin.getPunishmentModule().getManager();
+            
             if (args[0].equalsIgnoreCase("confirm")) {
                 if (!(args.length > 1)) {
                     return true;
@@ -57,10 +65,11 @@ public class PunishmentCommands implements CommandExecutor {
                 List<PunishmentBuilder> builders = this.punishmentBuilders.get(code);
                 for (PunishmentBuilder punishmentBuilder : builders) {
                     Punishment punishment = punishmentBuilder.build();
+                   
                     if (punishment instanceof JailPunishment) {
-                        plugin.getPunishmentManager().addJailPunishment((JailPunishment) punishment);
+                        punishmentManager.addJailPunishment((JailPunishment) punishment);
                     } else {
-                        plugin.getPunishmentManager().addPunishment(punishment);
+                        punishmentManager.addPunishment(punishment);
                     }
                     
                     punishment.executePunishment();
@@ -73,6 +82,38 @@ public class PunishmentCommands implements CommandExecutor {
                 String code = args[1];
                 this.punishmentBuilders.remove(code);
                 sender.sendMessage(Utils.color("&aCancelled that/those punishment(s)"));
+            } else if (Utils.isInt(args[0])) {
+                Player player = ((Player) sender);
+                int id;
+                try {
+                    id = Integer.parseInt(args[0]);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(Utils.color("&cThe value for the id is not a valid number."));
+                    return true;
+                }
+    
+                Punishment punishment = punishmentManager.getPunishment(id);
+    
+                if (punishment == null) {
+                    player.sendMessage(Utils.color("&cCould not find a punishment with that id."));
+                    return true;
+                }
+    
+                if (Utils.checkCmdAliases(args, 1, "setevidence", "se")) {
+                    if (!player.hasPermission(Perms.PUNISHMENTS_SET_EVIDENCE)) {
+                        player.sendMessage(Messages.noPermissionCommand(Perms.PUNISHMENTS_SET_EVIDENCE));
+                        return true;
+                    }
+        
+                    if (args.length != 2) {
+                        player.sendMessage(Utils.color("&cUsage: /punishmentinfo <punishment id> setevidence|se <link>"));
+                        return true;
+                    }
+        
+                    Evidence evidence = new Evidence(0, player.getUniqueId(), EvidenceType.STAFF, args[2]);
+                    punishment.setEvidence(evidence);
+                    player.sendMessage(Utils.color("&aYou set the evidence of the punishment &b" + punishment.getId() + " &ato &b" + evidence.getLink()));
+                }
             }
             
             return true;
@@ -168,8 +209,10 @@ public class PunishmentCommands implements CommandExecutor {
                     }
                 }
             }
+    
+            RuleManager ruleManager = plugin.getRuleModule().getManager();
             
-            Rule rule = plugin.getRuleManager().getRule(sb.toString());
+            Rule rule = ruleManager.getRule(sb.toString());
             if (rule == null) {
                 player.sendMessage(Utils.color("&cThe value you provided does not match to a valid rule."));
                 return true;
@@ -180,7 +223,7 @@ public class PunishmentCommands implements CommandExecutor {
                 return true;
             }
             
-            Entry<Integer, Integer> offenseNumbers = plugin.getRuleManager().getNextOffense(player.getUniqueId(), info.getUuid(), rule);
+            Entry<Integer, Integer> offenseNumbers = ruleManager.getNextOffense(player.getUniqueId(), info.getUuid(), rule);
             
             RuleOffense offense = rule.getOffense(offenseNumbers.getKey());
             if (offense == null) {
@@ -231,7 +274,7 @@ public class PunishmentCommands implements CommandExecutor {
             
             for (PunishmentBuilder puBuilder : puBuilders) {
                 Punishment punishment = puBuilder.build();
-                plugin.getPunishmentManager().addPunishment(punishment);
+                plugin.getPunishmentModule().getManager().addPunishment(punishment);
                 punishment.executePunishment();
             }
         } else {
@@ -240,7 +283,7 @@ public class PunishmentCommands implements CommandExecutor {
             PunishmentBuilder puBuilder = new PunishmentBuilder(info.getUuid());
             puBuilder.setDate(currentTime).setPunisher(player.getUniqueId()).setVisibility(visibility).setServer(prefix);
             if (!ignoreTraining) {
-                puBuilder.setTrainingMode(plugin.getTrainingModeManager().isTrainingMode(player.getUniqueId()));
+                puBuilder.setTrainingMode(plugin.getTrainingModule().getManager().isTrainingMode(player.getUniqueId()));
             }
             
             String reason = "";
@@ -312,14 +355,14 @@ public class PunishmentCommands implements CommandExecutor {
                     return true;
                 }
                 
-                if (plugin.getPrisonManager().getPrisons().isEmpty()) {
+                if (plugin.getPrisonModule().getManager().getPrisons().isEmpty()) {
                     player.sendMessage(Utils.color("&cThere are no prisons created. Jail punishments are disabled until at least 1 is created."));
                     return true;
                 }
                 
                 reason = getReason(1, args);
                 puBuilder.setType(PunishmentType.JAIL);
-                Prison prison = plugin.getPrisonManager().findPrison();
+                Prison prison = plugin.getPrisonModule().getManager().findPrison();
                 puBuilder.setPrisonId(prison.getId());
             }
             
@@ -336,7 +379,7 @@ public class PunishmentCommands implements CommandExecutor {
             }
             
             Punishment punishment = puBuilder.build();
-            plugin.getPunishmentManager().addPunishment(punishment);
+            plugin.getPunishmentModule().getManager().addPunishment(punishment);
             punishment.executePunishment();
         }
         return true;
@@ -401,7 +444,7 @@ public class PunishmentCommands implements CommandExecutor {
     }
     
     private void checkTraining(Punishment punishment, boolean ignoreTraining) {
-        if (plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher())) {
+        if (plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher())) {
             if (ignoreTraining) {
                 punishment.setTrainingMode(false);
             }

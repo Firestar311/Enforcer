@@ -130,24 +130,28 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
     public static Punishment deserialize(Map<String, Object> serialized) {
         if (serialized.containsKey("type")) {
             PunishmentType type = PunishmentType.valueOf((String) serialized.get("type"));
-            
-            switch (type) {
-                case PERMANENT_BAN:
-                    return new PermanentBan(serialized);
-                case TEMPORARY_BAN:
-                    return new TemporaryBan(serialized);
-                case PERMANENT_MUTE:
-                    return new PermanentMute(serialized);
-                case TEMPORARY_MUTE:
-                    return new TemporaryMute(serialized);
-                case WARN:
-                    return new WarnPunishment(serialized);
-                case KICK:
-                    return new KickPunishment(serialized);
-                case JAIL:
-                    return new JailPunishment(serialized);
+    
+            try {
+                return type.getPunishmentClass().getConstructor(Map.class).newInstance(serialized);
+            } catch (Exception e) {
+                e.printStackTrace();
+                switch (type) {
+                    case PERMANENT_BAN:
+                        return new PermanentBan(serialized);
+                    case TEMPORARY_BAN:
+                        return new TemporaryBan(serialized);
+                    case PERMANENT_MUTE:
+                        return new PermanentMute(serialized);
+                    case TEMPORARY_MUTE:
+                        return new TemporaryMute(serialized);
+                    case WARN:
+                        return new WarnPunishment(serialized);
+                    case KICK:
+                        return new KickPunishment(serialized);
+                    case JAIL:
+                        return new JailPunishment(serialized);
+                }
             }
-            
             return null;
         }
         return null;
@@ -421,7 +425,7 @@ public abstract class Punishment implements Paginatable, Comparable<Punishment> 
             Expireable expireable = (Expireable) this;
             message = (message + " " + Messages.LENGTH_FORMAT);
             message = message.replace(LENGTH, Utils.formatTime(Math.abs(this.getDate() - expireable.getExpireDate())));
-            if (!expireable.isExpired()) {
+            if (!expireable.isExpired() && remover == null) {
                 message = message + "\n    &8- &9Expires in: " + expireable.formatExpireTime();
             }
             if (type.equals(PunishmentType.TEMPORARY_BAN)) {

@@ -1,22 +1,18 @@
-package com.firestar311.enforcer.modules.punishments.cmds;
+package com.firestar311.enforcer.modules.history;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.firestar311.enforcer.util.*;
+import com.firestar311.enforcer.util.Messages;
+import com.firestar311.enforcer.util.Perms;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
-import java.util.*;
-
 public class HistoryCommands implements CommandExecutor {
     
     private Enforcer plugin;
-    
-    private Map<UUID, Paginator<Punishment>> historyPaginators = new HashMap<>();
-    private Map<UUID, Paginator<Punishment>> staffHistoryPaginators = new HashMap<>();
     
     public HistoryCommands(Enforcer plugin) {
         this.plugin = plugin;
@@ -34,32 +30,36 @@ public class HistoryCommands implements CommandExecutor {
             player.sendMessage(Utils.color("&cYou must provide a name to view."));
             return true;
         }
+    
+        HistoryManager historyManager = plugin.getHistoryModule().getManager();
         
         if (cmd.getName().equalsIgnoreCase("history")) {
             if (!player.hasPermission(Perms.PLAYER_HISTORY)) {
                 player.sendMessage(Messages.noPermissionCommand(Perms.PLAYER_HISTORY));
                 return true;
             }
+            
+            
             if (args.length == 1) {
-                PlayerInfo info = getPlayerInfo(args[0], player);
-                if (info == null) return true;
-                UUID target = info.getUuid();
-                List<Punishment> playerPunishments = new LinkedList<>(plugin.getPunishmentManager().getPunishments(target));
-                Paginator<Punishment> paginator = EnforcerUtils.generatePaginatedPunishmentList(playerPunishments, "&7-=History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})", "&7Type /staffhistory page {nextpage} for more");
+                Paginator<Punishment> paginator = historyManager.generateHistoryPaginator(player.getUniqueId(), args[0]);
+                if (paginator == null) {
+                    player.sendMessage(Utils.color("&cThere was a problem getting the list of results for that player."));
+                    return true;
+                }
+                
                 paginator.display(player, 1, "history");
-                this.historyPaginators.put(player.getUniqueId(), paginator);
             } else if (args.length == 2) {
                 if (Utils.checkCmdAliases(args, 0, "page", "p")) {
                     
                     int page = getPage(player, args[1]);
                     if (page == -1) return true;
             
-                    if (!this.historyPaginators.containsKey(player.getUniqueId())) {
+                    if (!historyManager.hasLookupRegularHistory(player.getUniqueId())) {
                         player.sendMessage(Utils.color("&cYou do not have history results yet, please use /history <name> first"));
                         return true;
                     }
             
-                    this.historyPaginators.get(player.getUniqueId()).display(player, page, "history");
+                    historyManager.getRegularResults(player.getUniqueId()).display(player, page, "history");
                 }
             }
         } else if (cmd.getName().equalsIgnoreCase("staffhistory")) {
@@ -68,32 +68,25 @@ public class HistoryCommands implements CommandExecutor {
                 return true;
             }
             if (args.length == 1) {
-                PlayerInfo info = getPlayerInfo(args[0], player);
-                if (info == null) return true;
-                
-                List<Punishment> allPunishments = new ArrayList<>(plugin.getPunishmentManager().getPunishments());
-                List<Punishment> staffPunishments = new LinkedList<>();
-                allPunishments.forEach(punishment -> {
-                    if (punishment.getPunisher().equals(info.getUuid())) {
-                        staffPunishments.add(punishment);
-                    }
-                });
-                
-                Paginator<Punishment> paginator = EnforcerUtils.generatePaginatedPunishmentList(staffPunishments, "&7-=Staff History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})", "&7Type /staffhistory page {nextpage} for more");
+                Paginator<Punishment> paginator = historyManager.generateStaffHistoryPaginator(player.getUniqueId());
+                if (paginator == null) {
+                    player.sendMessage(Utils.color("&cThere was a problem getting the list of results for that player."));
+                    return true;
+                }
+    
                 paginator.display(player, 1, "staffhistory");
-                this.staffHistoryPaginators.put(player.getUniqueId(), paginator);
             } else if (args.length == 2) {
                 if (Utils.checkCmdAliases(args, 0, "page", "p")) {
                     
                     int page = getPage(player, args[1]);
                     if (page == -1) return true;
             
-                    if (!this.staffHistoryPaginators.containsKey(player.getUniqueId())) {
+                    if (!historyManager.hasLookupStaffHistory(player.getUniqueId())) {
                         player.sendMessage(Utils.color("&cYou do not have staff history results yet, please use /staffhistory <name> first"));
                         return true;
                     }
             
-                    this.staffHistoryPaginators.get(player.getUniqueId()).display(player, page, "staffhistory");
+                    historyManager.getStaffResults(player.getUniqueId()).display(player, page, "staffhistory");
                 }
         
             }

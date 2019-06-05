@@ -37,7 +37,7 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     
     public Prompt createPrompt() {
         Player player = Bukkit.getPlayer(target);
-        String code = Enforcer.getInstance().getPunishmentManager().generateAckCode(this.id);
+        String code = Enforcer.getInstance().getPunishmentModule().getManager().generateAckCode(this.id);
         if (player != null) {
             prompt = new ValidatingPrompt() {
                 public String getPromptText(ConversationContext context) {

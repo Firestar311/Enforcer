@@ -1,24 +1,21 @@
-package com.firestar311.enforcer.manager;
+package com.firestar311.enforcer.modules.training;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.lib.config.ConfigManager;
+import com.firestar311.enforcer.modules.base.Manager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 
-public class TrainingModeManager {
-    
-    private ConfigManager configManager;
+public class TrainingManager extends Manager {
     
     private boolean globalTrainingMode = false;
     private Set<UUID> trainingMode = new HashSet<>();
     
-    public TrainingModeManager(Enforcer plugin) {
-        this.configManager = new ConfigManager(plugin, "trainingmode");
-        this.configManager.setup();
+    public TrainingManager(Enforcer plugin) {
+        super(plugin, "training");
     }
     
-    public void saveTrainingData() {
+    public void saveData() {
         FileConfiguration config = configManager.getConfig();
         config.set("global", globalTrainingMode);
         List<String> tm = new ArrayList<>();
@@ -26,7 +23,7 @@ public class TrainingModeManager {
         config.set("individual", tm);
     }
     
-    public void loadTrainingData() {
+    public void loadData() {
         FileConfiguration config = configManager.getConfig();
         this.globalTrainingMode = config.getBoolean("global");
         List<String> tm = config.getStringList("individual");

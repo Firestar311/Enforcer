@@ -35,3 +35,4 @@ commands:
     reportadmin:
         aliases: [ra]
     punishment:
+    trainingmode:

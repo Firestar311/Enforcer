@@ -1,6 +1,7 @@
 package com.firestar311.enforcer.modules.punishments.listeners;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.punishments.PunishmentManager;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.punishments.type.impl.WarnPunishment;
 import com.firestar311.enforcer.util.Perms;
@@ -26,13 +27,14 @@ public class PlayerChatListener implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
-        
-        if (plugin.getPunishmentManager().isJailed(player.getUniqueId())) {
+    
+        PunishmentManager punishmentManager = plugin.getPunishmentModule().getManager();
+        if (punishmentManager.isJailed(player.getUniqueId())) {
             e.setCancelled(true);
             player.sendMessage(Utils.color("&cYou cannnot speak while jailed."));
             return;
         }
-        if (plugin.getPunishmentManager().isMuted(player.getUniqueId())) {
+        if (punishmentManager.isMuted(player.getUniqueId())) {
             e.setCancelled(true);
             player.sendMessage(Utils.color("&cYou cannot speak while muted."));
             if (this.notifications.containsKey(player.getUniqueId())) {
@@ -54,10 +56,10 @@ public class PlayerChatListener implements Listener {
             return;
         }
     
-        e.getRecipients().removeIf(recipient -> plugin.getPunishmentManager().isJailed(recipient.getUniqueId()));
+        e.getRecipients().removeIf(recipient -> punishmentManager.isJailed(recipient.getUniqueId()));
         
-        for (Punishment punishment : plugin.getPunishmentManager().getWarnings(player.getUniqueId())) {
-            if (!plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher())) {
+        for (Punishment punishment : punishmentManager.getWarnings(player.getUniqueId())) {
+            if (!plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher())) {
                 WarnPunishment warning = (WarnPunishment) punishment;
                 if (!warning.isAcknowledged()) {
                     e.setCancelled(true);

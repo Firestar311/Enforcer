@@ -1,4 +1,4 @@
-package com.firestar311.enforcer.modules.punishments.cmds;
+package com.firestar311.enforcer.modules.pardon;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.Visibility;
@@ -23,7 +23,7 @@ public class PardonCommands implements CommandExecutor {
     
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.color("&cOnly players may use punishment commands."));
+            sender.sendMessage(Utils.color("&cOnly players may use pardon commands."));
             return true;
         }
         
@@ -53,7 +53,7 @@ public class PardonCommands implements CommandExecutor {
                 player.sendMessage(Messages.noPermissionCommand(Perms.UNBAN));
                 return true;
             }
-            punishments.addAll(plugin.getPunishmentManager().getActiveBans(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBans(info.getUuid()));
             if (punishments.isEmpty()) {
                 player.sendMessage(Utils.color("&cThere are no active bans against that player."));
                 return true;
@@ -63,7 +63,7 @@ public class PardonCommands implements CommandExecutor {
                 player.sendMessage(Messages.noPermissionCommand(Perms.UNMUTE));
                 return true;
             }
-            punishments.addAll(plugin.getPunishmentManager().getActiveMutes(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveMutes(info.getUuid()));
             if (punishments.isEmpty()) {
                 player.sendMessage(Utils.color("&cThere are no active mutes against that player."));
                 return true;
@@ -73,7 +73,7 @@ public class PardonCommands implements CommandExecutor {
                 player.sendMessage(Messages.noPermissionCommand(Perms.UNJAIL));
                 return true;
             }
-            punishments.addAll(plugin.getPunishmentManager().getActiveJails(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveJails(info.getUuid()));
             if (punishments.isEmpty()) {
                 player.sendMessage(Utils.color("&cThere are no active jails against that player."));
                 return true;
@@ -84,7 +84,7 @@ public class PardonCommands implements CommandExecutor {
                 return true;
             }
             
-            punishments.addAll(plugin.getPunishmentManager().getActivePunishments(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActivePunishments(info.getUuid()));
             if (punishments.isEmpty()) {
                 player.sendMessage(Utils.color("&cThere are no active punishments against that player."));
                 return true;
@@ -92,7 +92,7 @@ public class PardonCommands implements CommandExecutor {
         }
         Visibility finalVisibility = visibility;
         for (Punishment punishment : punishments) {
-            if (plugin.getTrainingModeManager().isTrainingMode(punishment.getPunisher())) {
+            if (plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher())) {
                 if (!punishment.isTrainingPunishment()) {
                     continue;
                 }

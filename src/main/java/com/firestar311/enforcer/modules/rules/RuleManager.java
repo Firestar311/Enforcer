@@ -1,10 +1,12 @@
 package com.firestar311.enforcer.modules.rules;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.base.Manager;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.rules.rule.*;
-import com.firestar311.lib.config.ConfigManager;
+import com.firestar311.enforcer.util.Unit;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -13,27 +15,52 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.*;
 
-public class RuleManager {
-    
-    private Enforcer plugin;
-    private ConfigManager configManager;
+public class RuleManager extends Manager {
     
     private SortedMap<Integer, Rule> rules = new TreeMap<>();
     
     public RuleManager(Enforcer plugin) {
-        this.plugin = plugin;
+        super(plugin, "rules", false);
         
         File rulesFile = new File(plugin.getDataFolder() + File.separator + "rules.yml");
         if (!rulesFile.exists()) {
             plugin.saveResource("rules.yml", true);
         }
         
-        this.configManager = new ConfigManager(plugin, "rules");
         this.configManager.setup();
     }
     
+    public void saveData() {
+        FileConfiguration config = this.configManager.getConfig();
+        config.set("rules", null);
+        
+        for (Rule rule : this.rules.values()) {
+            String basePath = "rules." + rule.getInternalId();
+            config.set(basePath + ".id", rule.getId());
+            config.set(basePath + ".name", rule.getName());
+            config.set(basePath + ".description", rule.getDescription());
+            if (rule.getMaterial() != null) {
+                config.set(basePath + ".material", rule.getMaterial().name());
+            }
+            
+            if (rule.getOffenses().isEmpty()) { continue; }
+            
+            for (Entry<Integer, RuleOffense> actionEntry : rule.getOffenses().entrySet()) {
+                config.set(basePath + ".offenses." + actionEntry.getKey() + ".length", actionEntry.getValue().getLength());
+                String actionBase = basePath + ".offenses." + actionEntry.getKey() + ".actions";
+                for (Entry<Integer, RulePunishment> punishmentEntry : actionEntry.getValue().getPunishments().entrySet()) {
+                    String punishmentBase = actionBase + "." + punishmentEntry.getKey();
+                    config.set(punishmentBase + ".punishment", punishmentEntry.getValue().getType().toString().toLowerCase());
+                    config.set(punishmentBase + ".length", punishmentEntry.getValue().getcLength());
+                    config.set(punishmentBase + ".unit", punishmentEntry.getValue().getcUnits());
+                    config.set(punishmentBase + ".id", punishmentEntry.getValue().getId());
+                }
+            }
+        }
+        this.configManager.saveConfig();
+    }
     
-    public void loadRuleData() {
+    public void loadData() {
         FileConfiguration config = configManager.getConfig();
         if (config.getConfigurationSection("rules") == null) { return; }
         for (String r : config.getConfigurationSection("rules").getKeys(false)) {
@@ -68,7 +95,11 @@ public class RuleManager {
                             id = config.getInt("rules." + r + ".offenses." + o + ".actions." + a + ".id");
                         }
                         
-                        long length = Enforcer.convertTime(units, rawLength);
+                        long length = -1;
+                        if (!StringUtils.isEmpty(units)) {
+                            Unit unit = Unit.matchUnit(units);
+                            length = unit.convertTime(rawLength);
+                        }
                         
                         RulePunishment punishment = new RulePunishment(type, length, rawLength, units);
                         punishment.setId(id);
@@ -79,36 +110,6 @@ public class RuleManager {
             }
             this.addRule(rule);
         }
-    }
-    
-    public void saveRuleData() {
-        FileConfiguration config = this.configManager.getConfig();
-        config.set("rules", null);
-        
-        for (Rule rule : this.rules.values()) {
-            String basePath = "rules." + rule.getInternalId();
-            config.set(basePath + ".id", rule.getId());
-            config.set(basePath + ".name", rule.getName());
-            config.set(basePath + ".description", rule.getDescription());
-            if (rule.getMaterial() != null) {
-                config.set(basePath + ".material", rule.getMaterial().name());
-            }
-    
-            if (rule.getOffenses().isEmpty()) { continue; }
-            
-            for (Entry<Integer, RuleOffense> actionEntry : rule.getOffenses().entrySet()) {
-                config.set(basePath + ".offenses." + actionEntry.getKey() + ".length", actionEntry.getValue().getLength());
-                String actionBase = basePath + ".offenses." + actionEntry.getKey() + ".actions";
-                for (Entry<Integer, RulePunishment> punishmentEntry : actionEntry.getValue().getPunishments().entrySet()) {
-                    String punishmentBase = actionBase + "." + punishmentEntry.getKey();
-                    config.set(punishmentBase + ".punishment", punishmentEntry.getValue().getType().toString().toLowerCase());
-                    config.set(punishmentBase + ".length", punishmentEntry.getValue().getcLength());
-                    config.set(punishmentBase + ".unit", punishmentEntry.getValue().getcUnits());
-                    config.set(punishmentBase + ".id", punishmentEntry.getValue().getId());
-                }
-            }
-        }
-        this.configManager.saveConfig();
     }
     
     public void addRule(Rule rule) {
@@ -147,7 +148,7 @@ public class RuleManager {
     }
     
     public Entry<Integer, Integer> getNextOffense(UUID punisher, UUID target, Rule rule) {
-        Set<Punishment> punishments = plugin.getPunishmentManager().getPunishmentsByRule(target, rule, plugin.getTrainingModeManager().isTrainingMode(punisher));
+        Set<Punishment> punishments = plugin.getPunishmentModule().getManager().getPunishmentsByRule(target, rule, plugin.getTrainingModule().getManager().isTrainingMode(punisher));
         if (punishments.isEmpty()) { return new SimpleEntry<>(1, 1); }
         int offense = punishments.size() + 1;
         RuleOffense previousOffense = rule.getOffense(punishments.size());

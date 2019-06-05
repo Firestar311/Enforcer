@@ -30,8 +30,8 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent e) {
         UUID player = e.getUniqueId();
-        if (plugin.getPunishmentManager().isBanned(e.getUniqueId())) {
-            List<Punishment> bans = new ArrayList<>(plugin.getPunishmentManager().getActiveBans(e.getUniqueId()));
+        if (plugin.getPunishmentModule().getManager().isBanned(e.getUniqueId())) {
+            List<Punishment> bans = new ArrayList<>(plugin.getPunishmentModule().getManager().getActiveBans(e.getUniqueId()));
             BanPunishment worsePunishment = null;
             for (Punishment punishment : bans) {
                 if (worsePunishment == null) {
@@ -65,7 +65,7 @@ public class PlayerJoinListener implements Listener {
                             p.sendMessage(Utils.color("&c" + e.getName() + " continues to join, silencing notifications"));
                         }
                     }
-                    if (plugin.getPunishmentManager().getPunishments(e.getUniqueId()).size() > 14) {
+                    if (plugin.getPunishmentModule().getManager().getPunishments(e.getUniqueId()).size() > 14) {
                         p.sendMessage(Utils.color("&c" + e.getName() + " has a total of 15 or more infractions on their history."));
                     }
                 }

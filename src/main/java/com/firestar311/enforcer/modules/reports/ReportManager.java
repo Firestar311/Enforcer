@@ -1,59 +1,38 @@
 package com.firestar311.enforcer.modules.reports;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.base.Manager;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class ReportManager implements Listener {
+public class ReportManager extends Manager implements Listener {
 
-    private Enforcer plugin;
-    
-    private File reportsFile;
-    private FileConfiguration reportsConfig;
-    
     private SortedMap<Integer, Report> reports = new TreeMap<>();
     
     public ReportManager(Enforcer plugin) {
-        this.plugin = plugin;
+        super(plugin, "reports");
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        reportsFile = new File(plugin.getDataFolder() +  File.separator + "reports.yml");
-        if (!reportsFile.exists()) {
-            try {
-                reportsFile.createNewFile();
-                reportsConfig = YamlConfiguration.loadConfiguration(reportsFile);
-            } catch (Exception e) {
-                plugin.getLogger().severe("Could not create reports.yml file.");
-            }
-        } else {
-            reportsConfig = YamlConfiguration.loadConfiguration(reportsFile);
-        }
     }
     
-    public void saveReports() {
+    public void saveData() {
+        FileConfiguration reportsConfig = this.configManager.getConfig();
         for (Entry<Integer, Report> entry : reports.entrySet()) {
              for (Entry<String, Object> serializedEntry : entry.getValue().serialize().entrySet()) {
                  reportsConfig.set("reports." + entry.getKey() + "." + serializedEntry.getKey(), serializedEntry.getValue());
              }
         }
     
-        try {
-            reportsConfig.save(reportsFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Could not save the reports.yml file!");
-        }
+        this.configManager.saveConfig();
     }
     
-    public void loadReports() {
-        ConfigurationSection reportsSection = this.reportsConfig.getConfigurationSection("reports");
+    public void loadData() {
+        FileConfiguration reportsConfig = this.configManager.getConfig();
+        ConfigurationSection reportsSection = reportsConfig.getConfigurationSection("reports");
         if (reportsSection == null) {
-            plugin.getLogger().info("No reports were found that need to be loaded.");
             return;
         }
         
@@ -70,7 +49,6 @@ public class ReportManager implements Listener {
                 plugin.getLogger().severe("Invalid report loaded");
             }
         }
-        plugin.getLogger().info("Report data loading finished.");
     }
     
     public void addReport(Report report) {

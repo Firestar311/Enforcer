@@ -41,7 +41,7 @@ public class JailPunishment extends Punishment {
     
     public void executePunishment() {
         Player player = Bukkit.getPlayer(target);
-        Prison prison = Enforcer.getInstance().getPrisonManager().getPrison(this.prisonId);
+        Prison prison = Enforcer.getInstance().getPrisonModule().getManager().getPrison(this.prisonId);
         prison.addInhabitant(this.target);
         if (player != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Enforcer.getInstance(), () -> player.teleport(prison.getLocation()));
@@ -61,7 +61,7 @@ public class JailPunishment extends Punishment {
         setActive(false);
         sendRemovalMessage();
         
-        Prison prison = Enforcer.getInstance().getPrisonManager().getPrison(this.prisonId);
+        Prison prison = Enforcer.getInstance().getPrisonModule().getManager().getPrison(this.prisonId);
         if (prison != null) {
             prison.removeInhabitant(this.target);
         }

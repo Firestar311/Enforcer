@@ -37,10 +37,11 @@ public class RuleCommand implements CommandExecutor {
             return true;
         }
         
+        RuleManager ruleManager = plugin.getRuleModule().getManager();
         if (args.length == 0) {
             PaginatorFactory<Rule> factory = new PaginatorFactory<>();
             factory.setMaxElements(7).setHeader("&7-=Moderator Rules=- &e({pagenumber}/{totalpages})").setFooter("&7Type /mrules page {nextpage} for more");
-            plugin.getRuleManager().getRules().forEach(factory::addElement);
+            ruleManager.getRules().forEach(factory::addElement);
             Paginator<Rule> paginator = factory.build();
             paginator.display(player, 1);
             this.paginators.put(player.getUniqueId(), paginator);
@@ -77,14 +78,14 @@ public class RuleCommand implements CommandExecutor {
             String name = StringUtils.join(args, ' ', 1, args.length);
             String internalId = name.toLowerCase().replace(" ", "_");
             
-            Rule existing = plugin.getRuleManager().getRule(internalId);
+            Rule existing = ruleManager.getRule(internalId);
             if (existing != null) {
                 player.sendMessage(Utils.color("&cA rule with that name already exists."));
                 return true;
             }
             
             Rule rule = new Rule(internalId, name);
-            plugin.getRuleManager().addRule(rule);
+            ruleManager.addRule(rule);
             String message = Messages.RULE_CREATE;
             message = message.replace(Variables.RULE_NAME, rule.getName());
             message = message.replace(Variables.RULE_ID, rule.getId() + "");
@@ -93,7 +94,7 @@ public class RuleCommand implements CommandExecutor {
             return true;
         }
         
-        Rule rule = plugin.getRuleManager().getRule(args[0]);
+        Rule rule = ruleManager.getRule(args[0]);
         if (rule == null) {
             player.sendMessage(Utils.color("&cCould not find a rule with that identifier."));
             return true;
@@ -127,8 +128,8 @@ public class RuleCommand implements CommandExecutor {
                 player.sendMessage(Messages.noPermissionCommand(Perms.MRULES_REMOVE));
                 return true;
             }
-            
-            plugin.getRuleManager().removeRule(rule.getId());
+    
+            ruleManager.removeRule(rule.getId());
             player.sendMessage(Utils.color("&aRemoved the rule &b" + rule.getInternalId()));
         } else if (Utils.checkCmdAliases(args, 1, "setmaterial", "sm")) {
             if (!(args.length > 1)) {
@@ -166,7 +167,7 @@ public class RuleCommand implements CommandExecutor {
             
             String name = StringUtils.join(args, ' ', 2, args.length);
             
-            Rule existing = plugin.getRuleManager().getRule(name);
+            Rule existing = ruleManager.getRule(name);
             if (existing != null) {
                 player.sendMessage(Utils.color("&cA rule with that name already exists."));
                 return true;
