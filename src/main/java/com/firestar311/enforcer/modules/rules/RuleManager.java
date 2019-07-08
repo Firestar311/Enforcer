@@ -5,7 +5,7 @@ import com.firestar311.enforcer.modules.base.Manager;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.rules.rule.*;
-import com.firestar311.enforcer.util.Unit;
+import com.firestar311.lib.util.Unit;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;

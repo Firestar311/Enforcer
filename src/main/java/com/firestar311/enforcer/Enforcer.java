@@ -145,7 +145,7 @@ public final class Enforcer extends JavaPlugin {
             } catch (Exception e) {}
             
             try {
-                newWayLength = EnforcerUtils.parseTime(args[1]);
+                newWayLength = Utils.parseTime(args[1]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
