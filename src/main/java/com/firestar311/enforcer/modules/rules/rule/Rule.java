@@ -1,7 +1,7 @@
 package com.firestar311.enforcer.modules.rules.rule;
 
 import com.firestar311.lib.builder.ItemBuilder;
-import com.firestar311.lib.pagination.Paginatable;
+import com.firestar311.lib.pagination.IElement;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-public class Rule implements Paginatable, Comparable<Rule> {
+public class Rule implements IElement, Comparable<Rule> {
     
     private int id;
     private String internalId, name, description;

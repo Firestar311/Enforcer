@@ -1,11 +1,11 @@
 package com.firestar311.enforcer.modules.rules.rule;
 
-import com.firestar311.lib.pagination.Paginatable;
+import com.firestar311.lib.pagination.IElement;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class RuleOffense implements Paginatable {
+public class RuleOffense implements IElement {
     
     private SortedMap<Integer, RulePunishment> punishments = new TreeMap<>();
     

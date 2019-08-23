@@ -5,12 +5,12 @@ import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
 import com.firestar311.enforcer.util.evidence.Evidence;
-import com.firestar311.lib.pagination.Paginatable;
+import com.firestar311.lib.pagination.IElement;
 import org.bukkit.Location;
 
 import java.util.*;
 
-public class Report implements Paginatable, Comparable<Report> {
+public class Report implements IElement, Comparable<Report> {
     
     private int id;
     private UUID reporter, target, assignee;

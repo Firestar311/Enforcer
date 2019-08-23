@@ -1,13 +1,13 @@
 package com.firestar311.enforcer.modules.prison;
 
-import com.firestar311.lib.pagination.Paginatable;
+import com.firestar311.lib.pagination.IElement;
 import com.firestar311.lib.region.Cuboid;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Location;
 
 import java.util.*;
 
-public class Prison extends Cuboid implements Paginatable {
+public class Prison extends Cuboid implements IElement {
     
     private int id;
     private Location location;

@@ -9,7 +9,7 @@ import com.firestar311.enforcer.modules.punishments.type.interfaces.Acknowledgea
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
 import com.firestar311.enforcer.util.*;
 import com.firestar311.enforcer.util.evidence.Evidence;
-import com.firestar311.lib.pagination.Paginatable;
+import com.firestar311.lib.pagination.IElement;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Bukkit;
@@ -26,7 +26,7 @@ import static com.firestar311.enforcer.modules.punishments.Colors.BAN;
 import static com.firestar311.enforcer.modules.punishments.Colors.MUTE;
 import static com.firestar311.enforcer.util.Variables.*;
 
-public abstract class Punishment implements Paginatable, Comparable<Punishment> {
+public abstract class Punishment implements IElement, Comparable<Punishment> {
     
     protected int id, ruleId = -1, offenseNumber = -1;
     protected PunishmentType type;
