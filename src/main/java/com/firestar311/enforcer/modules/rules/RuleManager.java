@@ -131,7 +131,7 @@ public class RuleManager extends Manager {
     
     public Rule getRule(String ruleString) {
         Rule rule = null;
-        ruleString = ruleString.strip();
+        ruleString = StringUtils.strip(ruleString);
         try {
             int id = Integer.parseInt(ruleString);
             return this.rules.get(id);

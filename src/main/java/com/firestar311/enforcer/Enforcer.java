@@ -223,7 +223,6 @@ public final class Enforcer extends JavaPlugin {
         }
     }
     
-    @Deprecated(forRemoval = true)
     public static long convertTime(String units, long rawLength) {
         if (!units.equals("")) {
             if (units.equalsIgnoreCase("seconds") || units.equalsIgnoreCase("second") || units.equalsIgnoreCase("s")) {
