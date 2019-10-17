@@ -29,6 +29,11 @@ public class PlayerJoinListener implements Listener {
     
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent e) {
+        if (plugin.getPunishmentModule().getManager().isBlacklisted(e.getAddress().toString().split(":")[0].replace("/", ""))) {
+            e.disallow(Result.KICK_BANNED, Utils.color("Blacklisted")); //TODO Better message
+            return;
+        }
+        
         UUID player = e.getUniqueId();
         if (plugin.getPunishmentModule().getManager().isBanned(e.getUniqueId())) {
             List<Punishment> bans = new ArrayList<>(plugin.getPunishmentModule().getManager().getActiveBans(e.getUniqueId()));

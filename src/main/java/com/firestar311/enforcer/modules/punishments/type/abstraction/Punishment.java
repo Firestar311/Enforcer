@@ -1,10 +1,11 @@
 package com.firestar311.enforcer.modules.punishments.type.abstraction;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.modules.punishments.Colors;
-import com.firestar311.enforcer.modules.punishments.Visibility;
+import com.firestar311.enforcer.modules.punishments.*;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
+import com.firestar311.enforcer.modules.punishments.target.*;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
-import com.firestar311.enforcer.modules.punishments.type.impl.*;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Acknowledgeable;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
 import com.firestar311.enforcer.util.*;
@@ -13,42 +14,36 @@ import com.firestar311.lib.pagination.IElement;
 import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.conversations.Prompt;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.firestar311.enforcer.modules.punishments.Colors.BAN;
 import static com.firestar311.enforcer.modules.punishments.Colors.MUTE;
 import static com.firestar311.enforcer.util.Variables.*;
 
-public abstract class Punishment implements IElement, Comparable<Punishment> {
+public abstract class Punishment implements IElement, Comparable<Punishment>, ConfigurationSerializable {
     
-    protected int id, ruleId = -1, offenseNumber = -1;
-    protected PunishmentType type;
-    protected String server;
-    protected UUID punisher, target, remover;
-    protected String reason;
-    protected long date, removedDate;
     protected boolean active, purgatory, offline = false, trainingMode = false;
-    protected Visibility visibility, pardonVisibility = Visibility.NORMAL;
+    protected long date, removedDate;
     protected Evidence evidence;
-    
+    protected int id, ruleId = -1, offenseNumber = -1;
     protected String localPunisherName, localTargetName, removerName;
+    protected Actor punisher;
+    protected String reason, removedReason = "";
+    protected Actor remover;
+    protected String server;
+    protected Target target;
+    protected PunishmentType type;
+    protected Visibility visibility, pardonVisibility = Visibility.NORMAL;
     
-    public Punishment(PunishmentType type, String server, UUID punisher, UUID target, String reason, long date) {
+    public Punishment(PunishmentType type, String server, Actor punisher, Target target, String reason, long date) {
         this(-1, type, server, punisher, target, reason, date, true, false, Visibility.NORMAL);
     }
     
-    public Punishment(PunishmentType type, String server, UUID punisher, UUID target, String reason, long date, Visibility visibility) {
-        this(-1, type, server, punisher, target, reason, date, true, false, visibility);
-    }
-    
-    public Punishment(int id, PunishmentType type, String server, UUID punisher, UUID target, String reason, long date, boolean active, boolean purgatory, Visibility visibility) {
+    public Punishment(int id, PunishmentType type, String server, Actor punisher, Target target, String reason, long date, boolean active, boolean purgatory, Visibility visibility) {
         this.id = id;
         this.type = type;
         this.server = server;
@@ -61,160 +56,59 @@ public abstract class Punishment implements IElement, Comparable<Punishment> {
         this.purgatory = purgatory;
     }
     
-    public Punishment(Map<String, Object> serialized) {
-        List<Field> fields = new ArrayList<>();
-        searchClasses(fields, getClass());
-        for (Field field : fields) {
-            try {
-                field.setAccessible(true);
-                if (serialized.containsKey(field.getName())) {
-                    if (field.getType().isEnum()) {
-                        Class<?> enumClass = field.getType();
-                        Method valueOf = enumClass.getMethod("valueOf", String.class);
-                        field.set(this, valueOf.invoke(null, (String) serialized.get(field.getName())));
-                    } else if (field.getType().isAssignableFrom(UUID.class)) {
-                        field.set(this, UUID.fromString((String) serialized.get(field.getName())));
-                    } else {
-                        field.set(this, serialized.get(field.getName()));
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    public Punishment(PunishmentType type, String server, Actor punisher, Target target, String reason, long date, Visibility visibility) {
+        this(-1, type, server, punisher, target, reason, date, true, false, visibility);
     }
     
-    public static Map<String, Object> serialize(Punishment punishment) {
-        try {
-            List<Field> fields = new ArrayList<>();
-            searchClasses(fields, punishment.getClass());
-            
-            if (fields.isEmpty()) {
-                System.out.println("List of fields is empty");
-                return null;
-            }
-            
-            Map<String, Object> serialized = new HashMap<>();
-            
-            for (Field field : fields) {
-                field.setAccessible(true);
-                
-                if (field.get(punishment) == null) {
-                    continue;
-                }
-                
-                if (field.getType().isAssignableFrom(UUID.class)) {
-                    UUID uuid = (UUID) field.get(punishment);
-                    serialized.put(field.getName(), uuid.toString());
-                } else if (field.getType().isAssignableFrom(Visibility.class)) {
-                    Visibility visibility = (Visibility) field.get(punishment);
-                    serialized.put(field.getName(), visibility.name());
-                } else if (field.getType().isAssignableFrom(PunishmentType.class)) {
-                    PunishmentType type = (PunishmentType) field.get(punishment);
-                    serialized.put(field.getName(), type.name());
-                } else {
-                    if (!field.getType().isAssignableFrom(Prompt.class)) {
-                        serialized.put(field.getName(), field.get(punishment));
-                    }
-                }
-            }
-            
-            return serialized;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        return null;
+    protected Map<String, Object> serializeBase() {
+        Map<String, Object> serialized = new HashMap<>();
+        serialized.put("active", this.active);
+        serialized.put("purgatory", this.purgatory);
+        serialized.put("offline", this.offline);
+        serialized.put("trainingMode", this.trainingMode);
+        serialized.put("date", this.date + "");
+        serialized.put("removedDate", this.removedDate + "");
+        serialized.put("id", this.id + "");
+        serialized.put("ruleId", this.ruleId + "");
+        serialized.put("offenseNumber", this.offenseNumber + "");
+        serialized.put("punisher", this.punisher);
+        serialized.put("reason", this.reason);
+        serialized.put("removedReason", this.removedReason);
+        serialized.put("remover", this.remover);
+        serialized.put("server", this.server);
+        serialized.put("target", this.target);
+        serialized.put("type", this.type.name());
+        serialized.put("visibility", this.visibility.name());
+        serialized.put("pardonVisibility", this.pardonVisibility.name());
+        serialized.put("evidence", this.evidence);
+        return serialized;
     }
     
-    public static Punishment deserialize(Map<String, Object> serialized) {
-        if (serialized.containsKey("type")) {
-            PunishmentType type = PunishmentType.valueOf((String) serialized.get("type"));
-    
-            try {
-                return type.getPunishmentClass().getConstructor(Map.class).newInstance(serialized);
-            } catch (Exception e) {
-                e.printStackTrace();
-                switch (type) {
-                    case PERMANENT_BAN:
-                        return new PermanentBan(serialized);
-                    case TEMPORARY_BAN:
-                        return new TemporaryBan(serialized);
-                    case PERMANENT_MUTE:
-                        return new PermanentMute(serialized);
-                    case TEMPORARY_MUTE:
-                        return new TemporaryMute(serialized);
-                    case WARN:
-                        return new WarnPunishment(serialized);
-                    case KICK:
-                        return new KickPunishment(serialized);
-                    case JAIL:
-                        return new JailPunishment(serialized);
-                }
-            }
-            return null;
-        }
-        return null;
-    }
-    
-    public void setPunisherName(String punisherName) {
-        this.localPunisherName = punisherName;
-    }
-    
-    public void setTargetName(String targetName) {
-        this.localTargetName = targetName;
-    }
-    
-    public final int getId() {
-        return id;
-    }
-    
-    public String getPunisherName() {
-        if (localPunisherName == null) {
-            PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.punisher);
-            if (info != null) {
-                localPunisherName = info.getLastName();
-            } else {
-                OfflinePlayer punisher = Bukkit.getOfflinePlayer(this.punisher);
-                if (punisher != null) {
-                    localPunisherName = punisher.getName();
-                }
-            }
-        }
-        return localPunisherName;
-    }
-    
-    public String getTargetName() {
-        if (localTargetName == null) {
-            PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.target);
-            if (info != null) {
-                localTargetName = info.getLastName();
-            }
-            
-            if (localTargetName == null) {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(this.target);
-                if (target != null) {
-                    localTargetName = target.getName();
-                }
-            }
-        }
-        return localTargetName;
-    }
-    
-    public String getServer() {
-        return server;
-    }
-    
-    public UUID getTarget() {
-        return target;
-    }
-    
-    public UUID getPunisher() {
-        return punisher;
-    }
-    
-    public final String getReason() {
-        return reason;
+    protected static PunishmentBuilder deserializeBase(Map<String, Object> serialized) {
+        PunishmentBuilder puBuilder = new PunishmentBuilder();
+        boolean active = (boolean) serialized.get("active");
+        boolean purgatory = (boolean) serialized.get("purgatory");
+        boolean offline = (boolean) serialized.get("offline");
+        boolean trainingMode = (boolean) serialized.get("trainingMode");
+        long date = Long.parseLong((String) serialized.get("date"));
+        long removedDate = Long.parseLong((String) serialized.get("removedDate"));
+        Evidence evidence = (Evidence) serialized.get("evidence");
+        int id = Integer.parseInt((String) serialized.get("id"));
+        int ruleId = Integer.parseInt((String) serialized.get("ruleId"));
+        int offenseNumber = Integer.parseInt((String) serialized.get("offenseNumber"));
+        Actor punisher = (Actor) serialized.get("punisher");
+        String reason = (String) serialized.get("reason");
+        String removedReason = (String) serialized.get("removedReason");
+        Actor remover = (Actor) serialized.get("remover");
+        String server = (String) serialized.get("server");
+        Target target = (Target) serialized.get("target");
+        PunishmentType type = PunishmentType.valueOf((String) serialized.get("type"));
+        Visibility visibility = Visibility.valueOf((String) serialized.get("visibility"));
+        Visibility pardonVisibility = Visibility.valueOf((String) serialized.get("pardonVisibility"));
+        puBuilder.setActive(active).setPurgatory(purgatory).setOffline(offline).setTrainingMode(trainingMode).setDate(date).setRemovedDate(removedDate)
+        .setEvidence(evidence).setId(id).setRuleId(ruleId).setOffenseNumber(offenseNumber).setPunisher(punisher).setReason(reason).setRemovedReason(removedReason)
+        .setRemover(remover).setServer(server).setTarget(target).setType(type).setVisibility(visibility).setPardonVisibility(pardonVisibility);
+        return puBuilder;
     }
     
     public final boolean isActive() {
@@ -225,29 +119,81 @@ public abstract class Punishment implements IElement, Comparable<Punishment> {
         this.active = active;
     }
     
-    public final PunishmentType getType() {
-        return type;
-    }
-    
-    public long getDate() {
-        return date;
-    }
-    
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public Evidence getEvidence() {
-        return evidence;
-    }
-    
-    public void setEvidence(Evidence evidence) {
-        this.evidence = evidence;
-    }
-    
     public abstract void executePunishment();
     
-    public abstract void reversePunishment(UUID remover, long removedDate);
+    public abstract void reversePunishment(Actor remover, long removedDate);
+    
+    public void sendPunishMessage() {
+        String message = formatMessage();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!canSeeMessages(p, visibility)) { continue; }
+            String msg = message;
+            
+            if (punisher instanceof PlayerActor) {
+                PlayerActor playerActor = ((PlayerActor) punisher);
+                if (p.getUniqueId().equals(playerActor.getUniqueId())) {
+                    msg = msg.replace(PUNISHER, "&lYou");
+                } else {
+                    Player player = Bukkit.getPlayer(playerActor.getUniqueId());
+                    if (Enforcer.getInstance().getSettingsManager().isUsingDisplayNames()) {
+                        msg = msg.replace(Variables.PUNISHER, player.getDisplayName());
+                    } else {
+                        msg = msg.replace(Variables.PUNISHER, getPunisherName());
+                    }
+                }
+            } else {
+                msg = msg.replace(PUNISHER, "&4&lConsole");
+            }
+            
+            p.sendMessage(Utils.color(msg));
+        }
+    }
+    
+    public final String formatMessage() {
+        String message = Messages.PUNISH_FORMAT;
+        message = message.replace(VISIBILITY, visibility.getPrefix());
+        message = message.replace(PREFIX, server.toUpperCase());
+        if (target instanceof PlayerTarget) {
+            message = message.replace(TARGET, getTargetName());
+        } else {
+            PlayerInfo ipInfo = null;
+            playerLoop:
+            for (PlayerInfo info : Enforcer.getInstance().getPlayerManager().getPlayers().values()) {
+                if (target instanceof IPTarget) {
+                    String ip = ((IPTarget) target).getIpAddress();
+                    if (info.getIpAddresses().contains(ip)) {
+                        ipInfo = info;
+                        break;
+                    }
+                } else if(target instanceof IPListTarget) {
+                    for (String ip : ((IPListTarget) target).getIpAddresses()) {
+                        if (info.getIpAddresses().contains(ip)) {
+                            ipInfo = info;
+                            break playerLoop;
+                        }
+                    }
+                }
+            }
+            
+            message = message.replace(TARGET, ipInfo.getLastName());
+        }
+        message = message.replace(REASON, reason);
+        if (target instanceof PlayerTarget) {
+            PlayerTarget playerTarget = ((PlayerTarget) this.target);
+            Player t = Bukkit.getPlayer(playerTarget.getUniqueId());
+            if (t != null) {
+                message = message.replace(TARGET_STATUS, "&2");
+            } else {
+                message = message.replace(TARGET_STATUS, "&c");
+            }
+        } else {
+            message = message.replace(TARGET_STATUS, "");
+        }
+        message = message.replace("{id}", id + "");
+        message = replaceExpireVariables(message);
+        message = replacePunishmentVariables(message);
+        return Utils.color(message);
+    }
     
     public boolean canSeeMessages(Player p, Visibility visibility) {
         if (visibility.equals(Visibility.NORMAL)) {
@@ -268,60 +214,103 @@ public abstract class Punishment implements IElement, Comparable<Punishment> {
         return true;
     }
     
-    public void sendPunishMessage() {
-        String message = formatMessage();
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!canSeeMessages(p, visibility)) continue;
-            String msg = message;
-            if (p.getUniqueId().equals(punisher)) {
-                msg = msg.replace(Variables.PUNISHER, "&lYou");
+    public String getPunisherName() {
+        if (localPunisherName == null) {
+            if (punisher instanceof PlayerActor) {
+                this.localPunisherName = ((PlayerActor) punisher).getPlayerInfo().getLastName();
             } else {
-                Player player = Bukkit.getPlayer(this.punisher);
-                if (Enforcer.getInstance().getSettingsManager().isUsingDisplayNames()) {
-                    msg = msg.replace(Variables.PUNISHER, player.getDisplayName());
-                } else {
-                    msg = msg.replace(Variables.PUNISHER, getPunisherName());
-                }
+                this.localPunisherName = "Console";
             }
-            p.sendMessage(Utils.color(msg));
         }
+        return localPunisherName;
+    }
+    
+    public void setPunisherName(String punisherName) {
+        this.localPunisherName = punisherName;
+    }
+    
+    public String getTargetName() {
+        if (localTargetName == null) {
+            localTargetName = target.getName();
+        }
+        return localTargetName;
+    }
+    
+    public void setTargetName(String targetName) {
+        this.localTargetName = targetName;
+    }
+    
+    private String replaceExpireVariables(String message) {
+        if (this instanceof Expireable) {
+            Expireable expireable = (Expireable) this;
+            if (type.equals(PunishmentType.TEMPORARY_BAN)) {
+                message = (message + " " + Messages.LENGTH_FORMAT);
+                message = message.replace(LENGTH, expireable.formatExpireTime());
+                message = message.replace(COLOR, BAN);
+                return message.replace(PUNISHMENT, "banned");
+            }
+            if (type.equals(PunishmentType.TEMPORARY_MUTE)) {
+                message = (message + " " + Messages.LENGTH_FORMAT);
+                message = message.replace(LENGTH, expireable.formatExpireTime());
+                message = message.replace(COLOR, MUTE);
+                return message.replace(PUNISHMENT, "muted");
+            }
+        }
+        return message;
+    }
+    
+    private String replacePunishmentVariables(String message) {
+        if (type.equals(PunishmentType.PERMANENT_BAN)) {
+            message = (message + " " + Messages.PERMANENT_FORMAT);
+            message = message.replace(COLOR, BAN);
+            return message.replace(PUNISHMENT, "banned");
+        }
+        if (type.equals(PunishmentType.PERMANENT_MUTE)) {
+            message = (message + " " + Messages.PERMANENT_FORMAT);
+            message = message.replace(COLOR, MUTE);
+            return message.replace(PUNISHMENT, "muted");
+        }
+        if (type.equals(PunishmentType.JAIL)) {
+            message = message.replace(COLOR, Colors.JAIL);
+            return message.replace(PUNISHMENT, "jailed");
+        }
+        if (type.equals(PunishmentType.KICK)) {
+            message = message.replace(COLOR, Colors.KICK);
+            return message.replace(PUNISHMENT, "kicked");
+        }
+        if (type.equals(PunishmentType.WARN)) {
+            message = message.replace(COLOR, Colors.WARN);
+            return message.replace(PUNISHMENT, "warned");
+        }
+        if (type.equals(PunishmentType.BLACKLIST)) {
+            message = message.replace(COLOR, Colors.BLACKLIST);
+            return message.replace(PUNISHMENT, "blacklisted");
+        }
+        return message;
     }
     
     public void sendRemovalMessage() {
         String message = formatRemoveMessage(this.server);
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!canSeeMessages(p, pardonVisibility)) continue;
+            if (!canSeeMessages(p, pardonVisibility)) { continue; }
             String msg = message;
-            if (p.getUniqueId().equals(remover)) {
-                msg = msg.replace(REMOVER, "&lYou");
-            } else {
-                Player player = Bukkit.getPlayer(this.remover);
-                if (Enforcer.getInstance().getSettingsManager().isUsingDisplayNames()) {
-                    msg = msg.replace(Variables.REMOVER, player.getDisplayName());
+            if (remover instanceof PlayerActor) {
+                PlayerActor playerActor = ((PlayerActor) punisher);
+                if (p.getUniqueId().equals(playerActor.getUniqueId())) {
+                    msg = msg.replace(REMOVER, "&lYou");
                 } else {
-                    msg = msg.replace(Variables.REMOVER, getRemoverName());
+                    Player player = Bukkit.getPlayer(playerActor.getUniqueId());
+                    if (Enforcer.getInstance().getSettingsManager().isUsingDisplayNames()) {
+                        msg = msg.replace(Variables.REMOVER, player.getDisplayName());
+                    } else {
+                        msg = msg.replace(Variables.REMOVER, getPunisherName());
+                    }
                 }
+            } else {
+                msg = msg.replace(PUNISHER, "&4&lConsole");
             }
             p.sendMessage(Utils.color(msg));
         }
-    }
-    
-    public final String formatMessage() {
-        String message = Messages.PUNISH_FORMAT;
-        message = message.replace(VISIBILITY, visibility.getPrefix());
-        message = message.replace(PREFIX, server.toUpperCase());
-        message = message.replace(TARGET, getTargetName());
-        message = message.replace(REASON, reason);
-        Player t = Bukkit.getPlayer(this.target);
-        if (t != null) {
-            message = message.replace(TARGET_STATUS, "&2");
-        } else {
-            message = message.replace(TARGET_STATUS, "&c");
-        }
-        message = message.replace("{id}", id + "");
-        message = replaceExpireVariables(message);
-        message = replacePunishmentVariables(message);
-        return Utils.color(message);
     }
     
     public final String formatRemoveMessage(String server) {
@@ -341,70 +330,6 @@ public abstract class Punishment implements IElement, Comparable<Punishment> {
         }
         
         return Utils.color(message);
-    }
-    
-    public void setRemover(UUID remover) {
-        this.remover = remover;
-    }
-    
-    public UUID getRemover() {
-        return remover;
-    }
-    
-    public void setRemoverName(String name) {
-        this.removerName = name;
-    }
-    
-    public String getRemoverName() {
-        if (removerName == null) {
-            PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.remover);
-            if (info != null) {
-                removerName = info.getLastName();
-            }
-            
-            if (removerName == null) {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(this.remover);
-                if (target != null) {
-                    removerName = target.getName();
-                }
-            }
-        }
-        return removerName;
-    }
-    
-    public long getRemovedDate() {
-        return removedDate;
-    }
-    
-    public void setRemovedDate(long removedDate) {
-        this.removedDate = removedDate;
-    }
-    
-    public Visibility getVisibility() {
-        return visibility;
-    }
-    
-    public void setVisibility(Visibility visibility) {
-        this.visibility = visibility;
-    }
-    
-    public Visibility getPardonVisibility() {
-        return pardonVisibility;
-    }
-    
-    public void setPardonVisibility(Visibility pardonVisibility) {
-        this.pardonVisibility = pardonVisibility;
-    }
-    
-    private static void searchClasses(List<Field> list, Class<? extends Punishment> clazz) {
-        if (clazz.getSuperclass() != null) {
-            Class<?> superClass = clazz.getSuperclass();
-            if (superClass.getName().toLowerCase().contains("punishment")) {
-                searchClasses(list, (Class<? extends Punishment>) clazz.getSuperclass());
-            }
-        }
-        
-        list.addAll(Arrays.asList(clazz.getDeclaredFields()));
     }
     
     public String formatLine(String[] args) {
@@ -461,87 +386,103 @@ public abstract class Punishment implements IElement, Comparable<Punishment> {
         return Utils.color(message);
     }
     
-    private String replacePunishmentVariables(String message) {
-        if (type.equals(PunishmentType.PERMANENT_BAN)) {
-            message = (message + " " + Messages.PERMANENT_FORMAT);
-            message = message.replace(COLOR, BAN);
-            return message.replace(PUNISHMENT, "banned");
-        }
-        if (type.equals(PunishmentType.PERMANENT_MUTE)) {
-            message = (message + " " + Messages.PERMANENT_FORMAT);
-            message = message.replace(COLOR, MUTE);
-            return message.replace(PUNISHMENT, "muted");
-        }
-        if (type.equals(PunishmentType.JAIL)) {
-            message = message.replace(COLOR, Colors.JAIL);
-            return message.replace(PUNISHMENT, "jailed");
-        }
-        if (type.equals(PunishmentType.KICK)) {
-            message = message.replace(COLOR, Colors.KICK);
-            return message.replace(PUNISHMENT, "kicked");
-        }
-        if (type.equals(PunishmentType.WARN)) {
-            message = message.replace(COLOR, Colors.WARN);
-            return message.replace(PUNISHMENT, "warned");
-        }
-        return message;
-    }
-    
-    private String replaceExpireVariables(String message) {
-        if (this instanceof Expireable) {
-            Expireable expireable = (Expireable) this;
-            if (type.equals(PunishmentType.TEMPORARY_BAN)) {
-                message = (message + " " + Messages.LENGTH_FORMAT);
-                message = message.replace(LENGTH, expireable.formatExpireTime());
-                message = message.replace(COLOR, BAN);
-                return message.replace(PUNISHMENT, "banned");
-            }
-            if (type.equals(PunishmentType.TEMPORARY_MUTE)) {
-                message = (message + " " + Messages.LENGTH_FORMAT);
-                message = message.replace(LENGTH, expireable.formatExpireTime());
-                message = message.replace(COLOR, MUTE);
-                return message.replace(PUNISHMENT, "muted");
-            }
-        }
-        return message;
+    public long getDate() {
+        return date;
     }
     
     public boolean wasOffline() {
         return offline;
     }
     
-    public void setOffline(boolean offline) {
-        this.offline = offline;
-    }
-    
     public boolean isTrainingPunishment() {
         return trainingMode;
     }
     
-    public void setTrainingMode(boolean trainingMode) {
-        this.trainingMode = trainingMode;
-    }
-    
-    public static long calculateLength(String rawText) {
-        String expireTime = "P";
-        String time = rawText.toUpperCase();
-        String[] a = time.split("D");
-    
-        if (a.length == 1) {
-            expireTime += a[0].contains("H") || a[0].contains("M") || a[0].contains("S") ? "T" + a[0] : a[0] + "d";
-        } else if (a.length == 2) {
-            expireTime = a[0] + "dT" + a[1];
-        }
-    
-        return Duration.parse(expireTime).toMillis();
-    }
-    
-    public static long calculateExpireDate(long currentDate, String rawText) {
-        return calculateLength(rawText) + currentDate;
-    }
-    
     public int compareTo(Punishment o) {
         return Long.compare(this.getDate(), o.getDate());
+    }
+    
+    public boolean isPurgatory() {
+        return purgatory;
+    }
+    
+    public final int getId() {
+        return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public String getServer() {
+        return server;
+    }
+    
+    public Target getTarget() {
+        return target;
+    }
+    
+    public Actor getPunisher() {
+        return punisher;
+    }
+    
+    public final String getReason() {
+        return reason;
+    }
+    
+    public final PunishmentType getType() {
+        return type;
+    }
+    
+    public Evidence getEvidence() {
+        return evidence;
+    }
+    
+    public void setEvidence(Evidence evidence) {
+        this.evidence = evidence;
+    }
+    
+    public Actor getRemover() {
+        return remover;
+    }
+    
+    public void setRemover(Actor remover) {
+        this.remover = remover;
+    }
+    
+    public String getRemoverName() {
+        if (removerName == null) {
+            removerName = remover.getName();
+        }
+        return removerName;
+    }
+    
+    public void setRemoverName(String name) {
+        this.removerName = name;
+    }
+    
+    public long getRemovedDate() {
+        return removedDate;
+    }
+    
+    public void setRemovedDate(long removedDate) {
+        this.removedDate = removedDate;
+    }
+    
+    public Visibility getVisibility() {
+        return visibility;
+    }
+    
+    public void setVisibility(Visibility visibility) {
+        this.visibility = visibility;
+    }
+    
+    public Visibility getPardonVisibility() {
+        return pardonVisibility;
+    }
+    
+    public void setPardonVisibility(Visibility pardonVisibility) {
+        this.pardonVisibility = pardonVisibility;
     }
     
     public int getRuleId() {
@@ -560,7 +501,23 @@ public abstract class Punishment implements IElement, Comparable<Punishment> {
         this.offenseNumber = offenseNumber;
     }
     
-    public boolean isPurgatory() {
-        return purgatory;
+    public String getRemovedReason() {
+        return removedReason;
+    }
+    
+    public void setRemovedReason(String removedReason) {
+        this.removedReason = removedReason;
+    }
+    
+    public void setOffline(boolean offline) {
+        this.offline = offline;
+    }
+    
+    public void setTrainingMode(boolean trainingMode) {
+        this.trainingMode = trainingMode;
+    }
+    
+    public void setPurgatory(boolean purgatory) {
+        this.purgatory = purgatory;
     }
 }

@@ -1,13 +1,14 @@
 package com.firestar311.enforcer.modules.punishments;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.punishments.target.PlayerTarget;
+import com.firestar311.enforcer.modules.punishments.target.Target;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.rules.RuleManager;
 import com.firestar311.enforcer.modules.rules.rule.*;
 import com.firestar311.enforcer.util.EnforcerUtils;
 import com.firestar311.lib.builder.ItemBuilder;
 import com.firestar311.lib.gui.*;
-import com.firestar311.lib.player.PlayerInfo;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -26,8 +27,8 @@ public class PunishGUI extends PaginatedGUI {
         PaginatedGUI.prepare(Enforcer.getInstance());
     }
     
-    public PunishGUI(Enforcer plugin, Player pu, PlayerInfo t) {
-        super(plugin, "Punish > " + t.getLastName(), false, 54);
+    public PunishGUI(Enforcer plugin, Player pu, Target t) {
+        super(plugin, "Punish > " + t.getName(), false, 54);
         
         GUIButton PUBLIC_BUTTON = new GUIButton(ItemBuilder.start(Material.DIAMOND).withName("&9PUBLIC").withLore(Utils.wrapLore(35, "Make this punishment a public punishment, where all players can see the notification")).buildItem());
         GUIButton NORMAL_BUTTON = new GUIButton(ItemBuilder.start(Material.QUARTZ).withName("&9NORMAL").withLore(Utils.wrapLore(35, "Make this punishment a normal punishment to where only staff members with the notify permission" + " will be able to see the notification. This is also the default.")).withEnchantment(Enchantment.ARROW_DAMAGE, 1).withItemFlags(ItemFlag.HIDE_ENCHANTS).buildItem());
@@ -69,7 +70,12 @@ public class PunishGUI extends PaginatedGUI {
         for (Rule r : ruleManager.getRules()) {
             if (r.hasPermission(pu)) {
                 if (r.getMaterial() != null) {
-                    Entry<Integer, Integer> oN = ruleManager.getNextOffense(pu.getUniqueId(), t.getUuid(), r);
+                    if (!(t instanceof PlayerTarget)) {
+                        continue;
+                    }
+                    
+                    PlayerTarget target = (PlayerTarget) t;
+                    Entry<Integer, Integer> oN = ruleManager.getNextOffense(pu.getUniqueId(), target.getUniqueId(), r);
         
                     final RuleOffense off = r.getOffense(oN.getKey());
                     if (off == null) {
@@ -79,7 +85,7 @@ public class PunishGUI extends PaginatedGUI {
                     List<String> lore = r.getItemStack().getItemMeta().getLore();
                     lore.add("");
                     if (off.hasPermission(pu)) {
-                        lore.add("&fThe next punishment for &b" + t.getLastName());
+                        lore.add("&fThe next punishment for &b" + t.getName());
                         lore.add("&fWill result in the following");
                         lore.add("&fReason: &e" + r.getName() + " Offense #" + off.getOffenseNumber());
                         for (RulePunishment rP : off.getPunishments().values()) {
@@ -93,10 +99,8 @@ public class PunishGUI extends PaginatedGUI {
                     GUIButton button = new GUIButton(itemStack);
         
                     button.setListener(e -> {
-                        final UUID target = t.getUuid();
-            
                         Player player = ((Player) e.getWhoClicked());
-                        Entry<Integer, Integer> offenseNumbers = ruleManager.getNextOffense(player.getUniqueId(), target, r);
+                        Entry<Integer, Integer> offenseNumbers = ruleManager.getNextOffense(player.getUniqueId(), target.getUniqueId(), r);
             
                         RuleOffense offense = r.getOffense(offenseNumbers.getKey());
                         if (offense == null) {

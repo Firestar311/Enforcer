@@ -1,74 +1,81 @@
 package com.firestar311.enforcer.modules.reports;
 
-import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.target.Target;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
 import com.firestar311.enforcer.util.evidence.Evidence;
 import com.firestar311.lib.pagination.IElement;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.*;
 
-public class Report implements IElement, Comparable<Report> {
+public class Report implements IElement, Comparable<Report>, ConfigurationSerializable {
     
     private int id;
-    private UUID reporter, target, assignee;
     private ReportStatus status;
     private ReportOutcome outcome;
-    private List<Integer> punishments = new ArrayList<>();
+    private List<Integer> punishments;
     private Evidence evidence;
     private Location location;
     private long date;
     private String reason;
+    private Actor reporter, assignee;
+    private Target target;
     
-    public Report(Map<String, Object> serialized) {
-        if (serialized.containsKey("id")) {
-            this.id = (int) serialized.get("id");
-        }
-        
-        if (serialized.containsKey("reporter")) {
-            this.reporter = UUID.fromString((String) serialized.get("reporter"));
-        }
-        
-        if (serialized.containsKey("target")) {
-            this.target = UUID.fromString((String) serialized.get("target"));
-        }
-        
-        if (serialized.containsKey("assignee")) {
-            this.assignee = UUID.fromString((String) serialized.get("assignee"));
-        }
-        
-        if (serialized.containsKey("status")) {
-            this.status = ReportStatus.valueOf((String) serialized.get("status"));
-        }
-        
-        if (serialized.containsKey("outcome")) {
-            this.outcome = ReportOutcome.valueOf((String) serialized.get("outcome"));
-        }
-        
-        if (serialized.containsKey("punishments")) {
-            this.punishments = (List<Integer>) serialized.get("punishments");
-        }
-        
-        if (serialized.containsKey("evidence")) {
-            this.evidence = new Evidence((Map<String, Object>) serialized.get("evidence"));
-        }
-        
-        if (serialized.containsKey("location")) {
-            this.location = (Location) serialized.get("location");
-        }
-        
-        if (serialized.containsKey("date")) {
-            this.date = (long) serialized.get("date");
-        }
-        
-        if (serialized.containsKey("reason")) {
-            this.reason = (String) serialized.get("reason");
-        }
+    public Map<String, Object> serialize() {
+        Map<String, Object> serialized = new HashMap<>();
+        serialized.put("id", id + "");
+        serialized.put("status", this.status.name());
+        serialized.put("outcome", this.outcome.name());
+        serialized.put("punishments", StringUtils.join(this.punishments, ","));
+        serialized.put("evidence", evidence);
+        serialized.put("location", this.location);
+        serialized.put("date", this.date + "");
+        serialized.put("reason", this.reason);
+        serialized.put("reporter", this.reporter);
+        serialized.put("assignee", this.assignee);
+        serialized.put("target", this.target);
+        return serialized;
     }
     
-    public Report(UUID reporter, UUID target, Location location, String reason) {
+    public static Report deserialize(Map<String, Object> serialized) {
+        int id = Integer.parseInt((String) serialized.get("id"));
+        ReportStatus status = ReportStatus.valueOf((String) serialized.get("status"));
+        ReportOutcome outcome = ReportOutcome.valueOf((String) serialized.get("outcome"));
+        List<Integer> punishments = new ArrayList<>();
+        String[] rawPunishments = ((String) serialized.get("punishments")).split(",");
+        for (String r : rawPunishments) {
+            punishments.add(Integer.parseInt(r));
+        }
+        Evidence evidence = (Evidence) serialized.get("evidence");
+        Location location = (Location) serialized.get("location");
+        long date = Long.parseLong((String) serialized.get("date"));
+        String reason = (String) serialized.get("reason");
+        Actor reporter = (Actor) serialized.get("reporter");
+        Actor assignee = (Actor) serialized.get("assignee");
+        Target target = (Target) serialized.get("target");
+        return new Report(id, status, outcome, punishments, evidence, location, date, reason, reporter, assignee, target);
+    }
+    
+    public Report(int id, ReportStatus status, ReportOutcome outcome, List<Integer> punishments, Evidence evidence, Location location, long date, String reason, Actor reporter, Actor assignee, Target target) {
+        this.id = id;
+        this.status = status;
+        this.outcome = outcome;
+        this.punishments = punishments;
+        this.evidence = evidence;
+        this.location = location;
+        this.date = date;
+        this.reason = reason;
+        this.reporter = reporter;
+        this.assignee = assignee;
+        this.target = target;
+    }
+    
+    public Report(Actor reporter, Target target, Location location, String reason) {
         this.reporter = reporter;
         this.target = target;
         this.location = location;
@@ -82,8 +89,8 @@ public class Report implements IElement, Comparable<Report> {
     }
     
     public String formatLine(String... strings) {
-        String reporterName = Enforcer.getInstance().getPlayerManager().getPlayerInfo(reporter).getLastName();
-        String targetName = Enforcer.getInstance().getPlayerManager().getPlayerInfo(target).getLastName();
+        String reporterName = reporter.getName();
+        String targetName = target.getName();
         return "&8 - &2<" + this.id + "> " + this.status.getColor() + "(" + this.status.name() + ") "
                 + this.outcome.getColor() + "[" + this.outcome.name() + "] "
                 + "&b" + reporterName + " &7-> &3" + targetName + ": &9" + this.reason;
@@ -93,15 +100,15 @@ public class Report implements IElement, Comparable<Report> {
         return id;
     }
     
-    public UUID getReporter() {
+    public Actor getReporter() {
         return reporter;
     }
     
-    public UUID getTarget() {
+    public Target getTarget() {
         return target;
     }
     
-    public UUID getAssignee() {
+    public Actor getAssignee() {
         return assignee;
     }
     
@@ -134,17 +141,17 @@ public class Report implements IElement, Comparable<Report> {
         return this;
     }
     
-    public Report setReporter(UUID reporter) {
+    public Report setReporter(Actor reporter) {
         this.reporter = reporter;
         return this;
     }
     
-    public Report setTarget(UUID target) {
+    public Report setTarget(Target target) {
         this.target = target;
         return this;
     }
     
-    public Report setAssignee(UUID assignee) {
+    public Report setAssignee(Actor assignee) {
         this.assignee = assignee;
         return this;
     }
@@ -185,22 +192,6 @@ public class Report implements IElement, Comparable<Report> {
     
     public void addPunishment(Punishment punishment) {
         this.punishments.add(punishment.getId());
-    }
-    
-    public Map<String, Object> serialize() {
-        Map<String, Object> serialized = new HashMap<>();
-        serialized.put("id", this.id);
-        serialized.put("reporter", this.reporter.toString());
-        serialized.put("target", this.target.toString());
-        if (assignee != null) serialized.put("assignee", this.assignee.toString());
-        if (status != null) serialized.put("status", this.status.name());
-        if (outcome != null) serialized.put("outcome", this.outcome.name());
-        if (evidence != null) serialized.put("evidence", this.evidence.serialize());
-        if (location != null) serialized.put("location", this.location);
-        serialized.put("punishments", this.punishments);
-        serialized.put("date", this.date);
-        serialized.put("reason", this.reason);
-        return serialized;
     }
     
     public int compareTo(Report o) {

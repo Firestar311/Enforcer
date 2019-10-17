@@ -4,10 +4,11 @@ import com.firestar311.lib.pagination.IElement;
 import com.firestar311.lib.region.Cuboid;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.Location;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.*;
 
-public class Prison extends Cuboid implements IElement {
+public class Prison extends Cuboid implements IElement, ConfigurationSerializable {
     
     private int id;
     private Location location;
@@ -37,8 +38,36 @@ public class Prison extends Cuboid implements IElement {
         this.maxPlayers = maxPlayers;
     }
     
-    public String serialize() {
-        return "id=" + id + ",location=" + Utils.convertLocationToString(location) + ",maxPlayers=" + maxPlayers + ",name=" + name + ",minLoc=" + Utils.convertLocationToString(this.getMinimum()) + ",maxLoc=" + Utils.convertLocationToString(this.getMaximum());
+    public Map<String, Object> serialize() {
+        Map<String, Object> serialized = new HashMap<>();
+        serialized.put("id", id + "");
+        serialized.put("spawn", this.location);
+        serialized.put("maxPlayers", this.maxPlayers + "");
+        serialized.put("name", this.name);
+        serialized.put("inhabitants", Utils.convertUUIDListToStringList(this.inhabitants));
+        serialized.put("min", this.getMinimum());
+        serialized.put("max", this.getMaximum());
+        return serialized;
+    }
+    
+    public Prison(Location pos1, Location pos2, int id, Location location, int maxPlayers, Set<UUID> inhabitants, String name) {
+        super(pos1, pos2);
+        this.id = id;
+        this.location = location;
+        this.maxPlayers = maxPlayers;
+        this.inhabitants = inhabitants;
+        this.name = name;
+    }
+    
+    public static Prison deserialize(Map<String, Object> serialized) {
+        int id = Integer.parseInt((String) serialized.get("id"));
+        Location location = (Location) serialized.get("spawn");
+        int maxPlayers = Integer.parseInt((String) serialized.get("maxPlayers"));
+        Set<UUID> inhabitants = new HashSet<>(Utils.getUUIDListFromStringList((List<String>) serialized.get("inhabitants")));
+        String name = (String) serialized.get("name");
+        Location min = (Location) serialized.get("min");
+        Location max = (Location) serialized.get("max");
+        return new Prison(min, max, id, location, maxPlayers, inhabitants, name);
     }
     
     public static Prison deserialize(String serialized) {

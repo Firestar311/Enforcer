@@ -3,6 +3,8 @@ package com.firestar311.enforcer.modules.punishments;
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.base.Manager;
 import com.firestar311.enforcer.modules.prison.Prison;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
+import com.firestar311.enforcer.modules.punishments.target.*;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.*;
 import com.firestar311.enforcer.modules.punishments.type.impl.*;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
@@ -10,6 +12,7 @@ import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
 import com.firestar311.enforcer.modules.rules.rule.Rule;
 import com.firestar311.enforcer.util.Code;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
@@ -18,8 +21,8 @@ import java.util.stream.Collectors;
 
 public class PunishmentManager extends Manager {
     
-    private Map<Integer, Punishment> punishments = new TreeMap<>();
     private Map<Integer, String> ackCodes = new TreeMap<>();
+    private Map<Integer, Punishment> punishments = new TreeMap<>();
     
     public PunishmentManager(Enforcer plugin) {
         super(plugin, "punishments");
@@ -28,31 +31,24 @@ public class PunishmentManager extends Manager {
     
     public void saveData() {
         FileConfiguration config = configManager.getConfig();
-        for (Punishment punishment : punishments.values()) {
-            Map<String, Object> serialized = Punishment.serialize(punishment);
-            for (Entry<String, Object> entry : serialized.entrySet()) {
-                config.set("punishments." + punishment.getId() + "." + entry.getKey(), entry.getValue());
-            }
+        for (Entry<Integer, Punishment> entry : this.punishments.entrySet()) {
+            config.set("punishments." + entry.getKey(), entry.getValue());
         }
         configManager.saveConfig();
     }
     
     public void loadData() {
         FileConfiguration config = configManager.getConfig();
-        if (!config.contains("punishments")) {
-            plugin.getLogger().info("Could not find any punishments to load.");
-            return;
-        }
-        
-        for (String pi : config.getConfigurationSection("punishments").getKeys(false)) {
-            Map<String, Object> serialized = new HashMap<>();
-            for (String key : config.getConfigurationSection("punishments." + pi).getKeys(false)) {
-                serialized.put(key, config.get("punishments." + pi + "." + key));
-            }
-            
-            Punishment punishment = Punishment.deserialize(serialized);
+        ConfigurationSection punishmentsSection = config.getConfigurationSection("punishments");
+        if (punishmentsSection == null) { return; }
+        for (String p : punishmentsSection.getKeys(false)) {
+            Punishment punishment = (Punishment) punishmentsSection.get(p);
             this.punishments.put(punishment.getId(), punishment);
         }
+    }
+    
+    public void addBan(BanPunishment punishment) {
+        this.addPunishment(punishment);
     }
     
     public void addPunishment(Punishment punishment) {
@@ -65,19 +61,13 @@ public class PunishmentManager extends Manager {
             punishment.setTrainingMode(true);
         }
         
-        plugin.getReportModule().getManager().getReports().values().stream()
-              .filter(report -> report.getTarget().equals(punishment.getTarget()))
-              .filter(report -> report.getReason().equalsIgnoreCase(punishment.getReason())).forEach(report -> {
+        plugin.getReportModule().getManager().getReports().values().stream().filter(report -> report.getTarget().equals(punishment.getTarget())).filter(report -> report.getReason().equalsIgnoreCase(punishment.getReason())).forEach(report -> {
             report.addPunishment(punishment);
             report.setOutcome(ReportOutcome.ACCEPTED);
             report.setStatus(ReportStatus.CLOSED);
         });
         
         this.punishments.put(punishment.getId(), punishment);
-    }
-    
-    public void addBan(BanPunishment punishment) {
-        this.addPunishment(punishment);
     }
     
     public boolean isBanned(UUID uuid) {
@@ -89,6 +79,38 @@ public class PunishmentManager extends Manager {
         return false;
     }
     
+    public boolean isBlacklisted(String ip) {
+        for (Punishment punishment : this.punishments.values()) {
+            if (punishment instanceof BlacklistPunishment) {
+                if (punishment.getTarget() instanceof IPTarget) {
+                    return ip.equals(punishment.getTarget().getName());
+                } else if (punishment.getTarget() instanceof IPListTarget) {
+                    for (String tIp : ((IPListTarget) punishment.getTarget()).getIpAddresses()) {
+                        if (tIp.equals(ip)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    public Set<Punishment> getBans(UUID uuid) {
+        Set<Punishment> set = new HashSet<>();
+        for (Punishment punishment : punishments.values()) {
+            if (punishment instanceof BanPunishment) {
+                if (punishment.getTarget() instanceof PlayerTarget) {
+                    PlayerTarget playerTarget = (PlayerTarget) punishment.getTarget();
+                    if (playerTarget.getUniqueId().equals(uuid)) {
+                        set.add(punishment);
+                    }
+                }
+            }
+        }
+        return set;
+    }
+    
     private boolean checkActive(Punishment punishment) {
         if (punishment instanceof Expireable) {
             Expireable expireable = ((Expireable) punishment);
@@ -97,8 +119,10 @@ public class PunishmentManager extends Manager {
             }
         }
         if (punishment.isActive()) {
-            if (punishment.isTrainingPunishment()) {
-                return plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher());
+            if (punishment.getPunisher() instanceof PlayerActor) {
+                if (punishment.isTrainingPunishment()) {
+                    return plugin.getTrainingModule().getManager().isTrainingMode(punishment.getPunisher());
+                }
             }
             return true;
         }
@@ -118,6 +142,21 @@ public class PunishmentManager extends Manager {
         return false;
     }
     
+    public Set<Punishment> getMutes(UUID uuid) {
+        Set<Punishment> set = new HashSet<>();
+        for (Punishment punishment : punishments.values()) {
+            if (punishment instanceof MutePunishment) {
+                if (punishment.getTarget() instanceof PlayerTarget) {
+                    PlayerTarget playerTarget = (PlayerTarget) punishment.getTarget();
+                    if (playerTarget.getUniqueId().equals(uuid)) {
+                        set.add(punishment);
+                    }
+                }
+            }
+        }
+        return set;
+    }
+    
     public void addWarning(WarnPunishment punishment) {
         addPunishment(punishment);
     }
@@ -132,6 +171,21 @@ public class PunishmentManager extends Manager {
             }
         }
         return false;
+    }
+    
+    public Set<Punishment> getWarnings(UUID uuid) {
+        Set<Punishment> set = new HashSet<>();
+        for (Punishment punishment : punishments.values()) {
+            if (punishment instanceof WarnPunishment) {
+                if (punishment.getTarget() instanceof PlayerTarget) {
+                    PlayerTarget playerTarget = (PlayerTarget) punishment.getTarget();
+                    if (playerTarget.getUniqueId().equals(uuid)) {
+                        set.add(punishment);
+                    }
+                }
+            }
+        }
+        return set;
     }
     
     public void addKick(KickPunishment punishment) {
@@ -150,6 +204,21 @@ public class PunishmentManager extends Manager {
         return false;
     }
     
+    public Set<Punishment> getKicks(UUID uuid) {
+        Set<Punishment> set = new HashSet<>();
+        for (Punishment punishment : punishments.values()) {
+            if (punishment instanceof KickPunishment) {
+                if (punishment.getTarget() instanceof PlayerTarget) {
+                    PlayerTarget playerTarget = (PlayerTarget) punishment.getTarget();
+                    if (playerTarget.getUniqueId().equals(uuid)) {
+                        set.add(punishment);
+                    }
+                }
+            }
+        }
+        return set;
+    }
+    
     public void addJailPunishment(JailPunishment punishment) {
         addPunishment(punishment);
         if (punishment.isActive()) {
@@ -157,8 +226,7 @@ public class PunishmentManager extends Manager {
                 Prison prison = plugin.getPrisonModule().getManager().findPrison();
                 punishment.setPrisonId(prison.getId());
             } catch (Exception e) {
-                plugin.getLogger()
-                      .severe("Could not find a prison for an active jail punishment with id " + punishment.getId());
+                plugin.getLogger().severe("Could not find a prison for an active jail punishment with id " + punishment.getId());
             }
         }
     }
@@ -175,6 +243,21 @@ public class PunishmentManager extends Manager {
         return false;
     }
     
+    public Set<Punishment> getJailPunishments(UUID uuid) {
+        Set<Punishment> set = new HashSet<>();
+        for (Punishment punishment : punishments.values()) {
+            if (punishment instanceof JailPunishment) {
+                if (punishment.getTarget() instanceof PlayerTarget) {
+                    PlayerTarget playerTarget = (PlayerTarget) punishment.getTarget();
+                    if (playerTarget.getUniqueId().equals(uuid)) {
+                        set.add(punishment);
+                    }
+                }
+            }
+        }
+        return set;
+    }
+    
     public void addAckCode(int id, String code) {
         this.ackCodes.put(id, code);
     }
@@ -189,29 +272,53 @@ public class PunishmentManager extends Manager {
         return this.punishments.get(id);
     }
     
-    public Set<Punishment> getBans(UUID uuid) {
-        return punishments.values().stream().filter(BanPunishment.class::isInstance)
-                          .filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+    public Set<Punishment> getActivePunishments() {
+        Set<Punishment> punishments = new HashSet<>();
+        punishments.addAll(getActiveBans());
+        punishments.addAll(getActiveMutes());
+        punishments.addAll(getActiveJails());
+        return punishments;
     }
     
-    public Set<Punishment> getMutes(UUID uuid) {
-        return punishments.values().stream().filter(MutePunishment.class::isInstance)
-                          .filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+    public Set<BanPunishment> getActiveBans() {
+        Set<BanPunishment> bans = new HashSet<>();
+        for (Punishment punishment : this.punishments.values().stream().filter(BanPunishment.class::isInstance).collect(Collectors.toSet())) {
+            if (punishment.isActive()) {
+                bans.add((BanPunishment) punishment);
+            }
+        }
+        
+        return bans;
     }
     
-    public Set<Punishment> getWarnings(UUID uuid) {
-        return punishments.values().stream().filter(WarnPunishment.class::isInstance)
-                          .filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+    public Set<MutePunishment> getActiveMutes() {
+        Set<MutePunishment> mutes = new HashSet<>();
+        for (Punishment punishment : this.punishments.values().stream().filter(MutePunishment.class::isInstance).collect(Collectors.toSet())) {
+            if (punishment.isActive()) {
+                mutes.add((MutePunishment) punishment);
+            }
+        }
+        
+        return mutes;
     }
     
-    public Set<Punishment> getKicks(UUID uuid) {
-        return punishments.values().stream().filter(KickPunishment.class::isInstance)
-                          .filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+    public Set<JailPunishment> getActiveJails() {
+        Set<JailPunishment> jails = new HashSet<>();
+        for (Punishment punishment : this.punishments.values().stream().filter(JailPunishment.class::isInstance).collect(Collectors.toSet())) {
+            if (punishment.isActive()) {
+                jails.add((JailPunishment) punishment);
+            }
+        }
+        
+        return jails;
     }
     
-    public Set<Punishment> getJailPunishments(UUID uuid) {
-        return punishments.values().stream().filter(JailPunishment.class::isInstance)
-                          .filter(punishment -> punishment.getTarget().equals(uuid)).collect(Collectors.toSet());
+    public Set<Punishment> getActivePunishments(UUID uuid) {
+        Set<Punishment> punishments = new HashSet<>();
+        punishments.addAll(getActiveBans(uuid));
+        punishments.addAll(getActiveMutes(uuid));
+        punishments.addAll(getActiveJails(uuid));
+        return punishments;
     }
     
     public Set<Punishment> getActiveBans(UUID uuid) {
@@ -226,67 +333,13 @@ public class PunishmentManager extends Manager {
         return this.getJailPunishments(uuid).stream().filter(Punishment::isActive).collect(Collectors.toSet());
     }
     
-    public Set<BanPunishment> getActiveBans() {
-        Set<BanPunishment> bans = new HashSet<>();
-        for (Punishment punishment : this.punishments.values().stream().filter(BanPunishment.class::isInstance)
-                                                     .collect(Collectors.toSet())) {
-            if (punishment.isActive()) {
-                bans.add((BanPunishment) punishment);
-            }
-        }
-        
-        return bans;
-    }
-    
-    public Set<MutePunishment> getActiveMutes() {
-        Set<MutePunishment> mutes = new HashSet<>();
-        for (Punishment punishment : this.punishments.values().stream().filter(MutePunishment.class::isInstance)
-                                                     .collect(Collectors.toSet())) {
-            if (punishment.isActive()) {
-                mutes.add((MutePunishment) punishment);
-            }
-        }
-        
-        return mutes;
-    }
-    
-    public Set<JailPunishment> getActiveJails() {
-        Set<JailPunishment> jails = new HashSet<>();
-        for (Punishment punishment : this.punishments.values().stream().filter(JailPunishment.class::isInstance)
-                                                     .collect(Collectors.toSet())) {
-            if (punishment.isActive()) {
-                jails.add((JailPunishment) punishment);
-            }
-        }
-        
-        return jails;
-    }
-    
-    public Set<Punishment> getActivePunishments() {
-        Set<Punishment> punishments = new HashSet<>();
-        punishments.addAll(getActiveBans());
-        punishments.addAll(getActiveMutes());
-        punishments.addAll(getActiveJails());
-        return punishments;
-    }
-    
-    public Set<Punishment> getActivePunishments(UUID uuid) {
-        Set<Punishment> punishments = new HashSet<>();
-        punishments.addAll(getActiveBans(uuid));
-        punishments.addAll(getActiveMutes(uuid));
-        punishments.addAll(getActiveJails(uuid));
-        return punishments;
-    }
-    
-    public Set<Punishment> getPunishments() {
-        return new HashSet<>(punishments.values());
-    }
-    
     public String getAckCode(UUID uuid) {
         for (int id : this.ackCodes.keySet()) {
             WarnPunishment punishment = (WarnPunishment) this.punishments.get(id);
-            if (punishment.getTarget().equals(uuid)) {
-                return this.ackCodes.get(id);
+            if (punishment.getTarget() instanceof PlayerTarget) {
+                if (((PlayerTarget) punishment.getTarget()).getUniqueId().equals(uuid)) {
+                    return this.ackCodes.get(id);
+                }
             }
         }
         
@@ -297,19 +350,22 @@ public class PunishmentManager extends Manager {
         Set<Punishment> punishments = new HashSet<>();
         
         for (Punishment punishment : getPunishments()) {
-            if (punishment.getTarget().equals(target)) {
-                if (punishment.getRuleId() == rule.getId()) {
-                    boolean toAdd = true;
-                    for (Punishment p : punishments) {
-                        if (p.getOffenseNumber() == punishment.getOffenseNumber()) {
-                            toAdd = false;
+            if (punishment.getTarget() instanceof PlayerTarget) {
+                PlayerTarget playerTarget = (PlayerTarget) punishment.getTarget();
+                if (playerTarget.getUniqueId().equals(target)) {
+                    if (punishment.getRuleId() == rule.getId()) {
+                        boolean toAdd = true;
+                        for (Punishment p : punishments) {
+                            if (p.getOffenseNumber() == punishment.getOffenseNumber()) {
+                                toAdd = false;
+                            }
+                            if (p.isTrainingPunishment() && punishment.isTrainingPunishment() && !trainingMode) {
+                                toAdd = false;
+                            }
                         }
-                        if (p.isTrainingPunishment() && punishment.isTrainingPunishment() && !trainingMode) {
-                            toAdd = false;
+                        if (toAdd) {
+                            punishments.add(punishment);
                         }
-                    }
-                    if (toAdd) {
-                        punishments.add(punishment);
                     }
                 }
             }
@@ -318,11 +374,17 @@ public class PunishmentManager extends Manager {
         return punishments;
     }
     
+    public Set<Punishment> getPunishments() {
+        return new HashSet<>(punishments.values());
+    }
+    
     public Set<Punishment> getPunishments(UUID uuid) {
         Set<Punishment> punishments = new HashSet<>();
         for (Punishment punishment : this.punishments.values()) {
-            if (punishment.getTarget().equals(uuid)) {
-                punishments.add(punishment);
+            if (punishment.getTarget() instanceof PlayerTarget) {
+                if (((PlayerTarget) punishment.getTarget()).getUniqueId().equals(uuid)) {
+                    punishments.add(punishment);
+                }
             }
         }
         return punishments;

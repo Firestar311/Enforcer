@@ -3,6 +3,7 @@ package com.firestar311.enforcer.util;
 @SuppressWarnings("unused")
 public class Perms {
     public static final String BAN = "enforcer.punishment.permanentban";
+    public static final String BLACKLIST = "enforcer.punishment.blacklist";
     public static final String ENFORCER_ADMIN = "enforcer.admin";
     public static final String FLAG_IGNORE_CONFIRM = "enforcer.command.flag.ignoreconfirm";
     public static final String FLAG_IGNORE_TRAINING = "enforcer.command.flag.ignoretraining";

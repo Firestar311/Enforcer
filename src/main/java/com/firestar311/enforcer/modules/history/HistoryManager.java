@@ -2,6 +2,7 @@ package com.firestar311.enforcer.modules.history;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.base.Manager;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.util.EnforcerUtils;
 import com.firestar311.lib.pagination.Paginator;
@@ -43,8 +44,11 @@ public class HistoryManager extends Manager {
         List<Punishment> allPunishments = new ArrayList<>(plugin.getPunishmentModule().getManager().getPunishments());
         List<Punishment> staffPunishments = new LinkedList<>();
         allPunishments.forEach(punishment -> {
-            if (punishment.getPunisher().equals(info.getUuid())) {
-                staffPunishments.add(punishment);
+            if (punishment.getPunisher() instanceof PlayerActor) {
+                PlayerActor playerActor = ((PlayerActor) punishment.getPunisher());
+                if (playerActor.getUniqueId().equals(info.getUuid())) {
+                    staffPunishments.add(punishment);
+                }
             }
         });
     

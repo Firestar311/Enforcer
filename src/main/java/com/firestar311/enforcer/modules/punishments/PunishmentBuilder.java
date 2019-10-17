@@ -1,6 +1,9 @@
 package com.firestar311.enforcer.modules.punishments;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
+import com.firestar311.enforcer.modules.punishments.target.Target;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.punishments.type.impl.*;
@@ -18,14 +21,17 @@ public class PunishmentBuilder {
     protected int id, ruleId = -1, offenseNumber = -1, prisonId;
     protected PunishmentType type;
     protected String server;
-    protected UUID punisher, target, remover;
+    protected Actor remover;
     protected String reason;
     protected long date, removedDate, length;
     protected boolean active, purgatory, offline = false, trainingMode = false;
     protected Visibility visibility, pardonVisibility = Visibility.NORMAL;
     protected Evidence evidence;
+    protected Actor actor;
+    protected Target target;
+    private String removedReason;
     
-    public PunishmentBuilder(UUID target, PunishmentType type) {
+    public PunishmentBuilder(Target target, PunishmentType type) {
         this.target = target;
         this.type = type;
     }
@@ -51,9 +57,11 @@ public class PunishmentBuilder {
         }
     }
     
-    public PunishmentBuilder(UUID target) {
+    public PunishmentBuilder(Target target) {
         this.target = target;
     }
+    
+    public PunishmentBuilder() { }
     
     public PunishmentBuilder setRuleId(int ruleId) {
         this.ruleId = ruleId;
@@ -75,8 +83,17 @@ public class PunishmentBuilder {
         return this;
     }
     
-    public PunishmentBuilder setPunisher(UUID punisher) {
-        this.punisher = punisher;
+    public String getRemovedReason() {
+        return removedReason;
+    }
+    
+    public PunishmentBuilder setPunisher(UUID actor) {
+        this.actor = new PlayerActor(actor);
+        return this;
+    }
+    
+    public PunishmentBuilder setPunisher(Actor actor) {
+        this.actor = actor;
         return this;
     }
     
@@ -116,7 +133,7 @@ public class PunishmentBuilder {
     }
     
     public void performChecks() {
-        if (punisher == null) {
+        if (actor == null) {
             throw new IllegalArgumentException("Punisher must not be null");
         }
     
@@ -173,11 +190,11 @@ public class PunishmentBuilder {
         return server;
     }
     
-    public UUID getPunisher() {
-        return punisher;
+    public Actor getActor() {
+        return actor;
     }
     
-    public UUID getTarget() {
+    public Target getTarget() {
         return target;
     }
     
@@ -214,20 +231,21 @@ public class PunishmentBuilder {
         Punishment punishment = null;
         long expire = date + length;
         switch (type) {
-            case PERMANENT_BAN: punishment = new PermanentBan(server, punisher, target, reason, date, visibility);
+            case PERMANENT_BAN: punishment = new PermanentBan(server, actor, target, reason, date, visibility);
                 break;
-            case TEMPORARY_BAN: punishment = new TemporaryBan(server, punisher, target, reason, date, visibility, expire);
+            case TEMPORARY_BAN: punishment = new TemporaryBan(server, actor, target, reason, date, visibility, expire);
                 break;
-            case PERMANENT_MUTE: punishment = new PermanentMute(server, punisher, target, reason, date, visibility);
+            case PERMANENT_MUTE: punishment = new PermanentMute(server, actor, target, reason, date, visibility);
                 break;
-            case TEMPORARY_MUTE: punishment = new TemporaryMute(server, punisher, target, reason, date, visibility, expire);
+            case TEMPORARY_MUTE: punishment = new TemporaryMute(server, actor, target, reason, date, visibility, expire);
                 break;
-            case WARN: punishment = new WarnPunishment(server, punisher, target, reason, date, visibility);
+            case WARN: punishment = new WarnPunishment(server, actor, target, reason, date, visibility);
                 break;
-            case KICK: punishment = new KickPunishment(server, punisher, target, reason, date, visibility);
+            case KICK: punishment = new KickPunishment(server, actor, target, reason, date, visibility);
                 break;
-            case JAIL: punishment = new JailPunishment(server, punisher, target, reason, date, visibility, prisonId);
+            case JAIL: punishment = new JailPunishment(server, actor, target, reason, date, visibility, prisonId);
                 break;
+            case BLACKLIST: punishment = new BlacklistPunishment(server, actor, target, reason, date, visibility);
         }
         
         if (ruleId != -1) {
@@ -244,6 +262,55 @@ public class PunishmentBuilder {
         punishment.setRemover(remover);
         punishment.setRemovedDate(removedDate);
         punishment.setPardonVisibility(pardonVisibility);
+        punishment.setRemovedReason(removedReason);
+        punishment.setActive(active);
+        punishment.setId(id);
+        punishment.setPurgatory(purgatory);
         return punishment;
+    }
+    
+    public PunishmentBuilder setActive(boolean active) {
+        this.active = active;
+        return this;
+    }
+    
+    public PunishmentBuilder setPurgatory(boolean purgatory) {
+        this.purgatory = purgatory;
+        return this;
+    }
+    
+    public PunishmentBuilder setRemovedDate(long removedDate) {
+        this.removedDate = removedDate;
+        return this;
+    }
+    
+    public PunishmentBuilder setEvidence(Evidence evidence) {
+        this.evidence = evidence;
+        return this;
+    }
+    
+    public PunishmentBuilder setId(int id) {
+        this.id = id;
+        return this;
+    }
+    
+    public PunishmentBuilder setRemovedReason(String removedReason) {
+        this.removedReason = removedReason;
+        return this;
+    }
+    
+    public PunishmentBuilder setRemover(Actor remover) {
+        this.remover = remover;
+        return this;
+    }
+    
+    public PunishmentBuilder setTarget(Target target) {
+        this.target = target;
+        return this;
+    }
+    
+    public PunishmentBuilder setPardonVisibility(Visibility pardonVisibility) {
+        this.pardonVisibility = pardonVisibility;
+        return this;
     }
 }

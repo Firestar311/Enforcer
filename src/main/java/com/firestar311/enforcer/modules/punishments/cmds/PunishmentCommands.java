@@ -3,8 +3,11 @@ package com.firestar311.enforcer.modules.punishments.cmds;
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.prison.Prison;
 import com.firestar311.enforcer.modules.punishments.*;
+import com.firestar311.enforcer.modules.punishments.actor.*;
+import com.firestar311.enforcer.modules.punishments.target.*;
 import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
+import com.firestar311.enforcer.modules.punishments.type.impl.BlacklistPunishment;
 import com.firestar311.enforcer.modules.punishments.type.impl.JailPunishment;
 import com.firestar311.enforcer.modules.rules.RuleManager;
 import com.firestar311.enforcer.modules.rules.rule.*;
@@ -24,7 +27,6 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.Map.Entry;
 
-@SuppressWarnings("Duplicates")
 public class PunishmentCommands implements CommandExecutor {
     
     private Enforcer plugin;
@@ -36,8 +38,13 @@ public class PunishmentCommands implements CommandExecutor {
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.color("&cOnly players may use punishment commands."));
+        Actor actor;
+        if (sender instanceof Player) {
+            actor = new PlayerActor(((Player) sender).getUniqueId());
+        } else if (sender instanceof ConsoleCommandSender) {
+            actor = new ConsoleActor();
+        } else {
+            sender.sendMessage(Utils.color("&cOnly Players or the Console can use punishment commands."));
             return true;
         }
         
@@ -49,7 +56,7 @@ public class PunishmentCommands implements CommandExecutor {
             if (!sender.hasPermission("enforcer.command.punishment")) {
                 return true;
             }
-    
+            
             PunishmentManager punishmentManager = plugin.getPunishmentModule().getManager();
             
             if (args[0].equalsIgnoreCase("confirm")) {
@@ -65,7 +72,7 @@ public class PunishmentCommands implements CommandExecutor {
                 List<PunishmentBuilder> builders = this.punishmentBuilders.get(code);
                 for (PunishmentBuilder punishmentBuilder : builders) {
                     Punishment punishment = punishmentBuilder.build();
-                   
+                    
                     if (punishment instanceof JailPunishment) {
                         punishmentManager.addJailPunishment((JailPunishment) punishment);
                     } else {
@@ -78,7 +85,7 @@ public class PunishmentCommands implements CommandExecutor {
                 if (!(args.length > 1)) {
                     return true;
                 }
-    
+                
                 String code = args[1];
                 this.punishmentBuilders.remove(code);
                 sender.sendMessage(Utils.color("&aCancelled that/those punishment(s)"));
@@ -91,25 +98,25 @@ public class PunishmentCommands implements CommandExecutor {
                     player.sendMessage(Utils.color("&cThe value for the id is not a valid number."));
                     return true;
                 }
-    
+                
                 Punishment punishment = punishmentManager.getPunishment(id);
-    
+                
                 if (punishment == null) {
                     player.sendMessage(Utils.color("&cCould not find a punishment with that id."));
                     return true;
                 }
-    
+                
                 if (Utils.checkCmdAliases(args, 1, "setevidence", "se")) {
                     if (!player.hasPermission(Perms.PUNISHMENTS_SET_EVIDENCE)) {
                         player.sendMessage(Messages.noPermissionCommand(Perms.PUNISHMENTS_SET_EVIDENCE));
                         return true;
                     }
-        
+                    
                     if (args.length != 2) {
                         player.sendMessage(Utils.color("&cUsage: /punishmentinfo <punishment id> setevidence|se <link>"));
                         return true;
                     }
-        
+                    
                     Evidence evidence = new Evidence(0, player.getUniqueId(), EvidenceType.STAFF, args[2]);
                     punishment.setEvidence(evidence);
                     player.sendMessage(Utils.color("&aYou set the evidence of the punishment &b" + punishment.getId() + " &ato &b" + evidence.getLink()));
@@ -119,42 +126,105 @@ public class PunishmentCommands implements CommandExecutor {
             return true;
         }
         
-        Player player = ((Player) sender);
         String prefix = plugin.getSettingsManager().getPrefix();
         
         if (!(args.length > 0)) {
-            player.sendMessage(Utils.color("&cYou must provide a player to punish."));
+            sender.sendMessage(Utils.color("&cYou must provide a player to punish."));
             return true;
         }
         
-        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[0]);
-        if (info == null) {
-            player.sendMessage(Utils.color("&cCould not find a player by that name."));
+        String targetArg = args[0];
+        System.out.println(targetArg); //TODO Remove after testing
+        Target target;
+        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(targetArg);
+        if (info != null) {
+            target = new PlayerTarget(info.getUuid());
+        } else {
+            if (!sender.hasPermission(Perms.BLACKLIST)) {
+                sender.sendMessage(Utils.color("&cYou do not have permission to punish IP Addresses."));
+                return true;
+            }
+            targetArg = targetArg.toLowerCase();
+            if (targetArg.startsWith("ip:")) {
+                String[] ipArr = targetArg.split(":");
+                PlayerInfo ipPlayer = plugin.getPlayerManager().getPlayerInfo(ipArr[1]);
+                if (ipPlayer == null) {
+                    sender.sendMessage(Utils.color("&cCould not find a player by that name."));
+                    return true;
+                }
+                
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(ipPlayer.getUuid());
+                if (offlinePlayer.isOnline()) {
+                    Player player = offlinePlayer.getPlayer();
+                    String ip = player.getAddress().getAddress().toString().split(":")[0].replace("/", "");
+                    target = new IPTarget(ip);
+                } else {
+                    if (ipPlayer.getIpAddresses().size() == 1) {
+                        target = new IPTarget(ipPlayer.getIpAddresses().get(0));
+                    } else {
+                        target = new IPListTarget(ipPlayer.getIpAddresses());
+                    }
+                }
+            } else {
+                String[] rawIpArr = targetArg.split("\\.");
+                System.out.println(Arrays.toString(rawIpArr)); //TODO Remove when fully tested
+                
+                if (rawIpArr.length != 4) {
+                    sender.sendMessage(Utils.color("&cInvalid IP: Must have 4 numbers/wildcards"));
+                    return true;
+                } else {
+                    for (int i = 0; i < rawIpArr.length; i++) {
+                        String rawPart = rawIpArr[i];
+                        try {
+                            Integer.parseInt(rawPart);
+                        } catch (NumberFormatException e) {
+                            //if (!rawPart.equalsIgnoreCase("*")) {
+                            sender.sendMessage(Utils.color("&cIP Section: " + (i + 1) + " is invalid: Not a number or wildcard"));
+                            return true;
+                            //}
+                        }
+                    }
+                    
+                    target = new IPTarget(targetArg);
+                }
+            }
+        }
+    
+        System.out.println(target.getName());
+        
+        if (target == null) {
+            sender.sendMessage(Utils.color("&cInvalid target: " + targetArg));
             return true;
         }
         
-        //This code is used for my own server
-//        UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
-//        if (info.getUuid().equals(firestar311) && !player.getUniqueId().equals(firestar311)) {
-//            player.sendMessage(Utils.color("&cYou cannot punish that player."));
-//            return true;
-//        }
+        if (target instanceof IPTarget || target instanceof IPListTarget) {
+            if (cmd.getName().equalsIgnoreCase("blacklist")) {
+                BlacklistPunishment blacklistPunishment = new BlacklistPunishment(plugin.getSettingsManager().getPrefix(),
+                        actor, target, getReason(1, args), System.currentTimeMillis());
+                plugin.getPunishmentModule().getManager().addPunishment(blacklistPunishment);
+                blacklistPunishment.executePunishment();
+            }
+            return true;
+        }
         
         if (Bukkit.getPlayer(info.getUuid()) == null) {
-            if (!player.hasPermission(Perms.OFFLINE_PUNISH)) {
-                player.sendMessage(Messages.noPermissionCommand(Perms.OFFLINE_PUNISH));
+            if (!sender.hasPermission(Perms.OFFLINE_PUNISH)) {
+                sender.sendMessage(Messages.noPermissionCommand(Perms.OFFLINE_PUNISH));
                 return true;
             }
         }
         
         try {
-            net.milkbowl.vault.permission.Permission perms = Enforcer.getInstance().getPermission();
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(info.getUuid());
-            String groupName = perms.getPrimaryGroup(player.getWorld().getName(), offlinePlayer).toLowerCase();
-            if (groupName != null && !groupName.equals("")) {
-                if (!player.hasPermission("enforcer.immunity." + groupName)) {
-                    player.sendMessage(Utils.color("&cYou cannot punish that player because they are immune."));
-                    return true;
+            if (sender instanceof Player) {
+                Player player = ((Player) sender);
+                net.milkbowl.vault.permission.Permission perms = Enforcer.getInstance().getPermission();
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(info.getUuid());
+                String groupName = perms.getPrimaryGroup(player.getWorld().getName(), offlinePlayer).toLowerCase();
+                if (groupName != null && !groupName.equals("")) {
+                    if (!player.hasPermission("enforcer.immunity." + groupName)) {
+                        player.sendMessage(Utils.color("&cYou cannot punish that player because they are immune."));
+                        return true;
+                    }
                 }
             }
         } catch (Exception ignored) {}
@@ -164,23 +234,21 @@ public class PunishmentCommands implements CommandExecutor {
         for (String arg : args) {
             if (arg.equalsIgnoreCase("-p")) {
                 visibility = Visibility.PUBLIC;
-                break;
             }
             if (arg.equalsIgnoreCase("-s")) {
                 visibility = Visibility.SILENT;
-                break;
             }
             if (arg.equalsIgnoreCase("-t")) {
-                if (!player.hasPermission(Perms.FLAG_IGNORE_TRAINING)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to ignore training mode."));
+                if (!sender.hasPermission(Perms.FLAG_IGNORE_TRAINING)) {
+                    sender.sendMessage(Utils.color("&cYou do not have permission to ignore training mode."));
                     return true;
                 }
                 ignoreTraining = true;
             }
             
             if (arg.equalsIgnoreCase("-c")) {
-                if (!player.hasPermission(Perms.FLAG_IGNORE_CONFIRM)) {
-                    player.sendMessage(Utils.color("&cYou do not have permission to ignore confirmation."));
+                if (!sender.hasPermission(Perms.FLAG_IGNORE_CONFIRM)) {
+                    sender.sendMessage(Utils.color("&cYou do not have permission to ignore confirmation."));
                     return true;
                 }
                 
@@ -189,13 +257,19 @@ public class PunishmentCommands implements CommandExecutor {
         }
         
         if (cmd.getName().equalsIgnoreCase("punish")) {
+            if (sender instanceof ConsoleCommandSender) {
+                sender.sendMessage(Utils.color("&cOnly players may use the punish command."));
+                return true;
+            }
+            
+            Player player = ((Player) sender);
             if (!player.hasPermission(Perms.PUNISH_COMMAND)) {
                 player.sendMessage(Messages.noPermissionCommand(Perms.PUNISH_COMMAND));
                 return true;
             }
             
             if (args.length == 1) {
-                PunishGUI punishGUI = new PunishGUI(plugin, player, info);
+                PunishGUI punishGUI = new PunishGUI(plugin, player, target);
                 player.openInventory(punishGUI.getInventory());
                 return true;
             }
@@ -209,7 +283,7 @@ public class PunishmentCommands implements CommandExecutor {
                     }
                 }
             }
-    
+            
             RuleManager ruleManager = plugin.getRuleModule().getManager();
             
             Rule rule = ruleManager.getRule(sb.toString());
@@ -238,7 +312,7 @@ public class PunishmentCommands implements CommandExecutor {
             
             String server = plugin.getSettingsManager().getPrefix();
             long currentTime = System.currentTimeMillis();
-            UUID punisher = player.getUniqueId(), target = info.getUuid();
+            UUID punisher = player.getUniqueId();
             String reason = rule.getName() + " Offense #" + offenseNumbers.getValue();
             List<PunishmentBuilder> puBuilders = new ArrayList<>();
             for (RulePunishment rulePunishment : offense.getPunishments().values()) {
@@ -280,83 +354,83 @@ public class PunishmentCommands implements CommandExecutor {
         } else {
             long currentTime = System.currentTimeMillis();
             
-            PunishmentBuilder puBuilder = new PunishmentBuilder(info.getUuid());
-            puBuilder.setDate(currentTime).setPunisher(player.getUniqueId()).setVisibility(visibility).setServer(prefix);
+            PunishmentBuilder puBuilder = new PunishmentBuilder(target);
+            puBuilder.setDate(currentTime).setPunisher(actor).setVisibility(visibility).setServer(prefix);
             if (!ignoreTraining) {
-                puBuilder.setTrainingMode(plugin.getTrainingModule().getManager().isTrainingMode(player.getUniqueId()));
+                puBuilder.setTrainingMode(plugin.getTrainingModule().getManager().isTrainingMode(actor));
             }
             
             String reason = "";
             
             if (cmd.getName().equalsIgnoreCase("ban")) {
-                if (!player.hasPermission(Perms.BAN)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.BAN));
+                if (!sender.hasPermission(Perms.BAN)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.BAN));
                     return true;
                 }
                 reason = getReason(1, args);
                 
                 puBuilder.setType(PunishmentType.PERMANENT_BAN);
             } else if (cmd.getName().equalsIgnoreCase("tempban")) {
-                if (!player.hasPermission(Perms.TEMP_BAN)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.TEMP_BAN));
+                if (!sender.hasPermission(Perms.TEMP_BAN)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.TEMP_BAN));
                     return true;
                 }
                 
                 long expire = Utils.parseTime(args[1]);
                 
                 if (!(args.length > 2)) {
-                    player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
+                    sender.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
                 reason = getReason(2, args);
                 puBuilder.setType(PunishmentType.TEMPORARY_BAN).setLength(expire);
             } else if (cmd.getName().equalsIgnoreCase("mute")) {
-                if (!player.hasPermission(Perms.MUTE)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.MUTE));
+                if (!sender.hasPermission(Perms.MUTE)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.MUTE));
                     return true;
                 }
                 
                 reason = getReason(1, args);
                 puBuilder.setType(PunishmentType.PERMANENT_MUTE);
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
-                if (!player.hasPermission(Perms.TEMP_MUTE)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.TEMP_MUTE));
+                if (!sender.hasPermission(Perms.TEMP_MUTE)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.TEMP_MUTE));
                     return true;
                 }
                 
                 long expire = Utils.parseTime(args[1]);
                 
                 if (!(args.length > 2)) {
-                    player.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
+                    sender.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
                     return true;
                 }
                 
                 reason = getReason(2, args);
                 puBuilder.setType(PunishmentType.TEMPORARY_MUTE).setLength(expire);
             } else if (cmd.getName().equalsIgnoreCase("kick")) {
-                if (!player.hasPermission(Perms.KICK)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.KICK));
+                if (!sender.hasPermission(Perms.KICK)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.KICK));
                     return true;
                 }
                 
                 reason = getReason(1, args);
                 puBuilder.setType(PunishmentType.KICK);
             } else if (cmd.getName().equalsIgnoreCase("warn")) {
-                if (!player.hasPermission(Perms.WARN)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.WARN));
+                if (!sender.hasPermission(Perms.WARN)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.WARN));
                     return true;
                 }
                 
                 reason = getReason(1, args);
                 puBuilder.setType(PunishmentType.WARN);
             } else if (cmd.getName().equalsIgnoreCase("jail")) {
-                if (!player.hasPermission(Perms.JAIL)) {
-                    player.sendMessage(Messages.noPermissionCommand(Perms.JAIL));
+                if (!sender.hasPermission(Perms.JAIL)) {
+                    sender.sendMessage(Messages.noPermissionCommand(Perms.JAIL));
                     return true;
                 }
                 
                 if (plugin.getPrisonModule().getManager().getPrisons().isEmpty()) {
-                    player.sendMessage(Utils.color("&cThere are no prisons created. Jail punishments are disabled until at least 1 is created."));
+                    sender.sendMessage(Utils.color("&cThere are no prisons created. Jail punishments are disabled until at least 1 is created."));
                     return true;
                 }
                 
@@ -372,10 +446,12 @@ public class PunishmentCommands implements CommandExecutor {
                 if (!ignoreConfirm) {
                     String code = Code.generateNewCode(6);
                     addPunishmentBuilder(code, puBuilder);
-                    sendConfirmMessage(player, puBuilder, code);
+                    if (sender instanceof Player) {
+                        sendConfirmMessage(((Player) sender), puBuilder, code);
+                    }
                     return true;
                 }
-                player.sendMessage(Utils.color("&2You are ignoring the punishment confirmation for this punishment."));
+                sender.sendMessage(Utils.color("&2You are ignoring the punishment confirmation for this punishment."));
             }
             
             Punishment punishment = puBuilder.build();
@@ -385,26 +461,32 @@ public class PunishmentCommands implements CommandExecutor {
         return true;
     }
     
+    private void addPunishmentBuilder(String code, PunishmentBuilder builder) {
+        if (this.punishmentBuilders.containsKey(code)) {
+            this.punishmentBuilders.get(code).add(builder);
+        } else {
+            this.punishmentBuilders.put(code, new ArrayList<>(Collections.singletonList(builder)));
+        }
+    }
+    
     private void sendConfirmMessage(Player player, PunishmentBuilder puBuilder, String code) {
-        PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(puBuilder.getTarget());
+        Target targetInfo = puBuilder.getTarget();
         player.sendMessage("");
         player.sendMessage(Utils.color("&4╔═════════════════════════════"));
-        player.sendMessage(Utils.color("&4║ &fYou are about to punish &b" + targetInfo.getLastName() + " "));
+        player.sendMessage(Utils.color("&4║ &fYou are about to punish &b" + targetInfo.getName() + " "));
         player.sendMessage(Utils.color("&4║ &fReason: &e" + puBuilder.getReason()));
         String punishmentString = EnforcerUtils.getPunishString(puBuilder);
         player.sendMessage(Utils.color("&4║ &fThis action will result in the punishment " + punishmentString));
-    
         BaseComponent[] baseComponents = new ComponentBuilder("║ ").color(ChatColor.DARK_RED).append("Click to ").color(ChatColor.WHITE).append("[Confirm]").color(ChatColor.GREEN).bold(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to confirm punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment confirm " + code)).append(" [Cancel]").color(ChatColor.RED).bold(true).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Click to cancel punishment").create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishment cancel " + code)).create();
         player.spigot().sendMessage(baseComponents);
         player.sendMessage(Utils.color("&4╚═════════════════════════════"));
         player.sendMessage("");
     }
     
-    private void sendConfirmMessage(Player player, String code, UUID target, String reason, List<PunishmentBuilder> builders) {
-        PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(target);
+    private void sendConfirmMessage(Player player, String code, Target target, String reason, List<PunishmentBuilder> builders) {
         player.sendMessage("");
         player.sendMessage(Utils.color("&4╔═════════════════════════════"));
-        player.sendMessage(Utils.color("&4║ &fYou are about to punish &b" + targetInfo.getLastName() + " "));
+        player.sendMessage(Utils.color("&4║ &fYou are about to punish &b" + target.getName() + " "));
         player.sendMessage(Utils.color("&4║ &fReason: &e" + reason));
         List<String> punishmentStrings = new ArrayList<>();
         for (PunishmentBuilder puBuilder : builders) {
@@ -430,6 +512,14 @@ public class PunishmentCommands implements CommandExecutor {
         player.sendMessage("");
     }
     
+    private void addPunishmentBuilders(String code, PunishmentBuilder... builders) {
+        if (this.punishmentBuilders.containsKey(code)) {
+            this.punishmentBuilders.get(code).addAll(Arrays.asList(builders));
+        } else {
+            this.punishmentBuilders.put(code, new ArrayList<>(Arrays.asList(builders)));
+        }
+    }
+    
     private String getReason(int index, String[] args) {
         StringBuilder sb = new StringBuilder();
         for (int i = index; i < args.length; i++) {
@@ -448,31 +538,6 @@ public class PunishmentCommands implements CommandExecutor {
             if (ignoreTraining) {
                 punishment.setTrainingMode(false);
             }
-        }
-    }
-    
-    private long extractExpire(Player player, long currentTime, String s) {
-        try {
-            return Punishment.calculateExpireDate(currentTime, s);
-        } catch (Exception e) {
-            player.sendMessage(Utils.color("&cInvalid time format."));
-            return -1;
-        }
-    }
-    
-    private void addPunishmentBuilder(String code, PunishmentBuilder builder) {
-        if (this.punishmentBuilders.containsKey(code)) {
-            this.punishmentBuilders.get(code).add(builder);
-        } else {
-            this.punishmentBuilders.put(code, new ArrayList<>(Collections.singletonList(builder)));
-        }
-    }
-    
-    private void addPunishmentBuilders(String code, PunishmentBuilder... builders) {
-        if (this.punishmentBuilders.containsKey(code)) {
-            this.punishmentBuilders.get(code).addAll(Arrays.asList(builders));
-        } else {
-            this.punishmentBuilders.put(code, new ArrayList<>(Arrays.asList(builders)));
         }
     }
 }

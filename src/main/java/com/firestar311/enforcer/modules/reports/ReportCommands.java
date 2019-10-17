@@ -1,6 +1,10 @@
 package com.firestar311.enforcer.modules.reports;
 
 import com.firestar311.enforcer.Enforcer;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
+import com.firestar311.enforcer.modules.punishments.target.PlayerTarget;
+import com.firestar311.enforcer.modules.punishments.target.Target;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.reports.enums.ReportOutcome;
 import com.firestar311.enforcer.modules.reports.enums.ReportStatus;
@@ -51,15 +55,17 @@ public class ReportCommands implements CommandExecutor {
                     return true;
                 }
                 
-                if (!(report.getReporter().equals(player.getUniqueId()) || player.hasPermission(Perms.STAFF_PERMISSION))) {
-                    player.sendMessage(Utils.color("&cYou must be staff or the reporter to view a report."));
-                    return true;
+                if (report.getReporter() instanceof PlayerActor) {
+                    if (!(((PlayerActor) report.getReporter()).getUniqueId().equals(player.getUniqueId()) || player.hasPermission(Perms.STAFF_PERMISSION))) {
+                        player.sendMessage(Utils.color("&cYou must be staff or the reporter to view a report."));
+                        return true;
+                    }
                 }
                 
                 if (args.length == 1) {
                     player.sendMessage(Utils.color("&6---------Report Info---------"));
                     player.sendMessage(Utils.color("&7Report ID: &d" + report.getId()));
-                    player.sendMessage(Utils.color("&7Report Target: &3" + plugin.getPlayerManager().getPlayerInfo(report.getTarget()).getLastName()));
+                    player.sendMessage(Utils.color("&7Report Target: &3" + report.getTarget().getName()));
                     player.sendMessage(Utils.color("&7Report Reason: &9" + report.getReason()));
                     player.sendMessage(Utils.color("&7Report Status: &b" + report.getStatus().getColor() + report.getStatus().name()));
                     player.sendMessage(Utils.color("&7Report Outcome: &b" + report.getOutcome().getColor() + report.getOutcome().name()));
@@ -67,15 +73,17 @@ public class ReportCommands implements CommandExecutor {
                     if (Utils.checkCmdAliases(args, 1, "setevidence", "se")) {
                         if (args.length == 3) {
                             report.setEvidence(new Evidence(0, player.getUniqueId(), EvidenceType.PLAYER, args[2]));
-                            player.sendMessage(Utils.color("&aYou added evidence to the report against" + plugin.getPlayerManager().getPlayerInfo(report.getTarget()).getLastName()));
+                            player.sendMessage(Utils.color("&aYou added evidence to the report against" + report.getTarget().getName()));
                         } else {
                             player.sendMessage(Utils.color("&cYou provided an invalid amount of arguments."));
                             return true;
                         }
                     } else if (Utils.checkCmdAliases(args, 1, "cancel", "c")) {
-                        if (!report.getReporter().equals(player.getUniqueId())) {
-                            player.sendMessage(Utils.color("&cYou can only cancel reports created by you."));
-                            return true;
+                        if (report.getReporter() instanceof PlayerActor) {
+                            if (!((PlayerActor) report.getReporter()).getUniqueId().equals(player.getUniqueId())) {
+                                player.sendMessage(Utils.color("&cYou can only cancel reports created by you."));
+                                return true;
+                            }
                         }
                         
                         if (report.getStatus().equals(ReportStatus.CANCELLED)) {
@@ -91,8 +99,7 @@ public class ReportCommands implements CommandExecutor {
                         report.setOutcome(ReportOutcome.CANCELLED);
                         report.setStatus(ReportStatus.CANCELLED);
                         String format = Messages.REPORT_CANCEL;
-                        PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(report.getTarget());
-                        format = format.replace(Variables.TARGET, targetInfo.getLastName()).replace(Variables.ACTOR, player.getName());
+                        format = format.replace(Variables.TARGET, report.getTarget().getName()).replace(Variables.ACTOR, player.getName());
                         format = format.replace("{id}", report.getId() + "");
                         for (Player p : Bukkit.getOnlinePlayers()) {
                             if (p.hasPermission(Perms.NOTIFY_PUNISHMENTS)) {
@@ -139,8 +146,11 @@ public class ReportCommands implements CommandExecutor {
                     } else {
                         reason = rawReason;
                     }
+    
+                    Actor actor = new PlayerActor(player.getUniqueId());
+                    Target target = new PlayerTarget(targetInfo.getUuid());
                     
-                    Report report = new Report(player.getUniqueId(), targetInfo.getUuid(), player.getLocation(), reason);
+                    Report report = new Report(actor, target, player.getLocation(), reason);
                     plugin.getReportModule().getManager().addReport(report);
                     
                     String format = Messages.REPORT_CREATE;
@@ -229,7 +239,7 @@ public class ReportCommands implements CommandExecutor {
                     return true;
                 }
                 
-                report.setAssignee(info.getUuid());
+                report.setAssignee(new PlayerActor(info.getUuid()));
                 player.sendMessage(Utils.color("&aYou assigned " + info.getLastName() + " to the report " + report.getId())); //TODO Proper message like others
             } else if (Utils.checkCmdAliases(args, 1, "setstatus", "ss")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_STATUS)) {

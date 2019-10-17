@@ -1,15 +1,10 @@
 package com.firestar311.enforcer.util.evidence;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.util.*;
 
 public class Evidence implements ConfigurationSerializable {
-    
-    static {
-        ConfigurationSerialization.registerClass(Evidence.class);
-    }
     
     private int id;
     private UUID submitter;

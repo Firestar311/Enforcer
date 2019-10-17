@@ -4,24 +4,27 @@ import com.firestar311.enforcer.manager.SettingsManager;
 import com.firestar311.enforcer.modules.history.HistoryManager;
 import com.firestar311.enforcer.modules.history.HistoryModule;
 import com.firestar311.enforcer.modules.pardon.*;
-import com.firestar311.enforcer.modules.prison.PrisonManager;
-import com.firestar311.enforcer.modules.prison.PrisonModule;
+import com.firestar311.enforcer.modules.prison.*;
 import com.firestar311.enforcer.modules.punishments.PunishmentManager;
 import com.firestar311.enforcer.modules.punishments.PunishmentModule;
+import com.firestar311.enforcer.modules.punishments.actor.ConsoleActor;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
+import com.firestar311.enforcer.modules.punishments.target.*;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.MutePunishment;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
+import com.firestar311.enforcer.modules.punishments.type.impl.*;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Expireable;
-import com.firestar311.enforcer.modules.reports.ReportManager;
-import com.firestar311.enforcer.modules.reports.ReportModule;
+import com.firestar311.enforcer.modules.reports.*;
 import com.firestar311.enforcer.modules.rules.RuleManager;
 import com.firestar311.enforcer.modules.rules.RuleModule;
+import com.firestar311.enforcer.modules.rules.rule.*;
 import com.firestar311.enforcer.modules.training.TrainingManager;
 import com.firestar311.enforcer.modules.training.TrainingModule;
 import com.firestar311.enforcer.util.*;
+import com.firestar311.enforcer.util.evidence.Evidence;
 import com.firestar311.lib.player.PlayerManager;
 import com.firestar311.lib.util.Utils;
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -49,7 +52,7 @@ public final class Enforcer extends JavaPlugin {
         instance = this;
         this.saveDefaultConfig();
         this.settingsManager = new SettingsManager(this);
-        this.punishmentModule = new PunishmentModule(this, "punishments", new PunishmentManager(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail", "punishment");
+        this.punishmentModule = new PunishmentModule(this, "punishments", new PunishmentManager(this), "punish", "ban", "tempban", "mute", "tempmute", "warn", "kick", "jail", "punishment", "blacklist");
         this.prisonModule = new PrisonModule(this, "prison", new PrisonManager(this), "prison");
         this.ruleModule = new RuleModule(this, "rules", new RuleManager(this), "moderatorrules");
         this.historyModule = new HistoryModule(this, "history", new HistoryManager(this), "history", "staffhistory");
@@ -81,7 +84,7 @@ public final class Enforcer extends JavaPlugin {
                             expireable.onExpire();
                             
                             if (punishment instanceof MutePunishment) {
-                                Player p = Bukkit.getPlayer(punishment.getTarget());
+                                Player p = punishment.getTarget().getPlayer();
                                 if (p != null) {
                                     p.sendMessage(Utils.color("&aYour temporary mute has expired."));
                                 }
@@ -123,45 +126,6 @@ public final class Enforcer extends JavaPlugin {
             player.sendMessage(Utils.color("&7Must Confirm Punishments: &e" + getSettingsManager().mustConfirmPunishments()));
             player.sendMessage(Utils.color("&7Prefix: &e" + getSettingsManager().getPrefix()));
             player.sendMessage(Utils.color("&7Server Name : &e" + getSettingsManager().getServerName()));
-            return true;
-        }
-        
-        if (Utils.checkCmdAliases(args, 0, "testtime", "tt")) {
-            if (!player.isOp()) {
-                player.sendMessage(Utils.color("&cOnly operators can use that command."));
-                return true;
-            }
-            
-            if (args.length != 2) {
-                player.sendMessage(Utils.color("You must provide a length of time"));
-                return true;
-            }
-            
-            long oldWayLength = -1;
-            long newWayLength = -1;
-            
-            try {
-                oldWayLength = Punishment.calculateLength(args[1]);
-            } catch (Exception e) {}
-            
-            try {
-                newWayLength = Utils.parseTime(args[1]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            player.sendMessage(Utils.color("&aYou provided the time argument: &b" + args[1]));
-            if (oldWayLength == -1) {
-                player.sendMessage(Utils.color("&aThe Old Way had an error"));
-            } else {
-                player.sendMessage(Utils.color("&aThe Old Way got &b" + oldWayLength + "&e(" + Utils.formatTime(oldWayLength) + ")"));
-            }
-            
-            if (newWayLength == -1) {
-                player.sendMessage(Utils.color("&aThe New Way had an error"));
-            } else {
-                player.sendMessage(Utils.color("&aThe New Way got &b" + newWayLength + " &e(" + Utils.formatTime(newWayLength) + ")"));
-            }
             return true;
         }
     
@@ -296,5 +260,9 @@ public final class Enforcer extends JavaPlugin {
     
     public PardonModule getPardonModule() {
         return pardonModule;
+    }
+    
+    static {
+        Utils.registerConfigClasses(Report.class, Prison.class, ConsoleActor.class, PlayerActor.class, PlayerTarget.class, IPTarget.class, IPListTarget.class, BlacklistPunishment.class, JailPunishment.class, KickPunishment.class, PermanentBan.class, PermanentMute.class, WarnPunishment.class, Rule.class, RuleOffense.class, RulePunishment.class, Evidence.class);
     }
 }

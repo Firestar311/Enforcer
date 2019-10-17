@@ -1,8 +1,10 @@
 package com.firestar311.enforcer.modules.punishments.type.impl;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.Visibility;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.target.Target;
+import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.util.Messages;
 import com.firestar311.lib.util.Utils;
@@ -10,28 +12,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
-import java.util.UUID;
 
 public class KickPunishment extends Punishment {
     
-    public KickPunishment(Map<String, Object> serialized) {
-        super(serialized);
-    }
-    
-    public KickPunishment(String server, UUID punisher, UUID target, String reason, long date) {
+    public KickPunishment(String server, Actor punisher, Target target, String reason, long date) {
         super(PunishmentType.KICK, server, punisher, target, reason, date);
     }
     
-    public KickPunishment(String server, UUID punisher, UUID target, String reason, long date, Visibility visibility) {
+    public KickPunishment(String server, Actor punisher, Target target, String reason, long date, Visibility visibility) {
         super(PunishmentType.KICK, server, punisher, target, reason, date, visibility);
     }
     
-    public KickPunishment(int id, String server, UUID punisher, UUID target, String reason, long date, boolean active, boolean purgatory, Visibility visibility) {
+    public KickPunishment(int id, String server, Actor punisher, Target target, String reason, long date, boolean active, boolean purgatory, Visibility visibility) {
         super(id, PunishmentType.KICK, server, punisher, target, reason, date, active, purgatory, visibility);
     }
     
     public void executePunishment() {
-        Player player = Bukkit.getPlayer(target);
+        Player player = target.getPlayer();
         if (player != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Enforcer.getInstance(), () -> player.kickPlayer(Utils.color(Messages.formatPunishKick(this))));
         }
@@ -39,7 +36,13 @@ public class KickPunishment extends Punishment {
         sendPunishMessage();
     }
     
-    public void reversePunishment(UUID remover, long removedDate) {
+    public void reversePunishment(Actor remover, long removedDate) {}
     
+    public Map<String, Object> serialize() {
+        return super.serializeBase();
+    }
+    
+    public static KickPunishment deserialize(Map<String, Object> serialized) {
+        return (KickPunishment) Punishment.deserializeBase(serialized).build();
     }
 }

@@ -2,12 +2,11 @@ package com.firestar311.enforcer.modules.rules;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.base.Manager;
-import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.firestar311.enforcer.modules.rules.rule.*;
-import com.firestar311.lib.util.Unit;
+import com.firestar311.enforcer.modules.rules.rule.Rule;
+import com.firestar311.enforcer.modules.rules.rule.RuleOffense;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
@@ -33,82 +32,21 @@ public class RuleManager extends Manager {
     public void saveData() {
         FileConfiguration config = this.configManager.getConfig();
         config.set("rules", null);
-        
-        for (Rule rule : this.rules.values()) {
-            String basePath = "rules." + rule.getInternalId();
-            config.set(basePath + ".id", rule.getId());
-            config.set(basePath + ".name", rule.getName());
-            config.set(basePath + ".description", rule.getDescription());
-            if (rule.getMaterial() != null) {
-                config.set(basePath + ".material", rule.getMaterial().name());
-            }
-            
-            if (rule.getOffenses().isEmpty()) { continue; }
-            
-            for (Entry<Integer, RuleOffense> actionEntry : rule.getOffenses().entrySet()) {
-                config.set(basePath + ".offenses." + actionEntry.getKey() + ".length", actionEntry.getValue().getLength());
-                String actionBase = basePath + ".offenses." + actionEntry.getKey() + ".actions";
-                for (Entry<Integer, RulePunishment> punishmentEntry : actionEntry.getValue().getPunishments().entrySet()) {
-                    String punishmentBase = actionBase + "." + punishmentEntry.getKey();
-                    config.set(punishmentBase + ".punishment", punishmentEntry.getValue().getType().toString().toLowerCase());
-                    config.set(punishmentBase + ".length", punishmentEntry.getValue().getcLength());
-                    config.set(punishmentBase + ".unit", punishmentEntry.getValue().getcUnits());
-                    config.set(punishmentBase + ".id", punishmentEntry.getValue().getId());
-                }
-            }
+    
+        for (Entry<Integer, Rule> entry : this.rules.entrySet()) {
+            config.set("rules." + entry.getValue().getInternalId(), entry.getValue());
         }
+        
         this.configManager.saveConfig();
     }
     
     public void loadData() {
         FileConfiguration config = configManager.getConfig();
-        if (config.getConfigurationSection("rules") == null) { return; }
-        for (String r : config.getConfigurationSection("rules").getKeys(false)) {
-            Rule rule = new Rule(config.getInt("rules." + r + ".id"), r, config.getString("rules." + r + ".name"), config.getString("rules." + r + ".description"));
-            if (config.contains("rules." + r + ".material")) {
-                rule.setMaterial(Material.valueOf(config.getString("rules." + r + ".material").toUpperCase()));
-            }
-            if (config.contains("rules." + r + ".offenses")) {
-                for (String o : config.getConfigurationSection("rules." + r + ".offenses").getKeys(false)) {
-                    int offenseNumber = Integer.parseInt(o);
-                    RuleOffense action = new RuleOffense(rule, offenseNumber);
-                    int actionLength = 0;
-                    if (config.contains("rules." + r + ".offenses." + o + ".length")) {
-                        actionLength = config.getInt("rules." + r + ".offenses." + o + ".length");
-                    }
-                    action.setLength(actionLength);
-                    for (String a : config.getConfigurationSection("rules." + r + ".offenses." + o + ".actions").getKeys(false)) {
-                        int aN = Integer.parseInt(a);
-                        PunishmentType type = PunishmentType.getType(config.getString("rules." + r + ".offenses." + o + ".actions." + a + ".punishment").toUpperCase());
-                        int rawLength = -1;
-                        String units = "";
-                        int id = -1;
-                        if (config.contains("rules." + r + ".offenses." + o + ".actions." + a + ".length")) {
-                            rawLength = config.getInt("rules." + r + ".offenses." + o + ".actions." + a + ".length");
-                        }
-                        
-                        if (config.contains("rules." + r + ".offenses." + o + ".actions." + a + ".unit")) {
-                            units = config.getString("rules." + r + ".offenses." + o + ".actions." + a + ".unit");
-                        }
-                        
-                        if (config.contains("rules." + r + ".offenses." + o + ".actions." + a + ".id")) {
-                            id = config.getInt("rules." + r + ".offenses." + o + ".actions." + a + ".id");
-                        }
-                        
-                        long length = -1;
-                        if (!StringUtils.isEmpty(units)) {
-                            Unit unit = Unit.matchUnit(units);
-                            length = unit.convertTime(rawLength);
-                        }
-                        
-                        RulePunishment punishment = new RulePunishment(type, length, rawLength, units);
-                        punishment.setId(id);
-                        action.addPunishment(aN, punishment);
-                    }
-                    rule.addOffense(offenseNumber, action);
-                }
-            }
-            this.addRule(rule);
+        ConfigurationSection rulesSection = config.getConfigurationSection("rules");
+        if (rulesSection == null) { return; }
+        for (String r : rulesSection.getKeys(false)) {
+           Rule rule = (Rule) config.get(r);
+           this.rules.put(rule.getId(), rule);
         }
     }
     

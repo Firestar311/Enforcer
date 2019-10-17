@@ -1,8 +1,10 @@
 package com.firestar311.enforcer.modules.punishments.type.impl;
 
 import com.firestar311.enforcer.Enforcer;
-import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.Visibility;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.target.Target;
+import com.firestar311.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.modules.punishments.type.interfaces.Acknowledgeable;
 import com.firestar311.lib.util.Utils;
@@ -11,7 +13,6 @@ import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
-import java.util.UUID;
 
 public class WarnPunishment extends Punishment implements Acknowledgeable {
     
@@ -19,24 +20,20 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     
     private Prompt prompt;
     
-    public WarnPunishment(Map<String, Object> serialized) {
-        super(serialized);
-    }
-    
-    public WarnPunishment(String server, UUID punisher, UUID target, String reason, long date) {
+    public WarnPunishment(String server, Actor punisher, Target target, String reason, long date) {
         super(PunishmentType.WARN, server, punisher, target, reason, date);
     }
     
-    public WarnPunishment(String server, UUID punisher, UUID target, String reason, long date, Visibility visibility) {
+    public WarnPunishment(String server, Actor punisher, Target target, String reason, long date, Visibility visibility) {
         super(PunishmentType.WARN, server, punisher, target, reason, date, visibility);
     }
     
-    public WarnPunishment(int id, String server, UUID punisher, UUID target, String reason, long date, boolean active, boolean purgatory, Visibility visibility) {
+    public WarnPunishment(int id, String server, Actor punisher, Target target, String reason, long date, boolean active, boolean purgatory, Visibility visibility) {
         super(id, PunishmentType.WARN, server, punisher, target, reason, date, active, purgatory, visibility);
     }
     
     public Prompt createPrompt() {
-        Player player = Bukkit.getPlayer(target);
+        Player player = target.getPlayer();
         String code = Enforcer.getInstance().getPunishmentModule().getManager().generateAckCode(this.id);
         if (player != null) {
             prompt = new ValidatingPrompt() {
@@ -74,7 +71,7 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
     }
     
     public void executePunishment() {
-        Player player = Bukkit.getPlayer(target);
+        Player player = target.getPlayer();
         this.sendPunishMessage();
         if (player != null) {
             createPrompt();
@@ -83,7 +80,7 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
         }
     }
     
-    public void reversePunishment(UUID remover, long removedDate) {
+    public void reversePunishment(Actor remover, long removedDate) {
     
     }
     
@@ -104,5 +101,18 @@ public class WarnPunishment extends Punishment implements Acknowledgeable {
             return createPrompt();
         }
         return prompt;
+    }
+    
+    public Map<String, Object> serialize() {
+        Map<String, Object> serialized = super.serializeBase();
+        serialized.put("acknowledged", this.acknowledged);
+        return serialized;
+    }
+    
+    public static WarnPunishment deserialize(Map<String, Object> serialized) {
+        boolean acknowledged = (boolean) serialized.get("acknowledged");
+        WarnPunishment warning = (WarnPunishment) Punishment.deserializeBase(serialized).build();
+        warning.acknowledged = acknowledged;
+        return warning;
     }
 }

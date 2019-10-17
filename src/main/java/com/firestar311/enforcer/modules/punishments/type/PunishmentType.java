@@ -6,7 +6,8 @@ import com.firestar311.enforcer.modules.punishments.type.impl.*;
 public enum PunishmentType {
     PERMANENT_BAN("&4", "&4&lPERMANENT BAN", PermanentBan.class, "BAN"), TEMPORARY_BAN("&c", "&c&lTEMPORARY BAN", TemporaryBan.class, "TEMP_BAN", "TEMPBAN"),
     PERMANENT_MUTE("&1", "&1&lPERMANENT MUTE", PermanentMute.class, "MUTE"), TEMPORARY_MUTE("&9", "&9&lTEMPORARY MUTE", TemporaryMute.class, "TEMP_MUTE", "TEMPMUTE"),
-    WARN("&e", "&e&lWARN", WarnPunishment.class), KICK("&a", "&a&lKICK", KickPunishment.class), JAIL("&d", "&d&lJAIL", JailPunishment.class);
+    WARN("&e", "&e&lWARN", WarnPunishment.class), KICK("&a", "&a&lKICK", KickPunishment.class), JAIL("&d", "&d&lJAIL", JailPunishment.class),
+    BLACKLIST("&8", "&8&L", BlacklistPunishment.class);
     
     private String color;
     private String displayName;

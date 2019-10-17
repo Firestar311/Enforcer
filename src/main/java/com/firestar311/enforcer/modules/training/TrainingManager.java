@@ -2,6 +2,8 @@ package com.firestar311.enforcer.modules.training;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.base.Manager;
+import com.firestar311.enforcer.modules.punishments.actor.Actor;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
@@ -50,5 +52,14 @@ public class TrainingManager extends Manager {
     
     public boolean isTrainingMode(UUID uuid) {
         return globalTrainingMode || trainingMode.contains(uuid);
+    }
+    
+    public boolean isTrainingMode(Actor actor) {
+        if (globalTrainingMode) return true;
+        if (actor instanceof PlayerActor) {
+            PlayerActor playerActor = ((PlayerActor) actor);
+            return trainingMode.contains(playerActor.getUniqueId());
+        }
+        return false;
     }
 }

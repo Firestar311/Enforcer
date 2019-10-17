@@ -2,6 +2,7 @@ package com.firestar311.enforcer.modules.pardon;
 
 import com.firestar311.enforcer.Enforcer;
 import com.firestar311.enforcer.modules.punishments.Visibility;
+import com.firestar311.enforcer.modules.punishments.actor.PlayerActor;
 import com.firestar311.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.firestar311.enforcer.util.Messages;
 import com.firestar311.enforcer.util.Perms;
@@ -98,7 +99,7 @@ public class PardonCommands implements CommandExecutor {
                 }
             }
             punishment.setPardonVisibility(finalVisibility);
-            punishment.reversePunishment(player.getUniqueId(), System.currentTimeMillis());
+            punishment.reversePunishment(new PlayerActor(player.getUniqueId()), System.currentTimeMillis()); //TODO Temporary
         }
     
         return true;
