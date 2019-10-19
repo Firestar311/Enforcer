@@ -1,6 +1,6 @@
 name: Enforcer
 version: ${project.version}
-main: com.firestar311.enforcer.Enforcer
+main: com.stardevmc.enforcer.Enforcer
 authors: [Firestar311]
 api-version: 1.13
 description: Punishment system by Firestar311
@@ -37,3 +37,4 @@ commands:
     punishment:
     trainingmode:
     blacklist:
+    unblacklist:
