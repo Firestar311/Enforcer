@@ -38,3 +38,7 @@ commands:
     trainingmode:
     blacklist:
     unblacklist:
+    watchlist:
+        aliases: [wl]
+    quickteleport:
+        aliases: [qtp]

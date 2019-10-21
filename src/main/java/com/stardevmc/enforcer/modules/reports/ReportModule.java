@@ -4,8 +4,8 @@ import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.base.Module;
 
 public class ReportModule extends Module<ReportManager> {
-    public ReportModule(Enforcer plugin, String name, ReportManager manager, String... commands) {
-        super(plugin, name, manager, commands);
+    public ReportModule(Enforcer plugin, String... commands) {
+        super(plugin, "reports", new ReportManager(plugin), commands);
     }
     
     public void setup() {

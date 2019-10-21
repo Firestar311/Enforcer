@@ -4,8 +4,8 @@ import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.base.Module;
 
 public class HistoryModule extends Module<HistoryManager> {
-    public HistoryModule(Enforcer plugin, String name, HistoryManager manager, String... commands) {
-        super(plugin, name, manager, commands);
+    public HistoryModule(Enforcer plugin, String... commands) {
+        super(plugin, "history", new HistoryManager(plugin), commands);
     }
     
     public void setup() {

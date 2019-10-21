@@ -12,8 +12,8 @@ public class PunishmentModule extends Module<PunishmentManager> {
     private PlayerChatListener playerChatListener;
     private PlayerJoinListener playerJoinListener;
     
-    public PunishmentModule(Enforcer plugin, String name, PunishmentManager manager, String... commands) {
-        super(plugin, name, manager, commands);
+    public PunishmentModule(Enforcer plugin, String... commands) {
+        super(plugin, "punishments", new PunishmentManager(plugin), commands);
         this.playerChatListener = new PlayerChatListener(plugin);
         this.playerJoinListener = new PlayerJoinListener(plugin);
     }

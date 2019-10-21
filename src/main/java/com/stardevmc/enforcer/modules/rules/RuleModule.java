@@ -4,8 +4,8 @@ import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.base.Module;
 
 public class RuleModule extends Module<RuleManager> {
-    public RuleModule(Enforcer plugin, String name, RuleManager manager, String... commands) {
-        super(plugin, name, manager, commands);
+    public RuleModule(Enforcer plugin, String... commands) {
+        super(plugin, "rules", new RuleManager(plugin), commands);
     }
     
     public void setup() {

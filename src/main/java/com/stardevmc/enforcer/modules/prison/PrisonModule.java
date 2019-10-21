@@ -6,8 +6,8 @@ import org.bukkit.event.HandlerList;
 
 public class PrisonModule extends Module<PrisonManager> {
     private PlayerPrisonListener playerPrisonListener;
-    public PrisonModule(Enforcer plugin, String name, PrisonManager manager, String... commands) {
-        super(plugin, name, manager, commands);
+    public PrisonModule(Enforcer plugin, String... commands) {
+        super(plugin, "prisons", new PrisonManager(plugin), commands);
         this.playerPrisonListener = new PlayerPrisonListener(plugin);
     }
     

@@ -4,8 +4,8 @@ import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.base.Module;
 
 public class TrainingModule extends Module<TrainingManager> {
-    public TrainingModule(Enforcer plugin, String name, TrainingManager manager, String... commands) {
-        super(plugin, name, manager, commands);
+    public TrainingModule(Enforcer plugin, String... commands) {
+        super(plugin, "training", new TrainingManager(plugin), commands);
     }
     
     public void setup() {
