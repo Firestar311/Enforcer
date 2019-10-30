@@ -1,12 +1,13 @@
 package com.stardevmc.enforcer.util;
 
+import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
+import com.stardevmc.enforcer.modules.base.Priority;
 import com.stardevmc.enforcer.modules.punishments.Colors;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.BanPunishment;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.stardevmc.enforcer.modules.punishments.type.interfaces.Expireable;
 import com.stardevmc.enforcer.modules.punishments.type.impl.KickPunishment;
-import com.firestar311.lib.util.Utils;
+import com.stardevmc.enforcer.modules.punishments.type.interfaces.Expireable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -30,6 +31,9 @@ public final class Messages {
     public static final String RULE_SET_DESCRIPTION = "&6(" + Variables.PREFIX + ") &4&l[i] &b" + Variables.ACTOR + " &fset the description of the rule &b" + Variables.RULE_NAME + " &fto &b" + Variables.RULE_DESCRIPTION;
     public static final String REPORT_CREATE = "&4(REPORT) &d<{id}> &e" + Variables.TARGET + " &cwas reported for &e" + Variables.REASON + " &cby &e" + Variables.ACTOR;
     public static final String REPORT_CANCEL = "&4(REPORT} &d<{id}> &e" + Variables.ACTOR + " &ecancelled their report against &e" + Variables.TARGET;
+    public static final String WATCHLIST_MESSAGE = "&9(WATCHLIST) &b" + Variables.ACTOR + " <type> &e" + Variables.TARGET + " &f<tp> watchlist.";
+    public static final String WATCHLIST_ADD_NOTE = "&9(WATCHLIST) &b" + Variables.ACTOR + " &fadded a note to &e" + Variables.TARGET + "'s &fwatchlist entry.";
+    public static final String WATCHLIST_SET_PRIORITY = "&9(WATCHLIST) &b" + Variables.ACTOR + " &fset the priority on &e" + Variables.TARGET + "'s &fwatchlist entry to <priority>.";
     
     public static void sendNotifyMessage(String message) {
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -37,6 +41,20 @@ public final class Messages {
                 p.sendMessage(Utils.color(message));
             }
         }
+    }
+    
+    public static String watchlistMessage(String target, String staff, String type) {
+        String format = WATCHLIST_MESSAGE;
+        if (type.equalsIgnoreCase("removed")) {
+            format = format.replace("<tp>", "from");
+        } else if (type.equalsIgnoreCase("added")) {
+            format = format.replace("<tp>", "to");
+        }
+        
+        format = format.replace("<type>", type);
+        format = format.replace(Variables.ACTOR, staff);
+        format = format.replace(Variables.TARGET, target);
+        return Utils.color(format);
     }
     
     public static String noPermissionCommand(String permission) {
@@ -71,6 +89,22 @@ public final class Messages {
     }
     
     private static Messages instance = new Messages();
+    
+    public static String watchlistAddNoteMessage(String targetName, String actorName) {
+        String format = WATCHLIST_ADD_NOTE;
+        format = format.replace(Variables.ACTOR, actorName);
+        format = format.replace(Variables.TARGET, targetName);
+        return Utils.color(format);
+    }
+    
+    public static String watchlistSetPriority(String targetName, String actorName, Priority priority) {
+        String format = WATCHLIST_SET_PRIORITY;
+        format = format.replace("<priority>", priority.name());
+        format = format.replace(Variables.TARGET, targetName);
+        format = format.replace(Variables.ACTOR, actorName);
+        return Utils.color(format);
+    }
+    
     public static Messages getInstance() { return instance; }
     private Messages() {}
     
