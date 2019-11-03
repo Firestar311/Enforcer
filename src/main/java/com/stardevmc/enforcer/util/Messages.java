@@ -34,6 +34,10 @@ public final class Messages {
     public static final String WATCHLIST_MESSAGE = "&9(WATCHLIST) &b" + Variables.ACTOR + " &f<type> &e" + Variables.TARGET + " &f<tp> the watchlist.";
     public static final String WATCHLIST_ADD_NOTE = "&9(WATCHLIST) &b" + Variables.ACTOR + " &fadded a note to &e" + Variables.TARGET + "'s &fwatchlist entry.";
     public static final String WATCHLIST_SET_PRIORITY = "&9(WATCHLIST) &b" + Variables.ACTOR + " &fset the priority on &e" + Variables.TARGET + "'s &fwatchlist entry to <priority>.";
+    public static final String REPORT_ASSIGN = "&4{REPORT) &d<{id}> &e" + Variables.ACTOR + " assigned the report to &e" + Variables.TARGET;
+    public static final String ONLY_PLAYERS_CMD = "&cOnly players may use that command.";
+    public static final String NOT_ENOUGH_ARGS = "&cYou did not provide enough arguments.";
+    public static final String COULD_NOT_FIND_PLAYER = "&cCould not find a player by that name.";
     
     public static void sendNotifyMessage(String message) {
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -88,8 +92,6 @@ public final class Messages {
         return format;
     }
     
-    private static Messages instance = new Messages();
-    
     public static String watchlistAddNoteMessage(String targetName, String actorName) {
         String format = WATCHLIST_ADD_NOTE;
         format = format.replace(Variables.ACTOR, actorName);
@@ -105,7 +107,6 @@ public final class Messages {
         return Utils.color(format);
     }
     
-    public static Messages getInstance() { return instance; }
     private Messages() {}
     
     

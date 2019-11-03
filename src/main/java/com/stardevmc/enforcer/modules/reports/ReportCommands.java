@@ -34,14 +34,14 @@ public class ReportCommands implements CommandExecutor {
     
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.color("&cOnly players may use that command."));
+            sender.sendMessage(Utils.color(Messages.ONLY_PLAYERS_CMD));
             return true;
         }
         
         Player player = (Player) sender;
         
         if (!(args.length > 0)) {
-            player.sendMessage(Utils.color("&cYou do not have enough arguments."));
+            player.sendMessage(Utils.color(Messages.NOT_ENOUGH_ARGS));
             return true;
         }
         
@@ -75,7 +75,7 @@ public class ReportCommands implements CommandExecutor {
                             report.setEvidence(new Evidence(0, player.getUniqueId(), EvidenceType.PLAYER, args[2]));
                             player.sendMessage(Utils.color("&aYou added evidence to the report against" + report.getTarget().getName()));
                         } else {
-                            player.sendMessage(Utils.color("&cYou provided an invalid amount of arguments."));
+                            player.sendMessage(Utils.color(Messages.NOT_ENOUGH_ARGS));
                             return true;
                         }
                     } else if (Utils.checkCmdAliases(args, 1, "cancel", "c")) {
@@ -130,7 +130,7 @@ public class ReportCommands implements CommandExecutor {
                 } else {
                     PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(args[0]);
                     if (targetInfo == null) {
-                        player.sendMessage(Utils.color("&cThe name you provided did not match a player."));
+                        player.sendMessage(Utils.color(Messages.COULD_NOT_FIND_PLAYER));
                         return true;
                     }
                     String rawReason = StringUtils.join(args, " ", 1, args.length);
@@ -240,7 +240,9 @@ public class ReportCommands implements CommandExecutor {
                 }
                 
                 report.setAssignee(new PlayerActor(info.getUuid()));
-                player.sendMessage(Utils.color("&aYou assigned " + info.getLastName() + " to the report " + report.getId())); //TODO Proper message like others
+                String message = Messages.REPORT_ASSIGN.replace(Variables.TARGET, info.getLastName());
+                message = message.replace(Variables.ACTOR, player.getName());
+                Messages.sendOutputMessage(player, message, plugin);
             } else if (Utils.checkCmdAliases(args, 1, "setstatus", "ss")) {
                 if (!player.hasPermission(Perms.REPORT_ADMIN_STATUS)) {
                     player.sendMessage(Messages.noPermissionCommand(Perms.REPORT_ADMIN_STATUS));
