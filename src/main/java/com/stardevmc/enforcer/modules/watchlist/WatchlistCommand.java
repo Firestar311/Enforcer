@@ -28,7 +28,7 @@ public class WatchlistCommand implements CommandExecutor {
     
         if (cmd.getName().equalsIgnoreCase("watchlist")) {
             if (!(args.length > 0)) {
-                player.sendMessage("&cYou must provide a sub command.");
+                player.sendMessage(Utils.color("&cYou must provide a sub command."));
                 return true;
             }
             
@@ -173,6 +173,14 @@ public class WatchlistCommand implements CommandExecutor {
                 
                 plugin.getWatchlistModule().getManager().setPrimaryFocus(player.getUniqueId(), info.getUuid());
                 player.sendMessage(Utils.color("&aSet your focus to " + info.getLastName()));
+            } else if (Utils.checkCmdAliases(args, 0, "clearfocus", "cf")) {
+                UUID focus = watchlistManager.getPrimaryFocus(player.getUniqueId());
+                if (focus == null) {
+                    player.sendMessage(Utils.color("&cYou do not have a primary focus."));
+                    return true;
+                }
+                
+                watchlistManager.clearFocus(player.getUniqueId());
             }
         } else if (cmd.getName().equalsIgnoreCase("quickteleport")) {
             UUID primaryFocus = plugin.getWatchlistModule().getManager().getPrimaryFocus(player.getUniqueId());

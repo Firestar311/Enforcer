@@ -31,7 +31,7 @@ public final class Messages {
     public static final String RULE_SET_DESCRIPTION = "&6(" + Variables.PREFIX + ") &4&l[i] &b" + Variables.ACTOR + " &fset the description of the rule &b" + Variables.RULE_NAME + " &fto &b" + Variables.RULE_DESCRIPTION;
     public static final String REPORT_CREATE = "&4(REPORT) &d<{id}> &e" + Variables.TARGET + " &cwas reported for &e" + Variables.REASON + " &cby &e" + Variables.ACTOR;
     public static final String REPORT_CANCEL = "&4(REPORT} &d<{id}> &e" + Variables.ACTOR + " &ecancelled their report against &e" + Variables.TARGET;
-    public static final String WATCHLIST_MESSAGE = "&9(WATCHLIST) &b" + Variables.ACTOR + " <type> &e" + Variables.TARGET + " &f<tp> watchlist.";
+    public static final String WATCHLIST_MESSAGE = "&9(WATCHLIST) &b" + Variables.ACTOR + " &f<type> &e" + Variables.TARGET + " &f<tp> the watchlist.";
     public static final String WATCHLIST_ADD_NOTE = "&9(WATCHLIST) &b" + Variables.ACTOR + " &fadded a note to &e" + Variables.TARGET + "'s &fwatchlist entry.";
     public static final String WATCHLIST_SET_PRIORITY = "&9(WATCHLIST) &b" + Variables.ACTOR + " &fset the priority on &e" + Variables.TARGET + "'s &fwatchlist entry to <priority>.";
     

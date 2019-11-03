@@ -61,6 +61,10 @@ public class WatchlistManager extends Manager {
         return false;
     }
     
+    public void clearFocus(UUID uniqueId) {
+        this.primaryFocus.remove(uniqueId);
+    }
+    
     public Set<WatchlistEntry> getEntries() {
         return entries;
     }
@@ -87,6 +91,6 @@ public class WatchlistManager extends Manager {
     }
     
     public void setPrimaryFocus(UUID uniqueId, UUID uuid) {
-        this.primaryFocus.replace(uniqueId, uuid);
+        this.primaryFocus.put(uniqueId, uuid);
     }
 }
