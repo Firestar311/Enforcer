@@ -38,6 +38,7 @@ public final class Messages {
     public static final String ONLY_PLAYERS_CMD = "&cOnly players may use that command.";
     public static final String NOT_ENOUGH_ARGS = "&cYou did not provide enough arguments.";
     public static final String COULD_NOT_FIND_PLAYER = "&cCould not find a player by that name.";
+    public static final String WATCHLIST_PLAYER_JOIN = "&9(WATCHLIST) &e" + Variables.TARGET + " &fhas joined and is on the watchlist for &e" + Variables.REASON;
     
     public static void sendNotifyMessage(String message) {
         for (Player p : Bukkit.getOnlinePlayers()) {

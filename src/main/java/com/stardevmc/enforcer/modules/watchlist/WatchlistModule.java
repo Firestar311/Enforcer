@@ -15,6 +15,7 @@ public class WatchlistModule extends Module<WatchlistManager> {
         }
         WatchlistCommand watchlistCommand = new WatchlistCommand();
         registerCommands(watchlistCommand);
+        new WatchlistListener();
     }
     
     public void desetup() {
