@@ -7,6 +7,7 @@ public class WatchlistModule extends Module<WatchlistManager> {
     
     public WatchlistModule(Enforcer plugin, String... commands) {
         super(plugin, "Watchlist", new WatchlistManager(plugin), commands);
+        this.addListenerClass(WatchlistListener.class);
     }
     
     public void setup() {
@@ -15,11 +16,12 @@ public class WatchlistModule extends Module<WatchlistManager> {
         }
         WatchlistCommand watchlistCommand = new WatchlistCommand();
         registerCommands(watchlistCommand);
-        new WatchlistListener();
+        registerListeners();
     }
     
     public void desetup() {
         manager.saveData();
         registerCommands(null);
+        registerListeners();
     }
 }

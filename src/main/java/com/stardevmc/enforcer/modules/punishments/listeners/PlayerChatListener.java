@@ -1,28 +1,21 @@
 package com.stardevmc.enforcer.modules.punishments.listeners;
 
-import com.stardevmc.enforcer.Enforcer;
+import com.firestar311.lib.util.Utils;
+import com.stardevmc.enforcer.modules.base.ModuleListener;
 import com.stardevmc.enforcer.modules.punishments.PunishmentManager;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.stardevmc.enforcer.modules.punishments.type.impl.WarnPunishment;
 import com.stardevmc.enforcer.util.Perms;
-import com.firestar311.lib.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.*;
 
-public class PlayerChatListener implements Listener {
-    
-    private Enforcer plugin;
+public class PlayerChatListener extends ModuleListener {
     
     private Map<UUID, Integer> notifications = new HashMap<>();
-    
-    public PlayerChatListener(Enforcer plugin) {
-        this.plugin = plugin;
-    }
     
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent e) {

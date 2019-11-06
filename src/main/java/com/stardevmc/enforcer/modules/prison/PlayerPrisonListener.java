@@ -1,15 +1,14 @@
 package com.stardevmc.enforcer.modules.prison;
 
-import com.stardevmc.enforcer.Enforcer;
+import com.firestar311.lib.items.InventoryStore;
+import com.firestar311.lib.util.Utils;
+import com.stardevmc.enforcer.modules.base.ModuleListener;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.stardevmc.enforcer.modules.punishments.type.impl.JailPunishment;
 import com.stardevmc.enforcer.util.Perms;
-import com.firestar311.lib.items.InventoryStore;
-import com.firestar311.lib.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -19,13 +18,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class PlayerPrisonListener implements Listener {
-    
-    private Enforcer plugin;
-    
-    public PlayerPrisonListener(Enforcer plugin) {
-        this.plugin = plugin;
-    }
+public class PlayerPrisonListener extends ModuleListener {
     
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
