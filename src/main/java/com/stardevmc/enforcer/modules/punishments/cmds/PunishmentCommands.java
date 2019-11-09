@@ -44,7 +44,7 @@ public class PunishmentCommands implements CommandExecutor {
         } else if (sender instanceof ConsoleCommandSender) {
             actor = new ConsoleActor();
         } else {
-            sender.sendMessage(Utils.color("&cOnly Players or the Console can use punishment commands."));
+            sender.sendMessage(Utils.color(Messages.ONLY_PLAYERS_AND_CONSOLE_CMD));
             return true;
         }
         
@@ -217,7 +217,7 @@ public class PunishmentCommands implements CommandExecutor {
         
         if (cmd.getName().equalsIgnoreCase("punish")) {
             if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage(Utils.color("&cOnly players may use the punish command."));
+                sender.sendMessage(Utils.color(Messages.ONLY_PLAYERS_CMD));
                 return true;
             }
             
@@ -302,7 +302,7 @@ public class PunishmentCommands implements CommandExecutor {
                 }
             }
             if (ignoreConfirm) {
-                player.sendMessage(Utils.color("&2You are ignoring the punishment confirmation for this punishment."));
+                player.sendMessage(Utils.color(Messages.IGNORE_PUNISH_CONFIRMATION));
             }
             
             for (PunishmentBuilder puBuilder : puBuilders) {
@@ -338,7 +338,7 @@ public class PunishmentCommands implements CommandExecutor {
                 long expire = Utils.parseTime(args[1]);
                 
                 if (!(args.length > 2)) {
-                    sender.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
+                    sender.sendMessage(Utils.color(Messages.NO_REASON));
                     return true;
                 }
                 reason = getReason(2, args);
@@ -360,7 +360,7 @@ public class PunishmentCommands implements CommandExecutor {
                 long expire = Utils.parseTime(args[1]);
                 
                 if (!(args.length > 2)) {
-                    sender.sendMessage(Utils.color("&cYou must supply a reason for the punishment."));
+                    sender.sendMessage(Utils.color(Messages.NO_REASON));
                     return true;
                 }
                 
@@ -389,7 +389,7 @@ public class PunishmentCommands implements CommandExecutor {
                 }
                 
                 if (plugin.getPrisonModule().getManager().getPrisons().isEmpty()) {
-                    sender.sendMessage(Utils.color("&cThere are no prisons created. Jail punishments are disabled until at least 1 is created."));
+                    sender.sendMessage(Utils.color(Messages.JAIL_NO_PRISONS));
                     return true;
                 }
                 
@@ -410,7 +410,7 @@ public class PunishmentCommands implements CommandExecutor {
                     }
                     return true;
                 }
-                sender.sendMessage(Utils.color("&2You are ignoring the punishment confirmation for this punishment."));
+                sender.sendMessage(Utils.color(Messages.IGNORE_PUNISH_CONFIRMATION));
             }
             
             Punishment punishment = puBuilder.build();
@@ -429,6 +429,7 @@ public class PunishmentCommands implements CommandExecutor {
     }
     
     private void sendConfirmMessage(Player player, PunishmentBuilder puBuilder, String code) {
+        //TODO Convert this to the Messages class
         Target targetInfo = puBuilder.getTarget();
         player.sendMessage("");
         player.sendMessage(Utils.color("&4╔═════════════════════════════"));
@@ -443,6 +444,7 @@ public class PunishmentCommands implements CommandExecutor {
     }
     
     private void sendConfirmMessage(Player player, String code, Target target, String reason, List<PunishmentBuilder> builders) {
+        //TODO Convert this to the Messages class
         player.sendMessage("");
         player.sendMessage(Utils.color("&4╔═════════════════════════════"));
         player.sendMessage(Utils.color("&4║ &fYou are about to punish &b" + target.getName() + " "));

@@ -163,7 +163,7 @@ public class ReportCommands implements CommandExecutor {
                         }
                     }
                     
-                    player.sendMessage(Utils.color("&aA report has been filed against &b" + targetInfo.getLastName()));
+                    player.sendMessage(Utils.color(Messages.reportFiledAgainst(targetInfo.getLastName())));
                     
                 }
             }

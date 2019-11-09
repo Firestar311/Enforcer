@@ -1,5 +1,7 @@
 package com.stardevmc.enforcer.modules.punishments.type.impl;
 
+import com.firestar311.lib.items.InventoryStore;
+import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.prison.Prison;
 import com.stardevmc.enforcer.modules.punishments.Visibility;
@@ -7,8 +9,7 @@ import com.stardevmc.enforcer.modules.punishments.actor.Actor;
 import com.stardevmc.enforcer.modules.punishments.target.Target;
 import com.stardevmc.enforcer.modules.punishments.type.PunishmentType;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
-import com.firestar311.lib.items.InventoryStore;
-import com.firestar311.lib.util.Utils;
+import com.stardevmc.enforcer.util.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,7 +43,7 @@ public class JailPunishment extends Punishment {
         prison.addInhabitant(player.getUniqueId());
         if (player != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Enforcer.getInstance(), () -> player.teleport(prison.getLocation()));
-            player.sendMessage(Utils.color("&cYou have been jailed by &7" + getPunisherName() + " &cfor the reason &7" + this.getReason()));
+            player.sendMessage(Utils.color(Messages.targetJail(getPunisherName(), reason)));
             this.jailedInventory = InventoryStore.itemsToString(player.getInventory().getContents());
             player.getInventory().clear();
         } else {
@@ -66,7 +67,7 @@ public class JailPunishment extends Punishment {
         
         if (target != null) {
             target.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
-            target.sendMessage(Utils.color("&aYou have been unjailed by &b" + getRemoverName()));
+            target.sendMessage(Utils.color(Messages.playerUnjailed(this.getRemoverName())));
             try {
                 ItemStack[] items = InventoryStore.stringToItems(this.jailedInventory);
                 target.getInventory().setContents(items);
