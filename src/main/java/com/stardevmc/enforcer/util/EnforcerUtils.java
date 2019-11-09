@@ -3,18 +3,20 @@ package com.stardevmc.enforcer.util;
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
 import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.util.Unit;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.punishments.PunishmentBuilder;
 import com.stardevmc.enforcer.modules.punishments.target.*;
 import com.stardevmc.enforcer.modules.punishments.type.PunishmentType;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import com.stardevmc.enforcer.modules.rules.rule.*;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class EnforcerUtils {
     public static Paginator<Punishment> generatePaginatedPunishmentList(List<Punishment> punishments, String header, String footer) {
@@ -38,7 +40,7 @@ public class EnforcerUtils {
                 if (ipPlayer == null) {
                     return null;
                 }
-            
+                
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(ipPlayer.getUuid());
                 if (offlinePlayer.isOnline()) {
                     Player player = offlinePlayer.getPlayer();
@@ -65,7 +67,7 @@ public class EnforcerUtils {
                             //}
                         }
                     }
-                
+                    
                     target = new IPTarget(targetArg);
                 }
             }
@@ -103,5 +105,60 @@ public class EnforcerUtils {
                 break;
         }
         return punishmentString;
+    }
+    
+    public static SortedMap<Integer, Rule> getOldRules(FileConfiguration config) {
+        SortedMap<Integer, Rule> rules = new TreeMap<>();
+        
+        for (String r : config.getConfigurationSection("rules").getKeys(false)) {
+            Rule rule = new Rule(config.getInt("rules." + r + ".id"), r, config.getString("rules." + r + ".name"), config.getString("rules." + r + ".description"));
+            if (config.contains("rules." + r + ".material")) {
+                rule.setMaterial(Material.valueOf(config.getString("rules." + r + ".material").toUpperCase()));
+            } else {
+                rule.setMaterial(Material.STONE);
+            }
+            if (config.contains("rules." + r + ".offenses")) {
+                for (String o : config.getConfigurationSection("rules." + r + ".offenses").getKeys(false)) {
+                    int offenseNumber = Integer.parseInt(o);
+                    RuleOffense action = new RuleOffense(rule, offenseNumber);
+                    int actionLength = 0;
+                    if (config.contains("rules." + r + ".offenses." + o + ".length")) {
+                        actionLength = config.getInt("rules." + r + ".offenses." + o + ".length");
+                    }
+                    action.setLength(actionLength);
+                    for (String a : config.getConfigurationSection("rules." + r + ".offenses." + o + ".actions").getKeys(false)) {
+                        int aN = Integer.parseInt(a);
+                        PunishmentType type = PunishmentType.getType(config.getString("rules." + r + ".offenses." + o + ".actions." + a + ".punishment").toUpperCase());
+                        int rawLength = -1;
+                        String units = "";
+                        int id = -1;
+                        if (config.contains("rules." + r + ".offenses." + o + ".actions." + a + ".length")) {
+                            rawLength = config.getInt("rules." + r + ".offenses." + o + ".actions." + a + ".length");
+                        }
+                        
+                        if (config.contains("rules." + r + ".offenses." + o + ".actions." + a + ".unit")) {
+                            units = config.getString("rules." + r + ".offenses." + o + ".actions." + a + ".unit");
+                        }
+                        
+                        if (config.contains("rules." + r + ".offenses." + o + ".actions." + a + ".id")) {
+                            id = config.getInt("rules." + r + ".offenses." + o + ".actions." + a + ".id");
+                        }
+                        
+                        long length = -1;
+                        if (!StringUtils.isEmpty(units)) {
+                            Unit unit = Unit.matchUnit(units);
+                            length = unit.convertTime(rawLength);
+                        }
+                        
+                        RulePunishment punishment = new RulePunishment(type, length, rawLength, units);
+                        punishment.setId(id);
+                        action.addPunishment(aN, punishment);
+                    }
+                    rule.addOffense(offenseNumber, action);
+                }
+            }
+            rules.put(rule.getId(), rule);
+        }
+        return rules;
     }
 }

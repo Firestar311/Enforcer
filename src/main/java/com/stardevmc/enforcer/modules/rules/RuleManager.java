@@ -5,6 +5,7 @@ import com.stardevmc.enforcer.modules.base.Manager;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.stardevmc.enforcer.modules.rules.rule.Rule;
 import com.stardevmc.enforcer.modules.rules.rule.RuleOffense;
+import com.stardevmc.enforcer.util.EnforcerUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,7 +33,7 @@ public class RuleManager extends Manager {
     public void saveData() {
         FileConfiguration config = this.configManager.getConfig();
         config.set("rules", null);
-    
+        
         for (Entry<Integer, Rule> entry : this.rules.entrySet()) {
             config.set("rules." + entry.getValue().getInternalId(), entry.getValue());
         }
@@ -45,8 +46,14 @@ public class RuleManager extends Manager {
         ConfigurationSection rulesSection = config.getConfigurationSection("rules");
         if (rulesSection == null) { return; }
         for (String r : rulesSection.getKeys(false)) {
-           Rule rule = (Rule) config.get(r);
-           this.rules.put(rule.getId(), rule);
+            try {
+                Rule rule = (Rule) config.get(r);
+                if (rule != null) { this.rules.put(rule.getId(), rule); }
+            } catch (Exception e) {}
+        }
+        
+        if (this.rules.isEmpty()) {
+            this.rules.putAll(EnforcerUtils.getOldRules(config));
         }
     }
     
@@ -61,10 +68,6 @@ public class RuleManager extends Manager {
     
     public void removeRule(int id) {
         this.rules.remove(id);
-    }
-    
-    public Set<Rule> getRules() {
-        return new TreeSet<>(this.rules.values());
     }
     
     public Rule getRule(String ruleString) {
@@ -83,6 +86,10 @@ public class RuleManager extends Manager {
         }
         
         return rule;
+    }
+    
+    public Set<Rule> getRules() {
+        return new TreeSet<>(this.rules.values());
     }
     
     public Entry<Integer, Integer> getNextOffense(UUID punisher, UUID target, Rule rule) {
