@@ -118,8 +118,10 @@ public final class Messages {
             }
             String msg = message;
             if (pm.getUniqueId().equals(player.getUniqueId())) {
-                msg = msg.replace(Variables.ACTOR, "&lYou");
-                msg = msg.replace("their", "your");
+                if (plugin.getSettingsManager().getReplaceActorName()) {
+                    msg = msg.replace(Variables.ACTOR, "&lYou");
+                    msg = msg.replace("their", "your");
+                }
             } else {
                 if (plugin.getSettingsManager().isUsingDisplayNames()) {
                     msg = msg.replace(Variables.ACTOR, player.getDisplayName());

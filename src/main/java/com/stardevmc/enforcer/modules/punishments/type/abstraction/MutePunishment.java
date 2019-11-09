@@ -5,6 +5,7 @@ import com.stardevmc.enforcer.modules.punishments.actor.Actor;
 import com.stardevmc.enforcer.modules.punishments.target.Target;
 import com.stardevmc.enforcer.modules.punishments.type.PunishmentType;
 import com.firestar311.lib.util.Utils;
+import com.stardevmc.enforcer.modules.punishments.type.interfaces.Expireable;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -25,7 +26,11 @@ public abstract class MutePunishment extends Punishment {
     public void executePunishment() {
         Player player = this.target.getPlayer();
         if (player != null) {
-            player.sendMessage(Utils.color("&cYou have been muted by &7" + getPunisherName() + " &cfor &7" + this.reason));
+            String message = "&cYou have been muted by &7" + getPunisherName() + " &cfor &7" + this.reason;
+            if (this instanceof Expireable) {
+                message += " " + ((Expireable) this).formatExpireTime();
+            }
+            player.sendMessage(Utils.color(message));
         } else {
             setOffline(true);
         }

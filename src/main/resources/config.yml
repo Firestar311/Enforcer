@@ -1,5 +1,5 @@
 #Do not change this if you do not want your config to break/reset
-config-version: 2
+config-version: 3
 
 #This is mostly used for the kick format message, however, cross server communication will use this as well
 server: SkyPvP

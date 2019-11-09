@@ -52,6 +52,7 @@ public class Perms {
     public static final String REPORT_ADMIN_PUNISHMENT = "enforcer.command.reportadmin.punishment";
     public static final String REPORT_ADMIN_STATUS = "enforcer.command.reportadmin.status";
     public static final String REPORT_ADMIN_TELEPORT = "enforcer.command.reportadmin.teleport";
+    public static final String SETTINGS_ACTOR_NAME = "enforcer.settings.replaceactorname";
     public static final String SETTINGS_CONFIRM_PUNISHMENTS = "enforcer.settings.confirmpunishments";
     public static final String SETTINGS_DISPLAYNAMES = "enforcer.settings.displaynames";
     public static final String SETTINGS_PREFIX = "enforcer.settings.prefix";

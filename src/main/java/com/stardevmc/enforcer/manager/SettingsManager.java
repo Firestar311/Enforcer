@@ -6,9 +6,9 @@ import java.io.File;
 
 public class SettingsManager {
     
-    private final int configVersion = 2;
+    private final int configVersion = 3;
     
-    private boolean usingDisplayNames, confirmPunishments;
+    private boolean usingDisplayNames, confirmPunishments, replaceActorName;
     
     private String prefix;
     private String serverName;
@@ -32,10 +32,14 @@ public class SettingsManager {
             plugin.getConfig().set("server", "Server");
         }
         this.serverName = plugin.getConfig().getString("server");
-        if (!plugin.getConfig().getBoolean("confirmpunishments")) {
+        if (!plugin.getConfig().contains("confirmpunishments")) {
             plugin.getConfig().set("confirmpunishments", true);
         }
         this.confirmPunishments = plugin.getConfig().getBoolean("confirmpunishments");
+        if (!plugin.getConfig().contains("replaceactorname")) {
+            plugin.getConfig().set("replaceactorname", true);
+        }
+        this.replaceActorName = plugin.getConfig().getBoolean("replaceactorname");
         plugin.saveConfig();
     }
     
@@ -74,5 +78,13 @@ public class SettingsManager {
     
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+    
+    public void setReplaceActorName(boolean replaceActorName) {
+        this.replaceActorName = replaceActorName;
+    }
+    
+    public boolean getReplaceActorName() {
+        return replaceActorName;
     }
 }

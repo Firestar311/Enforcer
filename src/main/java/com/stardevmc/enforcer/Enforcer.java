@@ -149,6 +149,14 @@ public final class Enforcer extends JavaPlugin {
                 
                 getSettingsManager().setServerName(args[2]);
                 player.sendMessage(Utils.color("&aYou set the server name to " + getSettingsManager().getServerName()));
+            } else if (Utils.checkCmdAliases(args, 1, "replaceactorname", "ran")) {
+                if (!player.hasPermission(Perms.SETTINGS_ACTOR_NAME)) {
+                    player.sendMessage("&cYou cannot change that setting.");
+                    return true;
+                }
+                
+                getSettingsManager().setReplaceActorName(!getSettingsManager().getReplaceActorName());
+                player.sendMessage("&aYou changed the setting &breplace actor names &ato &e" + getSettingsManager().getReplaceActorName()); //TODO Proper message
             }
         }
         
