@@ -12,6 +12,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public final class Messages {
+    public static final String CLEAR_SELECTION = "&aCleared your selection.";
+    public static final String CREATE_PRISON_OVERFLOW = "&dYou were an overflow inhabitant of your former prison, so you were moved to a newly created prison.";
+    public static final String INVALID_NUMBER = "&cYou provided an invalid number.";
+    public static final String INVALID_PRISON_AMOUNT = "&cYou provided an invalid number for the max players, defaulting to 5";
+    public static final String INVALID_PRISON_ID = "&cYou provided an invalid number for the prison id. The id will be auto-assigned.";
+    public static final String LOCATION_NOT_IN_PRISON = "&cThat location is not within the prison bounds.";
+    public static final String MAX_AMOUNT_CHANGED_MOVED = "&dThe prison you were in had its max players changed to a lower amount, so you were moved to a new prison.";
+    public static final String MAX_AMOUNT_SAME = "&cThe amount you provided is the same as the current max players value.";
+    public static final String MOVE_PRISON_REMOVED = "&cThe prison you were a part of was removed, you have been moved to a new prison.";
+    private static final String NO_ACTIVE_PUNISHMENT = "&cThere are no active <type> against that player.";
+    public static final String NO_HISTORY_RESULTS = "&cYou do not have history results yet, please use /history <name> first.";
+    public static final String NO_SELECTION = "&cYou do not have a selection currently set.";
+    public static final String NO_STAFF_RESULTS = "&cYou do not have staff history results yet, please use /staffhistory <name> first.";
+    public static final String ONLY_PLAYERS_AND_CONSOLE_CMD = "&cOnly console or players may use that command.";
+    public static final String PLAYER_NEVER_JOINED = "&cThat player has never joined the server.";
     public static final String PUNISH_FORMAT = Variables.VISIBILITY + "&6(" + Variables.PREFIX + ") &4&l[i] &e<{id}> &b" + Variables.TARGET_STATUS + Variables.TARGET + " &fwas " + Variables.COLOR + Variables.PUNISHMENT + " &fby &b" + Variables.PUNISHER + " &ffor &a" + Variables.REASON;
     public static final String LENGTH_FORMAT = "&c(" + Variables.LENGTH + ")";
     public static final String PERMANENT_FORMAT = "&c(Permanent)";
@@ -39,6 +54,9 @@ public final class Messages {
     public static final String NOT_ENOUGH_ARGS = "&cYou did not provide enough arguments.";
     public static final String COULD_NOT_FIND_PLAYER = "&cCould not find a player by that name.";
     public static final String WATCHLIST_PLAYER_JOIN = "&9(WATCHLIST) &e" + Variables.TARGET + " &fhas joined and is on the watchlist for &e" + Variables.REASON;
+    public static final String NO_NAME_PROVIDED = "&cYou must provide a name.";
+    public static final String ERROR_LIST_OF_RESULTS = "&cThere was a problem getting the list of results for that player.";
+    private static final String PRISON_LOCATION_CHANGED = "&dThe prison location was changed by &b{player} &dso you have been teleported to the new location.";
     
     public static void sendNotifyMessage(String message) {
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -132,5 +150,13 @@ public final class Messages {
             msg = msg.replace(Variables.PREFIX, plugin.getSettingsManager().getPrefix());
             pm.sendMessage(Utils.color(msg));
         }
+    }
+    
+    public static String noActivePunishment(String punishment) {
+        return NO_ACTIVE_PUNISHMENT.replace("<type>", punishment);
+    }
+    
+    public static String prisonLocationChanged(String name) {
+        return PRISON_LOCATION_CHANGED.replace("{player}", name);
     }
 }

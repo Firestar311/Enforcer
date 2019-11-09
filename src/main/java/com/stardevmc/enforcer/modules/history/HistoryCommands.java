@@ -20,14 +20,14 @@ public class HistoryCommands implements CommandExecutor {
     
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.color("&cOnly players may use that command."));
+            sender.sendMessage(Utils.color(Messages.ONLY_PLAYERS_CMD));
             return true;
         }
         
         Player player = ((Player) sender);
         
         if (!(args.length > 0)) {
-            player.sendMessage(Utils.color("&cYou must provide a name to view."));
+            player.sendMessage(Utils.color(Messages.NO_NAME_PROVIDED));
             return true;
         }
     
@@ -43,7 +43,7 @@ public class HistoryCommands implements CommandExecutor {
             if (args.length == 1) {
                 Paginator<Punishment> paginator = historyManager.generateHistoryPaginator(player.getUniqueId(), args[0]);
                 if (paginator == null) {
-                    player.sendMessage(Utils.color("&cThere was a problem getting the list of results for that player."));
+                    player.sendMessage(Utils.color(Messages.ERROR_LIST_OF_RESULTS));
                     return true;
                 }
                 
@@ -55,7 +55,7 @@ public class HistoryCommands implements CommandExecutor {
                     if (page == -1) return true;
             
                     if (!historyManager.hasLookupRegularHistory(player.getUniqueId())) {
-                        player.sendMessage(Utils.color("&cYou do not have history results yet, please use /history <name> first"));
+                        player.sendMessage(Utils.color(Messages.NO_HISTORY_RESULTS));
                         return true;
                     }
             
@@ -70,7 +70,7 @@ public class HistoryCommands implements CommandExecutor {
             if (args.length == 1) {
                 Paginator<Punishment> paginator = historyManager.generateStaffHistoryPaginator(player.getUniqueId());
                 if (paginator == null) {
-                    player.sendMessage(Utils.color("&cThere was a problem getting the list of results for that player."));
+                    player.sendMessage(Utils.color(Messages.ERROR_LIST_OF_RESULTS));
                     return true;
                 }
     
@@ -82,7 +82,7 @@ public class HistoryCommands implements CommandExecutor {
                     if (page == -1) return true;
             
                     if (!historyManager.hasLookupStaffHistory(player.getUniqueId())) {
-                        player.sendMessage(Utils.color("&cYou do not have staff history results yet, please use /staffhistory <name> first"));
+                        player.sendMessage(Utils.color(Messages.NO_STAFF_RESULTS));
                         return true;
                     }
             
@@ -99,7 +99,7 @@ public class HistoryCommands implements CommandExecutor {
         try {
             return Integer.parseInt(stringPage);
         } catch (NumberFormatException e) {
-            player.sendMessage(Utils.color("&cYou provided an invalid number."));
+            player.sendMessage(Utils.color(Messages.INVALID_NUMBER));
             return -1;
         }
     }
@@ -107,7 +107,7 @@ public class HistoryCommands implements CommandExecutor {
     private PlayerInfo getPlayerInfo(String string, Player player) {
         PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(string);
         if (info == null) {
-            player.sendMessage(Utils.color("&cThat player has never joined the server, they do not have a history."));
+            player.sendMessage(Utils.color(Messages.PLAYER_NEVER_JOINED));
             return null;
         }
         return info;

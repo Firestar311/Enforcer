@@ -35,7 +35,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.color("&cOnly players can use that command."));
+            sender.sendMessage(Utils.color(Messages.ONLY_PLAYERS_CMD));
             return true;
         }
         
@@ -43,7 +43,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
         SelectionManager selectionManager = plugin.getServer().getServicesManager().getRegistration(SelectionManager.class).getProvider();
     
         if (!(args.length > 0)) {
-            player.sendMessage(Utils.color("&cYou do not have enough arguments."));
+            player.sendMessage(Utils.color(Messages.NOT_ENOUGH_ARGS));
             return true;
         }
         
@@ -69,7 +69,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             try {
                 maxPlayers = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                player.sendMessage(Utils.color("&cYou provided an invalid number for the max players, defaulting to 5"));
+                player.sendMessage(Utils.color(Messages.INVALID_PRISON_AMOUNT));
             }
             
             int id = -1;
@@ -77,7 +77,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 try {
                     id = Integer.parseInt(args[2]);
                 } catch (NumberFormatException e) {
-                    player.sendMessage(Utils.color("&cYou provided an invalid number for the prison id. The id will be auto-assigned"));
+                    player.sendMessage(Utils.color(Messages.INVALID_PRISON_ID));
                 }
             }
             
@@ -111,7 +111,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 Player inhabitant = changePunishmentInfo(prison, uuid);
                 if (inhabitant != null) {
                     inhabitant.teleport(prison.getLocation());
-                    inhabitant.sendMessage(Utils.color("&dYou were an overflow inhabitant of your former prison, so you were moved to a newly created prison"));
+                    inhabitant.sendMessage(Utils.color(Messages.CREATE_PRISON_OVERFLOW));
                 }
             }
             return true;
@@ -154,7 +154,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 try {
                     page = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
-                    player.sendMessage(Utils.color("&cYou provided an invalid number."));
+                    player.sendMessage(Utils.color(Messages.INVALID_NUMBER));
                     return true;
                 }
                 paginator.display(player, page);
@@ -166,12 +166,12 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 return true;
             }
             if (!selectionManager.hasSelection(player)) {
-                player.sendMessage(Utils.color("&cYou do not have a selection currently set."));
+                player.sendMessage(Utils.color(Messages.NO_SELECTION));
                 return true;
             }
     
             selectionManager.clearSelection(player);
-            player.sendMessage(Utils.color("&aCleared your selection."));
+            player.sendMessage(Utils.color(Messages.CLEAR_SELECTION));
             return true;
         }
     
@@ -186,7 +186,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
             
             Location newLocation = player.getLocation();
             if (!prison.contains(newLocation)) {
-                player.sendMessage(Utils.color("&cThat location is not within the prison bounds"));
+                player.sendMessage(Utils.color(Messages.LOCATION_NOT_IN_PRISON));
                 return true;
             }
             prison.setLocation(newLocation);
@@ -198,7 +198,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 if (plugin.getPunishmentModule().getManager().isJailed(p.getUniqueId())) {
                     if (prison.isInhabitant(p.getUniqueId())) {
                         p.teleport(newLocation);
-                        p.sendMessage(Utils.color("&dThe prison location was changed by &b" + player.getName() + " &dso you have been teleported to the new location."));
+                        p.sendMessage(Utils.color(Messages.prisonLocationChanged(player.getName())));
                     }
                 }
             }
@@ -217,11 +217,11 @@ public class PrisonCommand implements CommandExecutor, Listener {
             try {
                 amount = Integer.parseInt(args[2]);
             } catch (NumberFormatException e) {
-                player.sendMessage(Utils.color("&cInvalid number provided for the amount, defaulting to 5"));
+                player.sendMessage(Utils.color(Messages.INVALID_PRISON_AMOUNT));
             }
             
             if (amount == prison.getMaxPlayers()) {
-                player.sendMessage(Utils.color("&cThe amount you provided is the same as the current max players value."));
+                player.sendMessage(Utils.color(Messages.MAX_AMOUNT_SAME));
                 return true;
             }
             
@@ -238,7 +238,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                     Player inhabitant = changePunishmentInfo(prison, uuid);
                     if (inhabitant != null) {
                         inhabitant.teleport(prison.getLocation());
-                        inhabitant.sendMessage(Utils.color("&dYou were an overflow inhabitant of your former prison, so you were moved to a different prison"));
+                        inhabitant.sendMessage(Utils.color(Messages.CREATE_PRISON_OVERFLOW));
                     }
                 }
                 prison.setMaxPlayers(amount);
@@ -263,7 +263,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                     Player inhabitant = Bukkit.getPlayer(removed);
                     if (inhabitant != null) {
                         inhabitant.teleport(newPrison.getLocation());
-                        inhabitant.sendMessage(Utils.color("&dThe prison you were in had its max players changed to a lower amount, so you were moved to a new prison."));
+                        inhabitant.sendMessage(Utils.color(Messages.MAX_AMOUNT_CHANGED_MOVED));
                     }
                 }
             }
@@ -289,7 +289,7 @@ public class PrisonCommand implements CommandExecutor, Listener {
                 Player jailedUser = changePunishmentInfo(newPrison, inhabitant);
                 if (jailedUser != null) {
                     jailedUser.teleport(newPrison.getLocation());
-                    jailedUser.sendMessage(Utils.color("&cThe prison you were a part of was removed, you have been moved to a new prison."));
+                    jailedUser.sendMessage(Utils.color(Messages.MOVE_PRISON_REMOVED));
                 }
             }
             String message = Messages.PRISON_REMOVE;

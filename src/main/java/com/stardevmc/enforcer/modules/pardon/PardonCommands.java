@@ -27,13 +27,13 @@ public class PardonCommands implements CommandExecutor {
         } else if (sender instanceof Player) {
             actor = new PlayerActor(((Player) sender).getUniqueId());
         } else {
-            sender.sendMessage(Utils.color("&cOnly console or players may use that command."));
+            sender.sendMessage(Utils.color(Messages.ONLY_PLAYERS_AND_CONSOLE_CMD));
             return true;
         }
         
         PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[0]);
         if (info == null) {
-            sender.sendMessage(Utils.color("&cCould not find a player by that name."));
+            sender.sendMessage(Utils.color(Messages.COULD_NOT_FIND_PLAYER));
             return true;
         }
         
@@ -54,6 +54,9 @@ public class PardonCommands implements CommandExecutor {
             if (flag == Flag.SILENT) {
                 visibility = Visibility.SILENT;
             }
+            if (flag == Flag.NORMAL) {
+                visibility = Visibility.NORMAL;
+            }
         }
         
         Set<Punishment> punishments = new HashSet<>();
@@ -64,7 +67,7 @@ public class PardonCommands implements CommandExecutor {
             }
             punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBans(info.getUuid()));
             if (punishments.isEmpty()) {
-                sender.sendMessage(Utils.color("&cThere are no active bans against that player."));
+                sender.sendMessage(Utils.color(Messages.noActivePunishment("bans")));
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("unmute")) {
@@ -74,7 +77,7 @@ public class PardonCommands implements CommandExecutor {
             }
             punishments.addAll(plugin.getPunishmentModule().getManager().getActiveMutes(info.getUuid()));
             if (punishments.isEmpty()) {
-                sender.sendMessage(Utils.color("&cThere are no active mutes against that player."));
+                sender.sendMessage(Utils.color(Messages.noActivePunishment("mutes")));
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("unjail")) {
@@ -84,7 +87,7 @@ public class PardonCommands implements CommandExecutor {
             }
             punishments.addAll(plugin.getPunishmentModule().getManager().getActiveJails(info.getUuid()));
             if (punishments.isEmpty()) {
-                sender.sendMessage(Utils.color("&cThere are no active jails against that player."));
+                sender.sendMessage(Utils.color(Messages.noActivePunishment("jails")));
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("pardon")) {
@@ -95,7 +98,7 @@ public class PardonCommands implements CommandExecutor {
             
             punishments.addAll(plugin.getPunishmentModule().getManager().getActivePunishments(info.getUuid()));
             if (punishments.isEmpty()) {
-                sender.sendMessage(Utils.color("&cThere are no active punishments against that player."));
+                sender.sendMessage(Utils.color(Messages.noActivePunishment("punishments")));
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("unblacklist")) {
@@ -106,7 +109,7 @@ public class PardonCommands implements CommandExecutor {
             
             punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBlacklists(info.getUuid()));
             if (punishments.isEmpty()) {
-                sender.sendMessage(Utils.color("&cThere are no active blacklists against that player."));
+                sender.sendMessage(Utils.color(Messages.noActivePunishment("blacklists")));
                 return true;
             }
         }
