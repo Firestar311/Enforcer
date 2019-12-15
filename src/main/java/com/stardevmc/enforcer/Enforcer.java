@@ -15,7 +15,8 @@ import com.stardevmc.enforcer.modules.punishments.type.abstraction.MutePunishmen
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.stardevmc.enforcer.modules.punishments.type.impl.*;
 import com.stardevmc.enforcer.modules.punishments.type.interfaces.Expireable;
-import com.stardevmc.enforcer.modules.reports.*;
+import com.stardevmc.enforcer.modules.reports.Report;
+import com.stardevmc.enforcer.modules.reports.ReportModule;
 import com.stardevmc.enforcer.modules.rules.RuleModule;
 import com.stardevmc.enforcer.modules.rules.rule.*;
 import com.stardevmc.enforcer.modules.training.TrainingModule;
@@ -36,11 +37,11 @@ import java.util.concurrent.TimeUnit;
 public final class Enforcer extends JavaPlugin {
     
     private static Enforcer instance;
-
+    
     static {
         Utils.registerConfigClasses(Report.class, Prison.class, ConsoleActor.class, PlayerActor.class, PlayerTarget.class, IPTarget.class, IPListTarget.class, BlacklistPunishment.class, JailPunishment.class, KickPunishment.class, PermanentBan.class, PermanentMute.class, WarnPunishment.class, Rule.class, RuleOffense.class, RulePunishment.class, Evidence.class, WatchlistEntry.class, WatchlistNote.class);
     }
-
+    
     private HistoryModule historyModule;
     private PardonModule pardonModule;
     private Permission permission;
