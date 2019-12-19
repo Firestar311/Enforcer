@@ -31,6 +31,6 @@ public class IPListTarget extends Target {
     }
     
     public static IPListTarget deserialize(Map<String, Object> serialized) {
-        return new IPListTarget((List<String>) serialized.get("ipAddresses")); //FIXME Might need to handle saving a little differently
+        return new IPListTarget((List<String>) serialized.get("ipAddresses"));
     }
 }

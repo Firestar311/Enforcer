@@ -217,7 +217,6 @@ public class ReportCommands implements CommandExecutor {
             }
             
             if (!(args.length > 1)) {
-                //TODO List sub commands
                 player.sendMessage(Utils.color("&cYou must provide a sub command."));
                 return true;
             }
