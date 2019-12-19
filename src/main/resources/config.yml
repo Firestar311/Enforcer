@@ -2,8 +2,12 @@
 config-version: 3
 
 #This is mostly used for the kick format message, however, cross server communication will use this as well
-server: SkyPvP
+server: Server
 #For the prefix in messages, will be more useful in future updates
-prefix: Factions
+prefix: Enforcer
 #This is a setting used internally by the plugin, however it does respect changes on reload
 usingdisplaynames: false
+#Use this setting to force staff to confirm their punishments, can be overridden by a command flag
+confirmpunishments: true
+#Replace the actor's name with "You" in messages
+replaceactorname: true
