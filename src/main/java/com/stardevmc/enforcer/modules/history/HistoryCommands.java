@@ -5,7 +5,7 @@ import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.stardevmc.enforcer.util.Messages;
 import com.stardevmc.enforcer.util.Perms;
 import com.firestar311.lib.pagination.Paginator;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -104,8 +104,8 @@ public class HistoryCommands implements CommandExecutor {
         }
     }
     
-    private PlayerInfo getPlayerInfo(String string, Player player) {
-        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(string);
+    private User getPlayerInfo(String string, Player player) {
+        User info = plugin.getPlayerManager().getUser(string);
         if (info == null) {
             player.sendMessage(Utils.color(Messages.PLAYER_NEVER_JOINED));
             return null;

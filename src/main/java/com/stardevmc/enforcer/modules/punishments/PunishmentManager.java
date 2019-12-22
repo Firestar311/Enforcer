@@ -393,7 +393,7 @@ public class PunishmentManager extends Manager {
     
     public Set<Punishment> getActiveBlacklists(UUID uuid) {
         Set<Punishment> punishments = new HashSet<>();
-        List<String> ipAddresses = plugin.getPlayerManager().getPlayerInfo(uuid).getIpAddresses();
+        List<String> ipAddresses = plugin.getPlayerManager().getUser(uuid).getIpAddresses();
         punishmentLoop:
         for (Punishment punishment : this.punishments.values()) {
             if (!(punishment instanceof BlacklistPunishment)) {

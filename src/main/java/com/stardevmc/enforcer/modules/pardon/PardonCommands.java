@@ -1,6 +1,6 @@
 package com.stardevmc.enforcer.modules.pardon;
 
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.punishments.Visibility;
@@ -31,7 +31,7 @@ public class PardonCommands implements CommandExecutor {
             return true;
         }
         
-        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[0]);
+        User info = plugin.getPlayerManager().getUser(args[0]);
         if (info == null) {
             sender.sendMessage(Utils.color(Messages.COULD_NOT_FIND_PLAYER));
             return true;
@@ -65,7 +65,7 @@ public class PardonCommands implements CommandExecutor {
                 sender.sendMessage(Messages.noPermissionCommand(Perms.UNBAN));
                 return true;
             }
-            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBans(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBans(info.getUniqueId()));
             if (punishments.isEmpty()) {
                 sender.sendMessage(Utils.color(Messages.noActivePunishment("bans")));
                 return true;
@@ -75,7 +75,7 @@ public class PardonCommands implements CommandExecutor {
                 sender.sendMessage(Messages.noPermissionCommand(Perms.UNMUTE));
                 return true;
             }
-            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveMutes(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveMutes(info.getUniqueId()));
             if (punishments.isEmpty()) {
                 sender.sendMessage(Utils.color(Messages.noActivePunishment("mutes")));
                 return true;
@@ -85,7 +85,7 @@ public class PardonCommands implements CommandExecutor {
                 sender.sendMessage(Messages.noPermissionCommand(Perms.UNJAIL));
                 return true;
             }
-            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveJails(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveJails(info.getUniqueId()));
             if (punishments.isEmpty()) {
                 sender.sendMessage(Utils.color(Messages.noActivePunishment("jails")));
                 return true;
@@ -96,7 +96,7 @@ public class PardonCommands implements CommandExecutor {
                 return true;
             }
             
-            punishments.addAll(plugin.getPunishmentModule().getManager().getActivePunishments(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActivePunishments(info.getUniqueId()));
             if (punishments.isEmpty()) {
                 sender.sendMessage(Utils.color(Messages.noActivePunishment("punishments")));
                 return true;
@@ -107,7 +107,7 @@ public class PardonCommands implements CommandExecutor {
                 return true;
             }
             
-            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBlacklists(info.getUuid()));
+            punishments.addAll(plugin.getPunishmentModule().getManager().getActiveBlacklists(info.getUniqueId()));
             if (punishments.isEmpty()) {
                 sender.sendMessage(Utils.color(Messages.noActivePunishment("blacklists")));
                 return true;

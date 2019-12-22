@@ -1,6 +1,6 @@
 package com.stardevmc.enforcer.modules.training;
 
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.util.*;
@@ -46,9 +46,9 @@ public class TrainingCommand implements CommandExecutor {
                     return true;
                 }
                 if (args.length > 1) {
-                    PlayerInfo target = plugin.getPlayerManager().getPlayerInfo(args[2]);
+                    User target = plugin.getPlayerManager().getUser(args[2]);
                     if (target != null) {
-                        boolean var = trainingManager.toggleTrainingMode(target.getUuid());
+                        boolean var = trainingManager.toggleTrainingMode(target.getUniqueId());
                         String message = Messages.TRAINING_MODE_INDIVIDUAL;
                     
                         message = message.replace(Variables.DISPLAY, var + "");

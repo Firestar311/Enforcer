@@ -6,7 +6,7 @@ import com.stardevmc.enforcer.modules.punishments.actor.PlayerActor;
 import com.stardevmc.enforcer.modules.punishments.type.abstraction.Punishment;
 import com.stardevmc.enforcer.util.EnforcerUtils;
 import com.firestar311.lib.pagination.Paginator;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 
 import java.util.*;
 
@@ -20,9 +20,9 @@ public class HistoryManager extends Manager {
     }
     
     public Paginator<Punishment> generateHistoryPaginator(UUID requester, String t) {
-        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(t);
+        User info = plugin.getPlayerManager().getUser(t);
         if (info == null) return null;
-        UUID target = info.getUuid();
+        UUID target = info.getUniqueId();
         List<Punishment> playerPunishments = new LinkedList<>(plugin.getPunishmentModule().getManager().getPunishments(target));
         Paginator<Punishment> paginator = EnforcerUtils.generatePaginatedPunishmentList(playerPunishments, "&7-=History of " + info.getLastName() + "=- &e({pagenumber}/{totalpages})", "&7Type /staffhistory page {nextpage} for more");
         this.historyPaginators.put(requester, paginator);
@@ -38,7 +38,7 @@ public class HistoryManager extends Manager {
     }
     
     public Paginator<Punishment> generateStaffHistoryPaginator(UUID requester) {
-        PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(requester);
+        User info = plugin.getPlayerManager().getUser(requester);
         if (info == null) return null;
     
         List<Punishment> allPunishments = new ArrayList<>(plugin.getPunishmentModule().getManager().getPunishments());
@@ -46,7 +46,7 @@ public class HistoryManager extends Manager {
         allPunishments.forEach(punishment -> {
             if (punishment.getPunisher() instanceof PlayerActor) {
                 PlayerActor playerActor = ((PlayerActor) punishment.getPunisher());
-                if (playerActor.getUniqueId().equals(info.getUuid())) {
+                if (playerActor.getUniqueId().equals(info.getUniqueId())) {
                     staffPunishments.add(punishment);
                 }
             }

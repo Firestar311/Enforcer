@@ -1,7 +1,7 @@
 package com.stardevmc.enforcer.modules.punishments.target;
 
 import com.stardevmc.enforcer.Enforcer;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -18,8 +18,8 @@ public class PlayerTarget extends Target {
         return uniqueId;
     }
     
-    public PlayerInfo getPlayerInfo() {
-        return Enforcer.getInstance().getPlayerManager().getPlayerInfo(this.uniqueId);
+    public User getPlayerInfo() {
+        return Enforcer.getInstance().getPlayerManager().getUser(this.uniqueId);
     }
     
     public String getName() {

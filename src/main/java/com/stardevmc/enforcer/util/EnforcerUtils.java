@@ -2,7 +2,7 @@ package com.stardevmc.enforcer.util;
 
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Unit;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
@@ -29,19 +29,19 @@ public class EnforcerUtils {
     
     public static Target getTarget(String targetArg) {
         Target target;
-        PlayerInfo info = Enforcer.getInstance().getPlayerManager().getPlayerInfo(targetArg);
+        User info = Enforcer.getInstance().getPlayerManager().getUser(targetArg);
         if (info != null) {
-            target = new PlayerTarget(info.getUuid());
+            target = new PlayerTarget(info.getUniqueId());
         } else {
             targetArg = targetArg.toLowerCase();
             if (targetArg.startsWith("ip:")) {
                 String[] ipArr = targetArg.split(":");
-                PlayerInfo ipPlayer = Enforcer.getInstance().getPlayerManager().getPlayerInfo(ipArr[1]);
+                User ipPlayer = Enforcer.getInstance().getPlayerManager().getUser(ipArr[1]);
                 if (ipPlayer == null) {
                     return null;
                 }
                 
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(ipPlayer.getUuid());
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(ipPlayer.getUniqueId());
                 if (offlinePlayer.isOnline()) {
                     Player player = offlinePlayer.getPlayer();
                     String ip = player.getAddress().getAddress().toString().split(":")[0].replace("/", "");

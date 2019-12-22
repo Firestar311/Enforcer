@@ -1,6 +1,6 @@
 package com.stardevmc.enforcer.modules.punishments.cmds;
 
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.prison.Prison;
@@ -155,9 +155,9 @@ public class PunishmentCommands implements CommandExecutor {
             return true;
         }
         
-        PlayerInfo info = ((PlayerTarget) target).getPlayerInfo();
+        User info = ((PlayerTarget) target).getPlayerInfo();
         
-        if (Bukkit.getPlayer(info.getUuid()) == null) {
+        if (Bukkit.getPlayer(info.getUniqueId()) == null) {
             if (!sender.hasPermission(Perms.OFFLINE_PUNISH)) {
                 sender.sendMessage(Messages.noPermissionCommand(Perms.OFFLINE_PUNISH));
                 return true;
@@ -168,7 +168,7 @@ public class PunishmentCommands implements CommandExecutor {
             if (sender instanceof Player) {
                 Player player = ((Player) sender);
                 net.milkbowl.vault.permission.Permission perms = Enforcer.getInstance().getPermission();
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(info.getUuid());
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(info.getUniqueId());
                 String groupName = perms.getPrimaryGroup(player.getWorld().getName(), offlinePlayer).toLowerCase();
                 if (groupName != null && !groupName.equals("")) {
                     if (!player.hasPermission("enforcer.immunity." + groupName)) {
@@ -256,7 +256,7 @@ public class PunishmentCommands implements CommandExecutor {
                 return true;
             }
             
-            Entry<Integer, Integer> offenseNumbers = ruleManager.getNextOffense(player.getUniqueId(), info.getUuid(), rule);
+            Entry<Integer, Integer> offenseNumbers = ruleManager.getNextOffense(player.getUniqueId(), info.getUniqueId(), rule);
             
             RuleOffense offense = rule.getOffense(offenseNumbers.getKey());
             if (offense == null) {

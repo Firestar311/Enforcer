@@ -1,7 +1,7 @@
 package com.stardevmc.enforcer.modules.punishments.type.abstraction;
 
 import com.firestar311.lib.pagination.IElement;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.punishments.*;
@@ -152,9 +152,9 @@ public abstract class Punishment implements IElement, Comparable<Punishment>, Co
         if (target instanceof PlayerTarget) {
             message = message.replace(Variables.TARGET, getTargetName());
         } else {
-            PlayerInfo ipInfo = null;
+            User ipInfo = null;
             playerLoop:
-            for (PlayerInfo info : Enforcer.getInstance().getPlayerManager().getPlayers().values()) {
+            for (User info : Enforcer.getInstance().getPlayerManager().getUsers().values()) {
                 if (target instanceof IPTarget) {
                     String ip = ((IPTarget) target).getIpAddress();
                     if (info.getIpAddresses().contains(ip)) {

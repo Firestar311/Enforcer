@@ -1,6 +1,6 @@
 package com.stardevmc.enforcer.modules.punishments.type.impl;
 
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.punishments.Visibility;
 import com.stardevmc.enforcer.modules.punishments.actor.Actor;
@@ -27,8 +27,8 @@ public class BlacklistPunishment extends Punishment {
     }
     
     public void executePunishment() {
-        List<PlayerInfo> affectedPlayers = new ArrayList<>();
-        for (PlayerInfo info : Enforcer.getInstance().getPlayerManager().getPlayers().values()) {
+        List<User> affectedPlayers = new ArrayList<>();
+        for (User info : Enforcer.getInstance().getPlayerManager().getUsers().values()) {
             playerIPLoop:
             for (String ip : info.getIpAddresses()) {
                 if (target instanceof IPTarget) {
@@ -48,8 +48,8 @@ public class BlacklistPunishment extends Punishment {
             }
         }
         
-        for (PlayerInfo affectedPlayer : affectedPlayers) {
-            Player player = Bukkit.getPlayer(affectedPlayer.getUuid());
+        for (User affectedPlayer : affectedPlayers) {
+            Player player = Bukkit.getPlayer(affectedPlayer.getUniqueId());
             if (player != null) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(Enforcer.getInstance(), () -> player.kickPlayer("Blacklisted"));
             }

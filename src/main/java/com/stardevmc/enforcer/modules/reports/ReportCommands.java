@@ -2,7 +2,7 @@ package com.stardevmc.enforcer.modules.reports;
 
 import com.firestar311.lib.pagination.Paginator;
 import com.firestar311.lib.pagination.PaginatorFactory;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.punishments.actor.Actor;
@@ -128,7 +128,7 @@ public class ReportCommands implements CommandExecutor {
                         paginator.display(player, 1);
                     }
                 } else {
-                    PlayerInfo targetInfo = plugin.getPlayerManager().getPlayerInfo(args[0]);
+                    User targetInfo = plugin.getPlayerManager().getUser(args[0]);
                     if (targetInfo == null) {
                         player.sendMessage(Utils.color(Messages.COULD_NOT_FIND_PLAYER));
                         return true;
@@ -148,7 +148,7 @@ public class ReportCommands implements CommandExecutor {
                     }
     
                     Actor actor = new PlayerActor(player.getUniqueId());
-                    Target target = new PlayerTarget(targetInfo.getUuid());
+                    Target target = new PlayerTarget(targetInfo.getUniqueId());
                     
                     Report report = new Report(actor, target, player.getLocation(), reason);
                     plugin.getReportModule().getManager().addReport(report);
@@ -232,13 +232,13 @@ public class ReportCommands implements CommandExecutor {
                     return true;
                 }
                 
-                PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[2]);
+                User info = plugin.getPlayerManager().getUser(args[2]);
                 if (info == null) {
                     player.sendMessage(Utils.color("&cYou provided an invalid name."));
                     return true;
                 }
                 
-                report.setAssignee(new PlayerActor(info.getUuid()));
+                report.setAssignee(new PlayerActor(info.getUniqueId()));
                 String message = Messages.REPORT_ASSIGN.replace(Variables.TARGET, info.getLastName());
                 message = message.replace(Variables.ACTOR, player.getName());
                 Messages.sendOutputMessage(player, message, plugin);

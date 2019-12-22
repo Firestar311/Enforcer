@@ -1,7 +1,7 @@
 package com.stardevmc.enforcer.modules.watchlist;
 
 import com.firestar311.lib.pagination.*;
-import com.firestar311.lib.player.PlayerInfo;
+import com.firestar311.lib.player.User;
 import com.firestar311.lib.util.Utils;
 import com.stardevmc.enforcer.Enforcer;
 import com.stardevmc.enforcer.modules.base.Priority;
@@ -52,8 +52,8 @@ public class WatchlistCommand implements CommandExecutor {
                     return true;
                 }
                 
-                PlayerInfo playerInfo = plugin.getPlayerManager().getPlayerInfo(args[1]);
-                if (playerInfo == null) {
+                User user = plugin.getPlayerManager().getUser(args[1]);
+                if (user == null) {
                     player.sendMessage(Utils.color("&cThe name you provided is not a valid player."));
                     return true;
                 }
@@ -64,26 +64,26 @@ public class WatchlistCommand implements CommandExecutor {
                     return true;
                 }
                 
-                if (watchlistManager.isWatchedPlayer(playerInfo.getUuid())) {
+                if (watchlistManager.isWatchedPlayer(user.getUniqueId())) {
                     player.sendMessage(Utils.color("&cThat player is already on the watchlist."));
                     return true;
                 }
                 
-                watchlistManager.addEntry(new WatchlistEntry(playerInfo.getUuid(), player.getUniqueId(), reason));
-                Messages.sendNotifyMessage(Messages.watchlistMessage(playerInfo.getLastName(), player.getName(), "added"));
+                watchlistManager.addEntry(new WatchlistEntry(user.getUniqueId(), player.getUniqueId(), reason));
+                Messages.sendNotifyMessage(Messages.watchlistMessage(user.getLastName(), player.getName(), "added"));
             } else if (Utils.checkCmdAliases(args, 0, "remove", "r")) {
                 if (!(args.length > 1)) {
                     player.sendMessage(Utils.color("&cYou must provide a name."));
                     return true;
                 }
                 
-                PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[1]);
+                User info = plugin.getPlayerManager().getUser(args[1]);
                 if (info == null) {
                     player.sendMessage(Utils.color("&cCould not find a player with that name."));
                     return true;
                 }
                 
-                WatchlistEntry entry = plugin.getWatchlistModule().getManager().getEntry(info.getUuid());
+                WatchlistEntry entry = plugin.getWatchlistModule().getManager().getEntry(info.getUniqueId());
                 if (entry == null) {
                     player.sendMessage(Utils.color("&cCould not find that player on the watchlist."));
                     return true;
@@ -96,13 +96,13 @@ public class WatchlistCommand implements CommandExecutor {
                     return true;
                 }
     
-                PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[1]);
+                User info = plugin.getPlayerManager().getUser(args[1]);
                 if (info == null) {
                     player.sendMessage(Utils.color("&cCould not find a player with that name."));
                     return true;
                 }
                 
-                WatchlistEntry entry = plugin.getWatchlistModule().getManager().getEntry(info.getUuid());
+                WatchlistEntry entry = plugin.getWatchlistModule().getManager().getEntry(info.getUniqueId());
                 if (entry == null) {
                     player.sendMessage(Utils.color("&cCould not find that player on the watchlist."));
                     return true;
@@ -127,13 +127,13 @@ public class WatchlistCommand implements CommandExecutor {
                     return true;
                 }
     
-                PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[1]);
+                User info = plugin.getPlayerManager().getUser(args[1]);
                 if (info == null) {
                     player.sendMessage(Utils.color("&cCould not find a player with that name."));
                     return true;
                 }
     
-                WatchlistEntry entry = plugin.getWatchlistModule().getManager().getEntry(info.getUuid());
+                WatchlistEntry entry = plugin.getWatchlistModule().getManager().getEntry(info.getUniqueId());
                 if (entry == null) {
                     player.sendMessage(Utils.color("&cCould not find that player on the watchlist."));
                     return true;
@@ -165,13 +165,13 @@ public class WatchlistCommand implements CommandExecutor {
                     return true;
                 }
     
-                PlayerInfo info = plugin.getPlayerManager().getPlayerInfo(args[1]);
+                User info = plugin.getPlayerManager().getUser(args[1]);
                 if (info == null) {
                     player.sendMessage(Utils.color("&cCould not find a player with that name."));
                     return true;
                 }
                 
-                plugin.getWatchlistModule().getManager().setPrimaryFocus(player.getUniqueId(), info.getUuid());
+                plugin.getWatchlistModule().getManager().setPrimaryFocus(player.getUniqueId(), info.getUniqueId());
                 player.sendMessage(Utils.color("&aSet your focus to " + info.getLastName()));
             } else if (Utils.checkCmdAliases(args, 0, "clearfocus", "cf")) {
                 UUID focus = watchlistManager.getPrimaryFocus(player.getUniqueId());
